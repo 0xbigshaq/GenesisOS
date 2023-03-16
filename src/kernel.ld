@@ -8,7 +8,7 @@ ENTRY(_start)
 SECTIONS
 {
 	/* Link the kernel at this address: "." means the current address */
-        /* Must be equal to KERNLINK */
+        /* Must be equal to KBASE_VIRT */
 	. = 0x80100000;
 
 	.text : AT(0x100000) {
@@ -56,7 +56,7 @@ SECTIONS
 		*(.bss)
 	}
 
-	PROVIDE(end = .);
+	PROVIDE(kern_end = .);
 
 	/DISCARD/ : {
 		*(.eh_frame .note.GNU-stack)

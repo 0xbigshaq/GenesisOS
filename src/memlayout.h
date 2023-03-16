@@ -1,15 +1,18 @@
-// Memory layout
+// https://www.qemu.org/docs/master/devel/memory.html#example-memory-map
 
-#define EXTMEM  0x100000            // Start of extended memory
-#define PHYSTOP 0xE000000           // Top physical memory
-#define DEVSPACE 0xFE000000         // Other devices are at high addresses
+// MMIO Regions
+#define TOPMEM   0xE000000           // General-purpose device communication. TODO: check why not adding an extra zero
+#define DEVSPACE 0xFE000000         //  Device space, i.e: system firmware(network adapter, storage controller, display adapter)
 
-// Key addresses for address space layout (see kmap in vm.c for layout)
-#define KERNBASE 0x80000000         // First kernel virtual address
-#define KERNLINK (KERNBASE+EXTMEM)  // Address where kernel is linked
+#define KBASE_PHYS   0x100000                // Start of extended memory
+#define VIRTBASE     0x80000000              // First kernel virtual address
+#define KBASE_VIRT  (VIRTBASE+KBASE_PHYS)    // Address where kernel is linked
 
-#define V2P(a) (((uint) (a)) - KERNBASE)
-#define P2V(a) ((void *)(((char *) (a)) + KERNBASE))
+#define virt_to_phys(a) (((uint) (a)) - VIRTBASE)
+#define phys_to_virt(a) ((void *)(((char *) (a)) + VIRTBASE))
 
-#define V2P_WO(x) ((x) - KERNBASE)    // same as V2P, but without casts
-#define P2V_WO(x) ((x) + KERNBASE)    // same as P2V, but without casts
+// same as above, but without cast
+#define _virt_to_phys(x) ((x) - VIRTBASE)
+#define _phys_to_virt(x) ((x) + VIRTBASE)
+
+#define KSTACKSIZE 4096

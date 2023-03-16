@@ -1,15 +1,23 @@
 // This file contains definitions for the
 // x86 memory management unit (MMU).
 
-// Eflags register
-#define FL_IF           0x00000200      // Interrupt Enable
+/* Eflags register
+ * Intel SDM Vol. 3, Section 2.3 - System Flags and Fields In The EFLAGS Register
+*/
+#define FL_IF           (1UL << 9U)      // Interrupt Enable
 
-// Control Register flags
-#define CR0_PE          0x00000001      // Protection Enable
-#define CR0_WP          0x00010000      // Write Protect
-#define CR0_PG          0x80000000      // Paging
 
-#define CR4_PSE         0x00000010      // Page size extension
+/* Control Register flags
+ * Intel SDM Vol. 3, Section 2.5 - Control Registers
+*/
+#define CR0_PE (1UL << 0U)              // Protection Enable
+#define CR0_ET (1UL << 4U)              // Extension Type (Reserved for older Intel CPUs, hard-coded as 1) 
+#define CR0_NW (1UL << 29U)             // Not Write-through
+#define CR0_CD (1UL << 30U)             // Cache Disable/Enable bit
+#define CR0_PG (1UL << 31U)             // Paging bit
+#define CR0_WP (1UL << 16U)             // Write-Protect
+
+#define CR4_PSE (1UL << 4U)             // Page Size Extension (4MB Pages)
 
 // various segment selectors.
 #define SEG_KCODE 1  // kernel code
@@ -17,6 +25,7 @@
 #define SEG_UCODE 3  // user code
 #define SEG_UDATA 4  // user data+stack
 #define SEG_TSS   5  // this process's task state
+
 
 // cpu->gdt[NSEGS] holds the above segments.
 #define NSEGS     6
@@ -48,7 +57,6 @@ struct segdesc {
 { (lim) & 0xffff, (uint)(base) & 0xffff,              \
   ((uint)(base) >> 16) & 0xff, type, 1, dpl, 1,       \
   (uint)(lim) >> 16, 0, 0, 1, 0, (uint)(base) >> 24 }
-#endif
 
 #define DPL_USER    0x3     // User DPL
 
@@ -62,7 +70,10 @@ struct segdesc {
 #define STS_IG32    0xE     // 32-bit Interrupt Gate
 #define STS_TG32    0xF     // 32-bit Trap Gate
 
-// A virtual address 'la' has a three-part structure as follows:
+
+/* ========== <USED IN KERNEL> ==========  */ 
+
+// A VA has the following structure:
 //
 // +--------10------+-------10-------+---------12----------+
 // | Page Directory |   Page Table   | Offset within Page  |
@@ -82,13 +93,14 @@ struct segdesc {
 // Page directory and page table constants.
 #define NPDENTRIES      1024    // # directory entries per page directory
 #define NPTENTRIES      1024    // # PTEs per page table
-#define PGSIZE          4096    // bytes mapped by a page
+#define PAGESIZE        4096    // bytes mapped by a page
 
 #define PTXSHIFT        12      // offset of PTX in a linear address
 #define PDXSHIFT        22      // offset of PDX in a linear address
 
-#define PGROUNDUP(sz)  (((sz)+PGSIZE-1) & ~(PGSIZE-1))
-#define PGROUNDDOWN(a) (((a)) & ~(PGSIZE-1))
+#define PAGE_ROUNDUP(x)  (((x)+PAGESIZE-1) & ~(PAGESIZE-1))
+#define PAGE_ROUNDDOWN(x) (((x)) & ~(PAGESIZE-1))
+#define IS_PALIGN(x) !((uint)x % PAGESIZE)
 
 // Page table/directory entry flags.
 #define PTE_P           0x001   // Present
@@ -96,11 +108,13 @@ struct segdesc {
 #define PTE_U           0x004   // User
 #define PTE_PS          0x080   // Page Size
 
+/* ========== </USED IN KERNEL> ==========  */ 
+
 // Address in page table or page directory entry
 #define PTE_ADDR(pte)   ((uint)(pte) & ~0xFFF)
 #define PTE_FLAGS(pte)  ((uint)(pte) &  0xFFF)
 
-#ifndef __ASSEMBLER__
+
 typedef uint pte_t;
 
 // Task state segment format

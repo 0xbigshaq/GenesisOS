@@ -12,7 +12,8 @@ BUILD_DIR=build
 OBJS = \
 	$(BUILD_DIR)/kentry.o\
 	$(BUILD_DIR)/kmain.o\
-	$(BUILD_DIR)/console.o
+	$(BUILD_DIR)/console.o\
+	$(BUILD_DIR)/kmalloc.o\
 
 
 CPUS=1
@@ -26,6 +27,7 @@ kernel: kentry
 	@echo "\n[*] ======= Building kernel.elf ======="
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/kmain.c -o $(BUILD_DIR)/kmain.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/console.c -o $(BUILD_DIR)/console.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/kmalloc.c -o $(BUILD_DIR)/kmalloc.o
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 
