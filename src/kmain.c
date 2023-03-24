@@ -15,8 +15,6 @@ pde_t entrypgdir[NPDENTRIES] = {
   [PDX(VIRTBASE)] = (0) | PTE_P | PTE_W | PTE_PS,
 };
 
-extern char kern_end[];
-
 void kmain()
 {
     clear(BLACK);
