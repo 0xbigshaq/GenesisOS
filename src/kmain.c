@@ -4,6 +4,7 @@
 #include "console.h"
 #include "kmalloc.h"
 #include "vm.h"
+#include "uart.h"
 
 /* Bootstrap Page-Table used for initialization. 
  * Uses the `PTE_PS` bit in order to use 4MB Pages
@@ -25,6 +26,8 @@ void kmain()
                                                       // at `entrypgdir` has a limit of 4MB.
     
     init_kernelvm();
+    init_uart();
+    uart_write("[*] GenesisOS booting...\n");
     while(1) {
       // spin
     }  
