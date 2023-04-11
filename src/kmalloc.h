@@ -2,7 +2,7 @@
 #include "types.h"
 #include "console.h"
 
-#define PANIC(str) puts(0, 0, RED, BLACK, "panic @ " str);
+#define PANIC(str) puts(0, 0, RED, BLACK, "panic @ " str); while(1) { /*nothing*/ } 
 
 #define APPEND(head, node)    \
 {                             \
@@ -21,7 +21,7 @@ typedef struct _kmalloc_chunk {
   struct _kmalloc_chunk *next;
 } kmalloc_chunk;
 
-struct {
+typedef struct _kpool_t {
   int use_lock;
   kmalloc_chunk *freelist;
-} kpool;
+} kpool_t;

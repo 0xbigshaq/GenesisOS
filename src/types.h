@@ -8,7 +8,8 @@
 typedef unsigned int   uint;
 typedef unsigned short ushort;
 typedef unsigned char  uchar;
-typedef uint pde_t;
+typedef uint pte;
 typedef char byte;
 
+#define NULL 0 
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

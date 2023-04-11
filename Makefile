@@ -14,6 +14,7 @@ OBJS = \
 	$(BUILD_DIR)/kmain.o\
 	$(BUILD_DIR)/console.o\
 	$(BUILD_DIR)/kmalloc.o\
+	$(BUILD_DIR)/vm.o\
 
 
 CPUS=1
@@ -28,6 +29,7 @@ kernel: kentry
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/kmain.c -o $(BUILD_DIR)/kmain.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/console.c -o $(BUILD_DIR)/console.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/kmalloc.c -o $(BUILD_DIR)/kmalloc.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/vm.c -o $(BUILD_DIR)/vm.o
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 

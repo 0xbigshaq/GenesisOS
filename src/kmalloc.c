@@ -8,6 +8,8 @@
 extern char kern_end[]; // first address after kernel loaded from ELF file
                    // defined by the kernel linker script in kernel.ld
 
+kpool_t kpool;
+
 void kmalloc_init(void *virt_start, void *virt_end)
 {
     free_range(virt_start, virt_end);
@@ -31,7 +33,7 @@ void kfree(char *addr)
 {
     kmalloc_chunk *chunk;
 
-    if(!IS_PALIGN(addr) || addr < kern_end || virt_to_phys(addr) >= TOPMEM) {
+    if(!IS_PALIGN(addr) || addr < kern_end || virt_to_phys(addr) >= TOPMEM_PHYS) {
         PANIC("kfree");
         return ;
     }
