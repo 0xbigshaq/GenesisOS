@@ -1,4 +1,5 @@
 #include "types.h"
+#include "mmu.h"
 
 // Routines to let C code use special x86 instructions.
 
@@ -62,15 +63,18 @@ stosl(void *addr, int data, int cnt)
 struct segdesc;
 
 static inline void
-lgdt(struct segdesc *p, int size)
+lgdt(seg_desc_t *p, int size)
 {
-  volatile ushort pd[3];
+  seg_desc_reg_t descriptor = {
+    .limit = (size - 1),
+    .ptr   = p
+  };
 
-  pd[0] = size-1;
-  pd[1] = (uint)p;
-  pd[2] = (uint)p >> 16;
-
-  asm volatile("lgdt (%0)" : : "r" (pd));
+  asm volatile("mov %0, %%eax\n\t"
+              "lgdt (%%eax)\n\t"
+              :
+              : "r" (&descriptor)
+              : "eax", "memory");
 }
 
 struct gatedesc;

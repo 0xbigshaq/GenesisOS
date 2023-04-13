@@ -28,6 +28,7 @@ void kmain()
     init_kernelvm();
     init_uart();
     uart_write("[*] GenesisOS booting...\n");
+    puts(0, 1, BRIGHT, BLACK, "Hello from BereshitOS  :^)");
     while(1) {
       // spin
     }  

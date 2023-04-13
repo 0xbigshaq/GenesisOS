@@ -13,6 +13,8 @@ vmmap kern_vmmap[] = {
     { DEVSPACE,   DEVSPACE,                 WRAPAROUND,           PTE_W|PTE_P }, /*  MMIO/Devices */
 };
 
+seg_desc_t segments_tbl[0x10];
+
 /**
  * The `init_kernelvm` function enables a larger virtual address space
  * 
@@ -30,6 +32,8 @@ vmmap kern_vmmap[] = {
 */
 
 void init_kernelvm(void) {
+    init_segmentation();
+
     pte* pml2 = kmalloc();
     memset(pml2, NULL, PAGESIZE);
     vmmap* cur_vmmap = NULL;
@@ -86,4 +90,62 @@ pte* pte_resolve(pte *pgdir, void *vaddr, int perms, int should_alloc) {
     }
 
     return &pml1_table[PTX(vaddr)];
+}
+
+void init_segmentation() {
+    set_segdesc(&segments_tbl[SEGMENT_KERNEL_CODE], 0xffffffff, 0x0, STA_X|STA_R|STA_SYSTEM, DPL_KERNEL);
+    set_segdesc(&segments_tbl[SEGMENT_KERNEL_DATA], 0xffffffff, 0x0, STA_W|STA_SYSTEM,       DPL_KERNEL);
+
+    set_segdesc(&segments_tbl[SEGMENT_USER_CODE], 0xffffffff, 0x0, STA_X|STA_R, DPL_USER);
+    set_segdesc(&segments_tbl[SEGMENT_USER_DATA], 0xffffffff, 0x0, STA_W,       DPL_USER);
+
+    // asm volatile("sgdt (%esp)");
+    lgdt((seg_desc_t*)virt_to_phys(segments_tbl), sizeof(segments_tbl));
+    // asm volatile("sgdt (%esp)");
+
+    asm volatile("xor %eax, %eax");
+    asm volatile("mov $0x10, %ax");
+
+    asm volatile("mov %ax, %fs");
+    asm volatile("mov %ax, %ds");
+    asm volatile("mov %ax, %es");
+    asm volatile("mov %ax, %ss");
+    asm volatile("mov %ax, %gs");
+
+    asm volatile("mov $0x8, %ax");
+    // asm volatile("mov %ax, %cs");
+    asm volatile("ljmp $0x8,$dummylabel\n" // we're doing this because `mov cs, 0x8` is not a valid instruction
+                "dummylabel:\n"
+                "  nop\n" // some NOPs for good luck <fingers-crossed.png>
+                "  nop\n");
+    
+    return ;
+}
+
+void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint dpl) {
+    // base 
+    seg_desc->base_lo   = (base  & 0xFFFF);
+    seg_desc->base_mid  = (base >> 0x10) & 0xFF;
+    seg_desc->base_hi   = (base >> 0x18) & 0xFF;
+
+    // size/limit
+    seg_desc->limit_lo  = (limit & 0xFFFF);
+    seg_desc->limit_hi  = (limit >> 0x10);
+
+    // access 
+    seg_desc->accessed  = 0; // better off to let the CPU set this bit
+    seg_desc->rw_bit    = (access >> 1) & 1;
+    seg_desc->direction = (access >> 2) & 1;
+    seg_desc->execute   = (access >> 3) & 1;
+    seg_desc->type      = (access >> 4) & 1;
+    seg_desc->dpl       = dpl;
+    seg_desc->present   = 1; // We don't need `(access >> 7) & 1;` because if we call
+                             // this func our intention is to make it present anyways.
+
+    // flags
+    seg_desc->reserved    = 0;
+    seg_desc->longmode    = 0;
+    seg_desc->seg_size    = 1;
+    seg_desc->granularity = 1;
+    return ;
 }

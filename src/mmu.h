@@ -1,3 +1,4 @@
+#pragma once
 // This file contains definitions for the
 // x86 memory management unit (MMU).
 
@@ -19,59 +20,70 @@
 
 #define CR4_PSE (1UL << 4U)             // Page Size Extension (4MB Pages)
 
-// various segment selectors.
-#define SEG_KCODE 1  // kernel code
-#define SEG_KDATA 2  // kernel data+stack
-#define SEG_UCODE 3  // user code
-#define SEG_UDATA 4  // user data+stack
-#define SEG_TSS   5  // this process's task state
-
-
-// cpu->gdt[NSEGS] holds the above segments.
-#define NSEGS     6
+/* Segment selectors / idx's
+ * Intel SDM Vol. 3, Section 3.4.2 - Segment Selectors
+*/
+#define SEGMENT_KERNEL_CODE 1  // kernel code
+#define SEGMENT_KERNEL_DATA 2  // kernel data+stack
+#define SEGMENT_USER_CODE   3  // user code
+#define SEGMENT_USER_DATA   4  // user data+stack
+#define SEGMENT_TSS         5  // this process's task state
 
 #ifndef __ASSEMBLER__
-// Segment Descriptor
-struct segdesc {
-  uint lim_15_0 : 16;  // Low bits of segment limit
-  uint base_15_0 : 16; // Low bits of segment base address
-  uint base_23_16 : 8; // Middle bits of segment base address
-  uint type : 4;       // Segment type (see STS_ constants)
-  uint s : 1;          // 0 = system, 1 = application
-  uint dpl : 2;        // Descriptor Privilege Level
-  uint p : 1;          // Present
-  uint lim_19_16 : 4;  // High bits of segment limit
-  uint avl : 1;        // Unused (available for software use)
-  uint rsv1 : 1;       // Reserved
-  uint db : 1;         // 0 = 16-bit segment, 1 = 32-bit segment
-  uint g : 1;          // Granularity: limit scaled by 4K when set
-  uint base_31_24 : 8; // High bits of segment base address
-};
 
-// Normal segment
-#define SEG(type, base, lim, dpl) (struct segdesc)    \
-{ ((lim) >> 12) & 0xffff, (uint)(base) & 0xffff,      \
-  ((uint)(base) >> 16) & 0xff, type, 1, dpl, 1,       \
-  (uint)(lim) >> 28, 0, 0, 1, 1, (uint)(base) >> 24 }
-#define SEG16(type, base, lim, dpl) (struct segdesc)  \
-{ (lim) & 0xffff, (uint)(base) & 0xffff,              \
-  ((uint)(base) >> 16) & 0xff, type, 1, dpl, 1,       \
-  (uint)(lim) >> 16, 0, 0, 1, 0, (uint)(base) >> 24 }
+/* Segment Descriptors
+ * Intel SDM Vol. 3, Section 3.4.5 - Segment Descriptors
+*/
+typedef struct seg_desc {
+  // Segment Limit
+  uint limit_lo : 16;
+  uint base_lo  : 16;
 
-#define DPL_USER    0x3     // User DPL
+  // Base address
+  uint base_mid : 8;
+
+  // Access Byte (8-bit)
+  uint accessed  : 1;
+  uint rw_bit    : 1;
+  uint direction : 1;
+  uint execute   : 1;
+  uint type      : 1;
+  uint dpl       : 2;
+  uint present   : 1;
+
+  // Segment Limit
+  uint limit_hi : 4;
+
+  // Flags
+  uint reserved    : 1;
+  uint longmode    : 1;
+  uint seg_size    : 1; // 1=32bit, 0=16bit.
+  uint granularity : 1; // 0=byte granularity, 1=page granularity
+  
+  // Base address
+  uint base_hi     : 8;
+} __attribute__((packed, __aligned__(0x8))) seg_desc_t;
+
+typedef struct seg_desc_reg {
+    uint limit: 16;
+    seg_desc_t* ptr;
+}  __attribute__((packed, __aligned__(0x8))) seg_desc_reg_t; 
+
+// Flags for the `seg_desc_t` struct:
+#define DPL_USER    0x3     // Ring 3
+#define DPL_KERNEL  0x0     // Ring 0
 
 // Application segment type bits
 #define STA_X       0x8     // Executable segment
 #define STA_W       0x2     // Writeable (non-executable segments)
 #define STA_R       0x2     // Readable (executable segments)
+#define STA_SYSTEM  0x10    // (0b00010000)
 
 // System segment type bits
 #define STS_T32A    0x9     // Available 32-bit TSS
 #define STS_IG32    0xE     // 32-bit Interrupt Gate
 #define STS_TG32    0xF     // 32-bit Trap Gate
 
-
-/* ========== <USED IN KERNEL> ==========  */ 
 
 // A VA has the following structure:
 //
@@ -113,9 +125,8 @@ struct segdesc {
 #define PTE_ADDR(pte)   ((uint)(pte) & ~0xFFF)
 #define PTE_FLAGS(pte)  ((uint)(pte) &  0xFFF)
 
-/* ========== </USED IN KERNEL> ==========  */ 
+// everything below is not used in kernel
 
-typedef uint pte_t;
 
 // Task state segment format
 struct taskstate {
