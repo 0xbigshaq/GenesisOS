@@ -1,6 +1,7 @@
 #include "console.h"
+#include "memlayout.h"
 
-uint16_t *const video = (uint16_t*) 0xB8000;
+uint16_t *const video = (uint16_t*) phys_to_virt(0xB8000);
 
 void putc(uint8_t x, uint8_t y, enum color fg, enum color bg, char c) {
     video[y * COLS + x] = (bg << 12) | (fg << 8) | c;
