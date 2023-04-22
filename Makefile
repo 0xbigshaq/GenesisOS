@@ -4,7 +4,7 @@ LD=ld
 
 CFLAGS=-ffreestanding -fno-pic -static -fno-builtin \
 		-fno-strict-aliasing -O2 -Wall -ggdb -m32 \
-		-Werror -fno-omit-frame-pointer -fno-stack-protector
+		-Werror -fno-omit-frame-pointer -fno-stack-protector -mno-80387 -Wno-div-by-zero
 
 SRC_DIR=src
 BUILD_DIR=build
@@ -16,6 +16,7 @@ OBJS = \
 	$(BUILD_DIR)/kmalloc.o\
 	$(BUILD_DIR)/vm.o\
 	$(BUILD_DIR)/uart.o\
+	$(BUILD_DIR)/interrupts.o\
 
 
 CPUS=1
@@ -32,6 +33,7 @@ kernel: kentry
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/kmalloc.c -o $(BUILD_DIR)/kmalloc.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/vm.c -o $(BUILD_DIR)/vm.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/uart.c -o $(BUILD_DIR)/uart.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/interrupts.c -o $(BUILD_DIR)/interrupts.o
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 

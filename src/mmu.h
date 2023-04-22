@@ -79,12 +79,6 @@ typedef struct seg_desc_reg {
 #define STA_R       0x2     // Readable (executable segments)
 #define STA_SYSTEM  0x10    // (0b00010000)
 
-// System segment type bits
-#define STS_T32A    0x9     // Available 32-bit TSS
-#define STS_IG32    0xE     // 32-bit Interrupt Gate
-#define STS_TG32    0xF     // 32-bit Trap Gate
-
-
 // A VA has the following structure:
 //
 // +--------10------+-------10-------+---------12----------+

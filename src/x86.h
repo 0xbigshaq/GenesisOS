@@ -1,5 +1,7 @@
+#pragma once
 #include "types.h"
 #include "mmu.h"
+#include "interrupts.h"
 
 // Routines to let C code use special x86 instructions.
 
@@ -80,7 +82,7 @@ lgdt(seg_desc_t *p, int size)
 struct gatedesc;
 
 static inline void
-lidt(struct gatedesc *p, int size)
+lidt(idt_entry_t *p, int size)
 {
   volatile ushort pd[3];
 
