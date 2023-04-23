@@ -54,7 +54,7 @@ make qemu-gdb:
 	@echo "\n[*] ======= starting QEMU+gdb ======="
 	@echo "[*]         To close: Ctrl-A X"
 	@echo "Starting "
-	qemu-system-i386 -s -S -nographic -cdrom $(BUILD_DIR)/kernel.iso
+	qemu-system-i386 -s -S -nographic -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_EXTRAS)
 
 # ASM=nasm
 
