@@ -32,7 +32,6 @@ seg_desc_t segments_tbl[0x10];
 */
 
 void init_kernelvm(void) {
-    init_segmentation();
 
     pte* pml2 = kmalloc();
     memset(pml2, NULL, PAGESIZE);
@@ -45,6 +44,7 @@ void init_kernelvm(void) {
 
     // load new pgtable to cr3 
     lcr3(virt_to_phys(pml2));
+    init_segmentation();
 }
 
 void gen_ptes(pte *pgdir, uint vaddr, uint size, uint paddr, int perms) {
@@ -100,7 +100,7 @@ void init_segmentation() {
     set_segdesc(&segments_tbl[SEGMENT_USER_DATA], 0xffffffff, 0x0, STA_W,       DPL_USER);
 
     // asm volatile("sgdt (%esp)");
-    lgdt((seg_desc_t*)virt_to_phys(segments_tbl), sizeof(segments_tbl));
+    lgdt(segments_tbl, sizeof(segments_tbl));
     // asm volatile("sgdt (%esp)");
 
     asm volatile("xor %eax, %eax");
