@@ -1,6 +1,10 @@
 #pragma once
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
+#include "types.h"
+
+// TODO: this should be splitted into two different drivers:
+//       1. Video Memory driver
+//       2. UART/Serial driver
+
 
 // https://wiki.osdev.org/Printing_To_Screen#Color_Table
 enum color {
