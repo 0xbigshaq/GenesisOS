@@ -17,6 +17,9 @@ OBJS = \
 	$(BUILD_DIR)/vm.o\
 	$(BUILD_DIR)/uart.o\
 	$(BUILD_DIR)/interrupts.o\
+	$(BUILD_DIR)/trap_dispatcher.o\
+	$(BUILD_DIR)/trap_entry.o\
+	$(BUILD_DIR)/pic.o\
 
 
 CPUS=1
@@ -26,7 +29,14 @@ kentry: $(SRC_DIR)/kentry.S
 	@echo "\n[*] ======= Building kentry ======="
 	$(CC) -m32 -ggdb -gdwarf-2 -I$(SRC_DIR) -c $(SRC_DIR)/kentry.S -o $(BUILD_DIR)/kentry.o
 
-kernel: kentry
+kvectors: $(SRC_DIR)/trap_dispatcher.S
+	@echo "\n[*] ======= Compiling trap_dispatcher dispatcher ======="
+	./gen_vectors.py > src/trap_dispatcher.S
+	$(CC) -m32 -ggdb -gdwarf-2 -I$(SRC_DIR) -c $(SRC_DIR)/trap_dispatcher.S -o $(BUILD_DIR)/trap_dispatcher.o
+	$(CC) -m32 -ggdb -gdwarf-2 -I$(SRC_DIR) -c $(SRC_DIR)/trap_entry.S -o $(BUILD_DIR)/trap_entry.o
+
+
+kernel: kentry kvectors
 	@echo "\n[*] ======= Building kernel.elf ======="
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/kmain.c -o $(BUILD_DIR)/kmain.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/console.c -o $(BUILD_DIR)/console.o
@@ -34,10 +44,11 @@ kernel: kentry
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/vm.c -o $(BUILD_DIR)/vm.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/uart.c -o $(BUILD_DIR)/uart.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/interrupts.c -o $(BUILD_DIR)/interrupts.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/pic.c -o $(BUILD_DIR)/pic.o
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 
-iso: kentry kernel
+iso: kernel
 	cp $(BUILD_DIR)/kernel.elf iso/targets/x86/boot/kernel.bin && \
 	grub-mkrescue /usr/lib/grub/i386-pc -o $(BUILD_DIR)/kernel.iso iso/targets/x86 
 

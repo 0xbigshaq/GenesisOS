@@ -32,17 +32,18 @@ void kmain()
     setup_idt();
 
     puts(0, 1, BRIGHT, BLACK, "Hello from BereshitOS  :^)");
-    __asm__("int $36");
+    // int* zzz = 0x0;
+    // *zzz=0x300;
 
-    for(int dummy = 10 ; dummy>=0; dummy--) {
-      uart_write("[~] working on it....");
-      uart_putchar('0'+dummy);
-      uart_putchar(' ');
-      char rand_char = 'z'/dummy;
-      uart_putchar('a'+rand_char);
-      uart_putchar('\n');
+    // for(int dummy = 10 ; dummy>=0; dummy--) {
+    //   uart_write("[~] working on it....");
+    //   uart_putchar('0'+dummy);
+    //   uart_putchar(' ');
+    //   char rand_char = 'z'/dummy;
+    //   uart_putchar('a'+rand_char);
+    //   uart_putchar('\n');
       
-    }
+    // }
 
     while(1) {
       // spin

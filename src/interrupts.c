@@ -2,30 +2,12 @@
 #include "uart.h"
 #include "x86.h"
 #include "mmu.h"
+#include "console.h"
+#include "pic.h"
 
 idt_entry_t idt[256];  // IDT Entries
 idt_reg_t idtr;        // This is loaded to the IDT Register
 
-
-__attribute__((interrupt)) void default_excp_handler(interrupt_frame_t* frame, uint error_code)
-{
-    uart_write("\n[*] default_excp_handler called!\n");
-    while(1) { } 
-}
-
-
-__attribute__((interrupt)) void default_excp_handler_wo(interrupt_frame_t* frame)
-{
-    uart_write("\n[*] default_excp_handler_wo called!\n");
-    while(1) { } 
-}
-
-
-__attribute__((interrupt)) void default_int_handler(interrupt_frame_t* frame)
-{
-    uart_write("\n[*] default_int_handler called!\n");
-    while(1) { } 
-}
 
 void set_idt_entry(uint idx, void* isr, uint flags)
 {
@@ -49,24 +31,19 @@ void setup_idt(void) {
     idtr.limit = sizeof(idt);
     idtr.base  = (uint)&idt[0];
 
-    // setup exception handlers(ISRs 0-32)
-    for(uint idx = 0; idx < 32; idx++) {
-        if( (idx >= 8 && idx<=17) || idx==21) {
-            // Exception takes an error code
-            set_idt_entry(idx, &default_excp_handler, TRAP_GATE|DPL_KERNEL);
-        } else {
-            // Exception is without an error code
-            set_idt_entry(idx, &default_excp_handler_wo, TRAP_GATE|DPL_KERNEL);
-        }
+    for(uint idx = 0; idx<256; idx++) {
+        set_idt_entry(idx, (void*)vectors[idx], TRAP_GATE|DPL_KERNEL);
     }
+    set_idt_entry(0x80, (void*)vectors[0x80], TRAP_GATE|DPL_USER); // for syscalls (will be useful when implementing userland)
 
-    // Setup regular interrupts (ISRs 32-255)
-    for(uint idx = 32; idx < 256; idx++) {
-        set_idt_entry(idx, &default_int_handler, INT_GATE|DPL_KERNEL);
-    }
-
-    // load 
-    __asm__ __volatile__ ("sti");
-    // __asm__ __volatile__ ("lidt %0" : : "memory"(idtr));
+    // enable & load IDT
+    init_pic();
     lidt(idt, sizeof(idt));
+    sti();
+}
+
+void handle_trap(trap_ctx_t* ctx)
+{
+    kprintf("handle_trap() triggered! Interrupt number(ctx->vector_idx) = %d (hex: 0x%x)\n", ctx->vector_idx, ctx->vector_idx);
+    pic_ack(ctx->vector_idx);
 }

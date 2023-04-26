@@ -26,39 +26,60 @@ typedef struct idt_reg {
 } __attribute__((packed)) idt_reg_t;
 
 
-/* 
- * Intel SDM Vol. 3, Section 6.12.1 - "Exception- or Interrupt-Handler Procedures"
- * Figure 6-3. Interrupt Procedure Call
- * 
- * Interrupt frame: passed to the Interrupt Service Routines
- * We write the elements in reversed order 
-*/
-typedef struct interrupt_frame_ {
-    uint eip : 32;
-    uint cs : 32;
-    uint eflags : 32;
-    uint esp : 32;
-    uint ss : 32;
-} __attribute__((packed)) interrupt_frame_t;
+typedef struct trap_ctx_ {
+  // registers as pushed by pusha
+  uint32_t edi;
+  uint32_t esi;
+  uint32_t ebp;
+  uint32_t oesp;      // useless & ignored
+  uint32_t ebx;
+  uint32_t edx;
+  uint32_t ecx;
+  uint32_t eax;
 
+  // rest of trap frame
+  uint16_t gs;
+  uint16_t padding1;
+  uint16_t fs;
+  uint16_t padding2;
+  uint16_t es;
+  uint16_t padding3;
+  uint16_t ds;
+  uint16_t padding4;
+  uint32_t vector_idx;
+
+  /* 
+  * Intel SDM Vol. 3, Section 6.12.1 - "Exception- or Interrupt-Handler Procedures"
+  * Figure 6-3. Interrupt Procedure Call
+  * 
+  * Interrupt frame: passed to the Interrupt Service Routines
+  * We write the elements in reversed order 
+  */
+  uint32_t err;
+  uint32_t eip;
+  uint16_t cs;
+  uint16_t padding5;
+  uint32_t eflags;
+
+  // below here only when crossing rings, such as from user to kernel
+  uint32_t esp;
+  uint16_t ss;
+  uint16_t padding6;
+} trap_ctx_t;
 
 /*
- * defs
+ * defs & func prototypes
 */
+
 extern idt_entry_t idt[256];  // IDT Entries
 extern idt_reg_t idtr;        // This is loaded to the IDT Register
+extern uint vectors[256];     // For the ISR dispatcher
 
 // System segment type bits
 #define INT_GATE     0xE     // 32-bit Interrupt Gate
 #define TRAP_GATE    0xF     // 32-bit Trap Gate
 
-// Default exception handler (no error code)
-// We use the `interrupt` gcc attribute
-// https://gcc.gnu.org/onlinedocs/gcc-9.4.0/gcc/x86-Function-Attributes.html#interrupt
-__attribute__((interrupt)) void default_excp_handler_wo(interrupt_frame_t* frame);
-__attribute__((interrupt)) void default_excp_handler(interrupt_frame_t* frame, uint error_code);
-__attribute__((interrupt)) void default_int_handler(interrupt_frame_t* frame);
-
 // setter(s) for the `idt[]` array
 void set_idt_entry(uint idx, void* isr, uint flags);
 void setup_idt(void);
+void handle_trap(trap_ctx_t* ctx);
