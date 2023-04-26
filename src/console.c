@@ -1,6 +1,8 @@
 #include "console.h"
 #include "memlayout.h"
+#include "uart.h"
 
+// Video Memory related funcs
 uint16_t *const video = (uint16_t*) phys_to_virt(0xB8000);
 
 void putc(uint8_t x, uint8_t y, enum color fg, enum color bg, char c) {
@@ -19,4 +21,72 @@ void clear(enum color bg) {
     for (y = 0; y < ROWS; y++)
         for (x = 0; x < COLS; x++)
             putc(x, y, bg, bg, ' ');
+}
+
+
+// UART/Serial related funcs
+void printint(int xx, int base, int sign)
+{
+  static char digits[] = "0123456789abcdef";
+  char buf[16];
+  int i;
+  uint x;
+
+  if(sign && (sign = xx < 0))
+    x = -xx;
+  else
+    x = xx;
+
+  i = 0;
+  do{
+    buf[i++] = digits[x % base];
+  }while((x /= base) != 0);
+
+  if(sign)
+    buf[i++] = '-';
+
+  while(--i >= 0)
+    uart_putchar(buf[i]);
+}
+
+// Print to the console. only understands %d, %x, %p, %s.
+void kprintf(char *fmt, ...)
+{
+  int i, c;
+  uint *argp;
+  char *s;
+
+  argp = (uint*)(void*)(&fmt + 1);
+  for(i = 0; (c = fmt[i] & 0xff) != 0; i++){
+    if(c != '%'){
+      uart_putchar(c);
+      continue;
+    }
+    c = fmt[++i] & 0xff;
+    if(c == 0)
+      break;
+    switch(c){
+    case 'd':
+      printint(*argp++, 10, 1);
+      break;
+    case 'x':
+    case 'p':
+      printint(*argp++, 16, 0);
+      break;
+    case 's':
+      if((s = (char*)*argp++) == 0)
+        s = "(null)";
+      for(; *s; s++)
+        uart_putchar(*s);
+      break;
+    case '%':
+      uart_putchar('%');
+      break;
+    default:
+      // Print unknown % sequence to draw attention.
+      uart_putchar('%');
+      uart_putchar(c);
+      break;
+    }
+  }
 }

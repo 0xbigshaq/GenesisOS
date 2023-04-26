@@ -6,6 +6,7 @@
 //       2. UART/Serial driver
 
 
+// Video Memory
 // https://wiki.osdev.org/Printing_To_Screen#Color_Table
 enum color {
     BLACK = 0,
@@ -24,3 +25,7 @@ extern uint16_t *const video;
 void putc(uint8_t x, uint8_t y, enum color fg, enum color bg, char c);
 void puts(uint8_t x, uint8_t y, enum color fg, enum color bg, const char *s);
 void clear(enum color bg);
+
+// Serial
+void printint(int xx, int base, int sign);
+void kprintf(char *fmt, ...);
