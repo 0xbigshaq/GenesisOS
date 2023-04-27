@@ -10,7 +10,7 @@ void init_uart()
     outb(UART_BASE_ADDR + UART_DIVISOR_MSB_OFFSET, divisor >> 8);   // hi-byte
     outb(UART_BASE_ADDR + UART_DATA_BITS_OFFSET, 0x03);             // 8-bit data 
 
-    outb(UART_BASE_ADDR + UART_INTERRUPT_ENABLE_REG_OFFSET, 0x03);
+    outb(UART_BASE_ADDR + UART_INTERRUPT_ENABLE_REG_OFFSET, 0x1);
 
     uart_write("[*] init uart\n");
 }
@@ -21,6 +21,13 @@ void uart_putchar(char c)
     // Wait for the transmit buffer(THRE, located in the 5th bit) to be empty
     while ((inb(UART_BASE_ADDR + UART_LINE_REG_OFFSET) & (1 << 5)) == 0);
     outb(UART_BASE_ADDR + UART_DATA_REG_OFFSET, c);
+}
+
+int uart_getchar(void)
+{
+  if(!(inb(UART_BASE_ADDR+5) & 0x01))
+    return -1;
+  return inb(UART_BASE_ADDR+0);
 }
 
 

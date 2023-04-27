@@ -20,3 +20,6 @@
 void init_pic(void);
 void pic_remap(int pic1_offset, int pic2_offset);
 void pic_ack(uint8_t irq);
+
+// IRQ(s)
+#define IRQ_COM1 PIC1 + 0x4

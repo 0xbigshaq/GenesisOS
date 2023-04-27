@@ -37,13 +37,28 @@ void setup_idt(void) {
     set_idt_entry(0x80, (void*)vectors[0x80], TRAP_GATE|DPL_USER); // for syscalls (will be useful when implementing userland)
 
     // enable & load IDT
-    init_pic();
     lidt(idt, sizeof(idt));
     sti();
 }
 
 void handle_trap(trap_ctx_t* ctx)
 {
-    kprintf("handle_trap() triggered! Interrupt number(ctx->vector_idx) = %d (hex: 0x%x)\n", ctx->vector_idx, ctx->vector_idx);
+    // if(ctx->vector_idx != 0x20) {
+        // kprintf("handle_trap() triggered! Interrupt number(ctx->vector_idx) = %d (hex: 0x%x)\n", ctx->vector_idx, ctx->vector_idx);
+    // }
+
+    if(ctx->vector_idx >= 0 && ctx->vector_idx <= 21) {
+        kprintf("\n[!] KERNEL/CPU EXCEPTION %d at 0x%p\n", ctx->vector_idx, ctx->eip);
+        while(1) { }
+    }
+
+    if(ctx->vector_idx == IRQ_COM1) {
+        char ch;
+        if((ch = uart_getchar()) >= '\0') {
+            kprintf("[*] IRQ_COM1 triggered! recv'd: ");
+            uart_putchar(ch);
+            uart_putchar('\n');
+        }
+    }
     pic_ack(ctx->vector_idx);
 }

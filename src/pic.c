@@ -3,9 +3,19 @@
 #include "pic.h"
 #include "types.h"
 
+
+static inline void enable_uart_interrupts()
+{
+    uchar tmp = inb(0x21);
+    tmp &= 0xEF;
+    outb(0x21, tmp);
+}
+
+
 void init_pic(void)
 {
     pic_remap(0x20, 0x28);
+    enable_uart_interrupts();
 }
 
 static inline void io_wait(void)

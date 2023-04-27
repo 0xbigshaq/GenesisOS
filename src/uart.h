@@ -1,3 +1,4 @@
+// https://wiki.osdev.org/Serial_Ports
 #pragma once
 #include "x86.h"
 
@@ -30,3 +31,4 @@
 void init_uart();
 void uart_putchar(char c);
 void uart_write(char* str);
+int uart_getchar(void);
