@@ -4,6 +4,8 @@
 #include "mmu.h"
 #include "console.h"
 #include "pic.h"
+#include "sched.h"
+#include "proc.h"
 
 idt_entry_t idt[256];  // IDT Entries
 idt_reg_t idtr;        // This is loaded to the IDT Register
@@ -58,6 +60,13 @@ void handle_trap(trap_ctx_t* ctx)
             kprintf("[*] IRQ_COM1 triggered! recv'd: ");
             uart_putchar(ch);
             uart_putchar('\n');
+        }
+    }
+
+    if(ctx->vector_idx == IRQ_TIMER) {
+        kprintf("[*] IRQ_TIMER triggered\n");
+        if(cur_proc() && cur_proc()->state == RUNNING) {
+            yield();
         }
     }
     pic_ack(ctx->vector_idx);

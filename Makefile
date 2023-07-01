@@ -20,6 +20,8 @@ OBJS = \
 	$(BUILD_DIR)/trap_dispatcher.o\
 	$(BUILD_DIR)/trap_entry.o\
 	$(BUILD_DIR)/pic.o\
+	$(BUILD_DIR)/proc.o\
+	$(BUILD_DIR)/sched.o\
 
 
 CPUS=1
@@ -45,6 +47,8 @@ kernel: kentry kvectors
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/uart.c -o $(BUILD_DIR)/uart.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/interrupts.c -o $(BUILD_DIR)/interrupts.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/pic.c -o $(BUILD_DIR)/pic.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/proc.c -o $(BUILD_DIR)/proc.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/sched.c -o $(BUILD_DIR)/sched.o
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 

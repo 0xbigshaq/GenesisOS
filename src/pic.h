@@ -21,5 +21,7 @@ void init_pic(void);
 void pic_remap(int pic1_offset, int pic2_offset);
 void pic_ack(uint8_t irq);
 
-// IRQ(s)
+// IRQ(s). We receive these as (IRQ_OFFSET+n)
 #define IRQ_COM1 PIC1 + 0x4
+#define IRQ_OFFSET	32
+#define IRQ_TIMER        (IRQ_OFFSET+0)

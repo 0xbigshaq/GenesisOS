@@ -7,6 +7,7 @@
 #include "uart.h"
 #include "interrupts.h"
 #include "pic.h"
+#include "proc.h"
 
 /* Bootstrap Page-Table used for initialization. 
  * Uses the `PTE_PS` bit in order to use 4MB Pages
@@ -36,6 +37,7 @@ void kmain()
     puts(0, 1, BRIGHT, BLACK, "Hello from BereshitOS  :^)");
 
     uart_write("[+] Ready\n");
+    run_init();
 
     while(1) {
       // spin

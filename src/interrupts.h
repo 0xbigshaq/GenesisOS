@@ -67,6 +67,14 @@ typedef struct trap_ctx_ {
   uint16_t padding6;
 } trap_ctx_t;
 
+typedef struct cpu_context {
+  uint32_t edi;
+  uint32_t esi;
+  uint32_t ebx;
+  uint32_t ebp;
+  uint32_t eip;
+} cpu_context_t;
+
 /*
  * defs & func prototypes
 */

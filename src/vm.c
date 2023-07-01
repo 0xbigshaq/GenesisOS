@@ -5,6 +5,7 @@
 #include "vm.h"
 #include "kmalloc.h"
 #include "x86.h"
+#include "proc.h"
 
 vmmap kern_vmmap[] = {
     { VIRTBASE,   virt_to_phys(VIRTBASE),   KBASE_PHYS,           PTE_W|PTE_P }, /*  IO Devices */
@@ -12,8 +13,6 @@ vmmap kern_vmmap[] = {
     { (uint)data, virt_to_phys(data),       TOPMEM_PHYS,          PTE_W|PTE_P }, /*  .data */
     { DEVSPACE,   DEVSPACE,                 WRAPAROUND,           PTE_W|PTE_P }, /*  MMIO/Devices */
 };
-
-seg_desc_t segments_tbl[0x10];
 
 /**
  * The `init_kernelvm` function enables a larger virtual address space
@@ -93,14 +92,14 @@ pte* pte_resolve(pte *pgdir, void *vaddr, int perms, int should_alloc) {
 }
 
 void init_segmentation() {
-    set_segdesc(&segments_tbl[SEGMENT_KERNEL_CODE], 0xffffffff, 0x0, STA_X|STA_R|STA_SYSTEM, DPL_KERNEL);
-    set_segdesc(&segments_tbl[SEGMENT_KERNEL_DATA], 0xffffffff, 0x0, STA_W|STA_SYSTEM,       DPL_KERNEL);
+    set_segdesc(&cpus[0].gdt[SEGMENT_KERNEL_CODE], 0xffffffff, 0x0, STA_X|STA_R|STA_SYSTEM, DPL_KERNEL);
+    set_segdesc(&cpus[0].gdt[SEGMENT_KERNEL_DATA], 0xffffffff, 0x0, STA_W|STA_SYSTEM,       DPL_KERNEL);
 
-    set_segdesc(&segments_tbl[SEGMENT_USER_CODE], 0xffffffff, 0x0, STA_X|STA_R, DPL_USER);
-    set_segdesc(&segments_tbl[SEGMENT_USER_DATA], 0xffffffff, 0x0, STA_W,       DPL_USER);
+    set_segdesc(&cpus[0].gdt[SEGMENT_USER_CODE], 0xffffffff, 0x0, STA_X|STA_R, DPL_USER);
+    set_segdesc(&cpus[0].gdt[SEGMENT_USER_DATA], 0xffffffff, 0x0, STA_W,       DPL_USER);
 
     // asm volatile("sgdt (%esp)");
-    lgdt(segments_tbl, sizeof(segments_tbl));
+    lgdt(cpus[0].gdt, sizeof(cpus[0].gdt));
     // asm volatile("sgdt (%esp)");
 
     asm volatile("xor %eax, %eax");

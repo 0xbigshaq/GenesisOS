@@ -28,5 +28,5 @@ trap_ret:
   popl %fs
   popl %es
   popl %ds
-  addl $0x8, %esp  # trapno and errcode
+  addl $0x8, %esp  # skip trapno and errcode
   iret
