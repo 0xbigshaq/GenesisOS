@@ -47,7 +47,7 @@ typedef struct seg_desc {
   uint rw_bit    : 1;
   uint direction : 1;
   uint execute   : 1;
-  uint type      : 1;
+  uint type      : 1; // 0=TSS, 1=Code/Data
   uint dpl       : 2;
   uint present   : 1;
 
@@ -69,15 +69,21 @@ typedef struct seg_desc_reg {
     seg_desc_t* ptr;
 }  __attribute__((packed, __aligned__(0x8))) seg_desc_reg_t; 
 
-// Flags for the `seg_desc_t` struct:
 #define DPL_USER    0x3     // Ring 3
 #define DPL_KERNEL  0x0     // Ring 0
 
-// Application segment type bits
+/* https://wiki.osdev.org/Global_Descriptor_Table#Segment_Descriptor */
+// Segment Access bits
 #define STA_X       0x8     // Executable segment
 #define STA_W       0x2     // Writeable (non-executable segments)
 #define STA_R       0x2     // Readable (executable segments)
 #define STA_SYSTEM  0x10    // (0b00010000)
+#define STA_TSS     0x9     // (0b00001001)
+
+// Segment flags
+#define STF_L 0x2   // (0b0010)
+#define STF_S 0x4   // (0b0100)
+#define STF_G 0x8   // (0b1000)
 
 // A VA has the following structure:
 //
@@ -123,7 +129,7 @@ typedef struct seg_desc_reg {
 
 
 // Task state segment format
-struct taskstate {
+typedef struct task_state {
   uint link;         // Old ts selector
   uint esp0;         // Stack pointers and segment selectors
   ushort ss0;        //   after an increase in privilege level
@@ -161,40 +167,6 @@ struct taskstate {
   ushort padding10;
   ushort t;          // Trap on task switch
   ushort iomb;       // I/O map base address
-};
-
-// Gate descriptors for interrupts and traps
-struct gatedesc {
-  uint off_15_0 : 16;   // low 16 bits of offset in segment
-  uint cs : 16;         // code segment selector
-  uint args : 5;        // # args, 0 for interrupt/trap gates
-  uint rsv1 : 3;        // reserved(should be zero I guess)
-  uint type : 4;        // type(STS_{IG32,TG32})
-  uint s : 1;           // must be 0 (system)
-  uint dpl : 2;         // descriptor(meaning new) privilege level
-  uint p : 1;           // Present
-  uint off_31_16 : 16;  // high bits of offset in segment
-};
-
-// Set up a normal interrupt/trap gate descriptor.
-// - istrap: 1 for a trap (= exception) gate, 0 for an interrupt gate.
-//   interrupt gate clears FL_IF, trap gate leaves FL_IF alone
-// - sel: Code segment selector for interrupt/trap handler
-// - off: Offset in code segment for interrupt/trap handler
-// - dpl: Descriptor Privilege Level -
-//        the privilege level required for software to invoke
-//        this interrupt/trap gate explicitly using an int instruction.
-#define SETGATE(gate, istrap, sel, off, d)                \
-{                                                         \
-  (gate).off_15_0 = (uint)(off) & 0xffff;                \
-  (gate).cs = (sel);                                      \
-  (gate).args = 0;                                        \
-  (gate).rsv1 = 0;                                        \
-  (gate).type = (istrap) ? STS_TG32 : STS_IG32;           \
-  (gate).s = 0;                                           \
-  (gate).dpl = (d);                                       \
-  (gate).p = 1;                                           \
-  (gate).off_31_16 = (uint)(off) >> 16;                  \
-}
+} task_state_t;
 
 #endif

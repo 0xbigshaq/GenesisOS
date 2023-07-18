@@ -6,6 +6,7 @@
 #include "kmalloc.h"
 #include "x86.h"
 #include "proc.h"
+#include "string.h"
 
 vmmap kern_vmmap[] = {
     { VIRTBASE,   virt_to_phys(VIRTBASE),   KBASE_PHYS,           PTE_W|PTE_P }, /*  IO Devices */
@@ -92,11 +93,11 @@ pte* pte_resolve(pte *pgdir, void *vaddr, int perms, int should_alloc) {
 }
 
 void init_segmentation() {
-    set_segdesc(&cpus[0].gdt[SEGMENT_KERNEL_CODE], 0xffffffff, 0x0, STA_X|STA_R|STA_SYSTEM, DPL_KERNEL);
-    set_segdesc(&cpus[0].gdt[SEGMENT_KERNEL_DATA], 0xffffffff, 0x0, STA_W|STA_SYSTEM,       DPL_KERNEL);
+    set_segdesc(&cpus[0].gdt[SEGMENT_KERNEL_CODE], 0xffffffff, 0x0, STA_X|STA_R|STA_SYSTEM, DPL_KERNEL, STF_S|STF_G);
+    set_segdesc(&cpus[0].gdt[SEGMENT_KERNEL_DATA], 0xffffffff, 0x0, STA_W|STA_SYSTEM,       DPL_KERNEL, STF_S|STF_G);
 
-    set_segdesc(&cpus[0].gdt[SEGMENT_USER_CODE], 0xffffffff, 0x0, STA_X|STA_R, DPL_USER);
-    set_segdesc(&cpus[0].gdt[SEGMENT_USER_DATA], 0xffffffff, 0x0, STA_W,       DPL_USER);
+    set_segdesc(&cpus[0].gdt[SEGMENT_USER_CODE], 0xffffffff, 0x0, STA_X|STA_R|STA_SYSTEM, DPL_USER, STF_S|STF_G);
+    set_segdesc(&cpus[0].gdt[SEGMENT_USER_DATA], 0xffffffff, 0x0, STA_W|STA_SYSTEM,       DPL_USER, STF_S|STF_G);
 
     // asm volatile("sgdt (%esp)");
     lgdt(cpus[0].gdt, sizeof(cpus[0].gdt));
@@ -121,7 +122,7 @@ void init_segmentation() {
     return ;
 }
 
-void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint dpl) {
+void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint dpl, uint flags) {
     // base 
     seg_desc->base_lo   = (base  & 0xFFFF);
     seg_desc->base_mid  = (base >> 0x10) & 0xFF;
@@ -132,7 +133,7 @@ void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint 
     seg_desc->limit_hi  = (limit >> 0x10);
 
     // access 
-    seg_desc->accessed  = 0; // better off to let the CPU set this bit
+    seg_desc->accessed  = (access >> 0) & 1;
     seg_desc->rw_bit    = (access >> 1) & 1;
     seg_desc->direction = (access >> 2) & 1;
     seg_desc->execute   = (access >> 3) & 1;
@@ -142,9 +143,51 @@ void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint 
                              // this func our intention is to make it present anyways.
 
     // flags
-    seg_desc->reserved    = 0;
-    seg_desc->longmode    = 0;
-    seg_desc->seg_size    = 1;
-    seg_desc->granularity = 1;
+    seg_desc->reserved    = (flags >> 0) & 1; // 0
+    seg_desc->longmode    = (flags >> 1) & 1; // 0 
+    seg_desc->seg_size    = (flags >> 2) & 1; // 1 
+    seg_desc->granularity = (flags >> 3) & 1; // 1
     return ;
+}
+
+void switch_user_vm(task_t *p) {
+    cpu_t* c = cur_cpu();
+    uint ts_addr = (uint)&c->ts;
+    set_segdesc(&(c->gdt[SEGMENT_TSS]), sizeof(task_state_t)-1, ts_addr, STA_TSS, DPL_KERNEL, NULL);
+
+    c->ts.ss0 = SEGMENT_KERNEL_DATA << 3;
+    c->ts.esp0 = (uint)p->kstack + KSTACKSIZE;
+    // setting IOPL=0 in eflags *and* iomb beyond the tss segment limit
+    // forbids I/O instructions (e.g., inb and outb) from user space
+    c->ts.iomb = (ushort) 0xFFFF;
+    ltr(SEGMENT_TSS << 3);
+    lcr3(virt_to_phys(p->pgdir));  // switch to process's address space
+}
+
+
+// Set up kernel part of a page table.
+pte* map_kernel_vm(void) {
+    pte *pgdir;
+    vmmap *k;
+
+    if((pgdir = (pte*)kmalloc()) == 0)
+        return 0;
+    
+    memset(pgdir, 0, PAGESIZE);
+    for(k = kern_vmmap; k < &kern_vmmap[NELEM(kern_vmmap)]; k++)
+        gen_ptes(pgdir, k->vaddr, k->pa_end - k->pa_begin, (uint)k->pa_begin, k->perms);
+    
+    return pgdir;
+}
+
+void init_userland_vm(pte *pgdir, char *init, uint sz) {
+  char *mem;
+
+  if(sz >= PAGESIZE)  {
+    PANIC("init_userland_vm: more than a page");
+  }
+  mem = kmalloc();
+  memset2(mem, 0, PAGESIZE);
+  gen_ptes(pgdir, 0x4000, PAGESIZE, virt_to_phys(mem), PTE_W|PTE_U);
+  memmove(mem, init, sz);
 }

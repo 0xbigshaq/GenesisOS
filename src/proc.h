@@ -24,7 +24,7 @@ extern seg_desc_t segments_tbl[N_SEG];
 // Per-CPU state
 typedef struct cpu {
   cpu_context_t *scheduler;   // swtch() here to enter scheduler
-  struct taskstate ts;         // Used by x86 to find stack for interrupt
+  task_state_t ts;         // Used by x86 to find stack for interrupt
   seg_desc_t gdt[N_SEG];       // x86 global descriptor table
   int ncli;                    // Depth of pushcli nesting.
   int intena;                  // Were interrupts enabled before pushcli?

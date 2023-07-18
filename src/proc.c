@@ -1,8 +1,10 @@
 #include "proc.h"
 #include "kmalloc.h"
 #include "memlayout.h"
-
+#include "vm.h"
 #include "sched.h"
+
+char init[] = "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x8B\x1D\xF8\xEF\x3B\x80\x90\x90\x90\x90";
 
 cpu_t cpus[N_CPUS];
 task_t proc_tbl[N_PROCS];
@@ -25,16 +27,22 @@ void testing_subroutine(void) {
 }
 void run_init(void) {
     task_t* p = alloc_task();
-    p->state = RUNNABLE;
-    p->trapframe->gs = 0x10;
-    p->trapframe->fs = 0x10;
-    p->trapframe->es = 0x10;
-    p->trapframe->ds = 0x10;
-    p->trapframe->ss = 0x10;
-    p->trapframe->cs = 0x8;
-    p->trapframe->eflags = 0x282; // [ IOPL=0 IF SF ]
-    p->trapframe->eip = (uint32_t)&testing_subroutine;
+    p->pgdir = map_kernel_vm();
 
+    p->trapframe->gs = (SEGMENT_USER_DATA << 3) | DPL_USER;
+    p->trapframe->fs = (SEGMENT_USER_DATA << 3) | DPL_USER;
+    p->trapframe->es = (SEGMENT_USER_DATA << 3) | DPL_USER;
+    p->trapframe->ds = (SEGMENT_USER_DATA << 3) | DPL_USER;
+    p->trapframe->ss = (SEGMENT_USER_DATA << 3) | DPL_USER;
+    p->trapframe->cs = (SEGMENT_USER_CODE << 3) | DPL_USER;
+    p->trapframe->eflags = FL_IF; // [ IOPL=0 IF SF ]
+    p->trapframe->eax = 0xdeadbeef; // (uint32_t)&testing_subroutine;
+    p->trapframe->esp = 0xaabbccdd; // (uint32_t)&testing_subroutine;
+    p->trapframe->eip = 0x4000; // (uint32_t)&testing_subroutine;
+    init_userland_vm(p->pgdir, init, sizeof(init));
+    switch_user_vm(p);
+
+    p->state = RUNNABLE;
     scheduler(); // enter the scheudler loop
 
 }
@@ -79,19 +87,3 @@ found:
 
   return p;
 }
-
-/*
-
-typedef struct cpu_context {
-  uint eax;
-  uint ecx;
-  uint edx;
-  uint ebx;
-  uint esp;
-  uint ebp;
-  uint esi;
-  uint edi;
-  uint eip;
-} cpu_context_t;
-
-*/
