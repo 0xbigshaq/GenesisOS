@@ -23,6 +23,7 @@ OBJS = \
 	$(BUILD_DIR)/proc.o\
 	$(BUILD_DIR)/sched.o\
 	$(BUILD_DIR)/string.o\
+	$(BUILD_DIR)/syscall.o\
 
 
 CPUS=1
@@ -51,6 +52,7 @@ kernel: kentry kvectors
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/proc.c -o $(BUILD_DIR)/proc.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/sched.c -o $(BUILD_DIR)/sched.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/string.c -o $(BUILD_DIR)/string.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/syscall.c -o $(BUILD_DIR)/syscall.o
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 

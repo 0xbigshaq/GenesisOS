@@ -30,7 +30,7 @@ void kmain()
     
     init_kernelvm();
     init_uart();
-    uart_write("[*] GenesisOS booting...\n");
+    uart_write("[*] *OS booting...\n");
     init_pic();
     setup_idt();
 

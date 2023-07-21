@@ -162,6 +162,7 @@ void switch_user_vm(task_t *p) {
     c->ts.iomb = (ushort) 0xFFFF;
     ltr(SEGMENT_TSS << 3);
     lcr3(virt_to_phys(p->pgdir));  // switch to process's address space
+    c->proc = p;
 }
 
 

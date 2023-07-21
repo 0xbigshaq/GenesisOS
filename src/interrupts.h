@@ -84,10 +84,11 @@ extern idt_reg_t idtr;        // This is loaded to the IDT Register
 extern uint vectors[256];     // For the ISR dispatcher
 
 // System segment type bits
-#define INT_GATE     0xE     // 32-bit Interrupt Gate
-#define TRAP_GATE    0xF     // 32-bit Trap Gate
+#define INT_GATE     (0xE<<4)     // 32-bit Interrupt Gate
+#define TRAP_GATE    (0xF<<4)     // 32-bit Trap Gate
+#define TRAP_USER    (0x3<<1)     // DPL 
 
 // setter(s) for the `idt[]` array
-void set_idt_entry(uint idx, void* isr, uint flags);
+void set_idt_entry(uint idx, void* isr, char flags);
 void setup_idt(void);
 void handle_trap(trap_ctx_t* ctx);

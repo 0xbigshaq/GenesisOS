@@ -10,7 +10,7 @@
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 typedef struct task {
-    trap_ctx_t *trapframe; // might be "trap-frame", might also be "the f*ck??". depends on context
+    trap_ctx_t *trapframe;
     cpu_context_t *ctx;
     pte *pgdir;
     char *kstack;

@@ -6,12 +6,13 @@
 #include "pic.h"
 #include "sched.h"
 #include "proc.h"
+#include "syscall.h"
 
 idt_entry_t idt[256];  // IDT Entries
 idt_reg_t idtr;        // This is loaded to the IDT Register
 
 
-void set_idt_entry(uint idx, void* isr, uint flags)
+void set_idt_entry(uint idx, void* isr, char flags)
 {
     idt_entry_t *desc = &idt[idx];
     // Interrupt's addr
@@ -22,10 +23,10 @@ void set_idt_entry(uint idx, void* isr, uint flags)
     // let intel be intel
     desc->reserved = 0;
 
-    // attributes
-    desc->gtype     = flags & 0xF;  // gate type, mask with 0b00001111
-    desc->stype     = 0;            // system segment, always 0 on gate descriptors
-    desc->dpl       = flags & 0x60; // DPL, mask with 0b01100000
+    // attributes (8 bits)
+    desc->gtype     = (flags >> 4);
+    desc->stype     = (flags >> 3) & 1;
+    desc->dpl       = (flags >> 1) & 3;
     desc->present   = 1;
 }
 
@@ -36,7 +37,7 @@ void setup_idt(void) {
     for(uint idx = 0; idx<256; idx++) {
         set_idt_entry(idx, (void*)vectors[idx], TRAP_GATE|DPL_KERNEL);
     }
-    set_idt_entry(0x80, (void*)vectors[0x80], TRAP_GATE|DPL_USER); // for syscalls (will be useful when implementing userland)
+    set_idt_entry(INT_SYSCALL, (void*)vectors[INT_SYSCALL], INT_GATE|TRAP_USER); // for syscalls (will be useful when implementing userland)
 
     // enable & load IDT
     lidt(idt, sizeof(idt));
@@ -54,17 +55,27 @@ void handle_trap(trap_ctx_t* ctx)
         while(1) { }
     }
 
+    if(ctx->vector_idx == INT_SYSCALL) {
+        sys_dispatch();
+        return ;
+    }
+
     if(ctx->vector_idx == IRQ_COM1) {
         char ch;
         if((ch = uart_getchar()) >= '\0') {
-            kprintf("[*] IRQ_COM1 triggered! recv'd: ");
-            uart_putchar(ch);
-            uart_putchar('\n');
+            // kprintf("[*] IRQ_COM1 triggered! recv'd: 0x%x", ch);
+            // uart_putchar(ch);
+            // uart_putchar('\n');
+            if(ch == '\r' || ch == '\n') {
+                kprintf("\n[root@wrld]> ");
+            } else {
+                uart_putchar(ch);
+            }
         }
     }
 
     if(ctx->vector_idx == IRQ_TIMER) {
-        kprintf("[*] IRQ_TIMER triggered\n");
+        // kprintf("[*] IRQ_TIMER triggered\n");
         if(cur_proc() && cur_proc()->state == RUNNING) {
             yield();
         }

@@ -25,3 +25,6 @@ void pic_ack(uint8_t irq);
 #define IRQ_COM1 PIC1 + 0x4
 #define IRQ_OFFSET	32
 #define IRQ_TIMER        (IRQ_OFFSET+0)
+
+// Custom for our kernel
+#define INT_SYSCALL     64
