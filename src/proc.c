@@ -16,9 +16,11 @@
 // with stack
 // char init[] = "\x90\xBC\x00\x45\x00\x00\x89\xE5\x6A\x03\x6A\x04\x6A\x05\x90\x90\x90\xB8\x01\x00\x00\x00\xCD\x40\x90\x90\xEB\xFC\x90";
 
-// with stack + syscall
-char init[] = "\x90\xBC\x00\x45\x00\x00\x89\xE5\x68\x29\x20\x20\x20\x68\x73\x21\x20\x3A\x68\x77\x6F\x72\x6B\x54\x6A\x00\x90\x90\x90\xB8\x01\x00\x00\x00\xCD\x40\x90\x90\xEB\xFC\x90";
+// with stack + SYS_write syscall
+// char init[] = "\x90\xBC\x00\x45\x00\x00\x89\xE5\x68\x29\x20\x20\x20\x68\x73\x21\x20\x3A\x68\x77\x6F\x72\x6B\x54\x6A\x00\x90\x90\x90\xB8\x01\x00\x00\x00\xCD\x80\x90\x90\xEB\xFC\x90";
 
+// SYS_read syscall
+char init[] ="\x90\x90\x90\x89\xE5\x6A\x08\x68\x00\x45\x00\x00\x6A\x00\xB8\x00\x00\x00\x00\xCD\x80\x90\x90\x90\x68\x00\x45\x00\x00\x6A\x01\xB8\x01\x00\x00\x00\xCD\x80\x90\x90\x90\xEB\xFC\x90\x90";
 
 cpu_t cpus[N_CPUS];
 task_t proc_tbl[N_PROCS];
@@ -49,10 +51,10 @@ void run_init(void) {
     p->trapframe->ds = (SEGMENT_USER_DATA << 3) | DPL_USER;
     p->trapframe->ss = (SEGMENT_USER_DATA << 3) | DPL_USER;
     p->trapframe->cs = (SEGMENT_USER_CODE << 3) | DPL_USER;
-    p->trapframe->eflags = FL_IF; // [ IOPL=0 IF SF ]
-    p->trapframe->eax = 0xdeadbeef; // (uint32_t)&testing_subroutine;
-    p->trapframe->esp = 0xaabbccdd; // (uint32_t)&testing_subroutine;
-    p->trapframe->eip = 0x4000; // (uint32_t)&testing_subroutine;
+    p->trapframe->eflags = FL_IF;
+    p->trapframe->eax = 0xdeadbeef;
+    p->trapframe->esp = 0x4f00;
+    p->trapframe->eip = 0x4000;
     init_userland_vm(p->pgdir, init, sizeof(init));
     switch_user_vm(p);
 

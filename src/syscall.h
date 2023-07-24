@@ -10,6 +10,7 @@
 // helpers/utils
 void sys_dispatch(void);
 uint32_t arg_word(int n);
+void* arg_ptr(int n);
 
 // syscalls
 int sys_read(void);

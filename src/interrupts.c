@@ -60,19 +60,22 @@ void handle_trap(trap_ctx_t* ctx)
         return ;
     }
 
-    if(ctx->vector_idx == IRQ_COM1) {
-        char ch;
-        if((ch = uart_getchar()) >= '\0') {
-            // kprintf("[*] IRQ_COM1 triggered! recv'd: 0x%x", ch);
-            // uart_putchar(ch);
-            // uart_putchar('\n');
-            if(ch == '\r' || ch == '\n') {
-                kprintf("\n[root@wrld]> ");
-            } else {
-                uart_putchar(ch);
-            }
-        }
-    }
+    // if(ctx->vector_idx == IRQ_COM1) {
+    //     char ch;
+    //     if((ch = uart_getchar()) >= '\0') {
+    //         // kprintf("[*] IRQ_COM1 triggered! recv'd: 0x%x", ch);
+    //         // uart_putchar(ch);
+    //         // uart_putchar('\n');
+    //         if(ch == '\r' || ch == '\n') {
+    //             kprintf("\n[root@wrld]> ");
+    //         } else if (ch == 0x7f) { // Handle backspace
+    //             uart_putchar('\b'); uart_putchar(' '); uart_putchar('\b');
+    //         }
+    //          else {
+    //             uart_putchar(ch);
+    //         }
+    //     }
+    // }
 
     if(ctx->vector_idx == IRQ_TIMER) {
         // kprintf("[*] IRQ_TIMER triggered\n");
