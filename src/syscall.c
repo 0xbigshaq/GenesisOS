@@ -28,7 +28,7 @@ void* arg_ptr(int n) {
 
 void sys_dispatch(void) {
     trap_ctx_t* ctx = cur_proc()->trapframe;
-    syscalls[ctx->eax](); // FIXME: add bounds-check
+    ctx->eax = syscalls[ctx->eax](); // FIXME: add bounds-check
 }
 
 
