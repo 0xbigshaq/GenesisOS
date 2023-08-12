@@ -29,6 +29,12 @@ outb(ushort port, uchar data)
   asm volatile("out %0,%1" : : "a" (data), "d" (port));
 }
 
+static inline uint16_t inw(uint16_t port) {
+    uint16_t result;
+    __asm__ volatile("inw %1, %0" : "=a"(result) : "Nd"(port));
+    return result;
+}
+
 static inline void
 outw(ushort port, ushort data)
 {
@@ -79,7 +85,6 @@ lgdt(seg_desc_t *p, int size)
               : "eax", "memory");
 }
 
-struct gatedesc;
 
 static inline void
 lidt(idt_entry_t *p, int size)

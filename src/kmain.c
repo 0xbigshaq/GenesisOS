@@ -8,7 +8,7 @@
 #include "interrupts.h"
 #include "pic.h"
 #include "proc.h"
-
+#include "ata.h"
 /* Bootstrap Page-Table used for initialization. 
  * Uses the `PTE_PS` bit in order to use 4MB Pages
  * > Map VA's [0 ... 4MB) to PA's [0 ... 4MB)
@@ -37,7 +37,45 @@ void kmain()
     puts(0, 1, BRIGHT, BLACK, "Hello from BereshitOS  :^)");
 
     uart_write("[+] Ready\n");
-    run_init();
+    // run_init();
+    // --- experimental ---
+    uint8_t sector[512];
+    int lba = 0; // Read from LBA 0
+    if (ata_read_sector(lba, sector) == 0) {
+        // Print the first 16 bytes of the sector
+        for (int i = 0; i < 256; i++) {
+            kprintf("%x ", sector[i]);
+            // uart_putchar(sector[i]);
+        }
+        kprintf("\n\n");
+    } else {
+        kprintf("Error reading sector\n");
+    }
+
+    lba = 0x40; // Read from LBA 0
+    if (ata_read_sector(lba, sector) == 0) {
+        // Print the first 16 bytes of the sector
+        for (int i = 0; i < 256; i++) {
+            // kprintf("%x ", sector[i]);
+            uart_putchar(sector[i]);
+        }
+        kprintf("\n");
+    } else {
+        kprintf("Error reading sector\n");
+    }
+
+    lba = 0x42; // Read from LBA 0
+    if (ata_read_sector(lba, sector) == 0) {
+        // Print the first 16 bytes of the sector
+        for (int i = 0; i < 256; i++) {
+            // kprintf("%x ", sector[i]);
+            uart_putchar(sector[i]);
+        }
+        kprintf("\n");
+    } else {
+        kprintf("Error reading sector\n");
+    }
+    // --- experimental ---
 
     while(1) {
       // spin

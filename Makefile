@@ -73,7 +73,7 @@ make qemu-gdb:
 	@echo "\n[*] ======= starting QEMU+gdb ======="
 	@echo "[*]         To close: Ctrl-A X"
 	@echo "Starting "
-	qemu-system-i386 -s -S -nographic -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_EXTRAS)
+	qemu-system-i386 -s -S -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda dummy_disk.img $(QEMU_EXTRAS)
 
 # ASM=nasm
 
@@ -86,3 +86,8 @@ make qemu-gdb:
 
 # $(BUILD_DIR)/main.bin: $(SRC_DIR)/main.asm
 # 	$(ASM) $(SRC_DIR)/main.asm -f bin -o $(BUILD_DIR)/main.bin
+
+
+# To generate FAT32 disk:
+# dd if=/dev/zero of=dummy_disk.img bs=1M count=1
+# mkfs.vfat -F 32 dummy_disk.img
