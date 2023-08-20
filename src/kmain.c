@@ -52,6 +52,8 @@ void kmain()
         kprintf("Error reading sector\n");
     }
 
+    dump_fat32_header((struct FAT32BPB*)sector);
+    /*
     lba = 0x40; // Read from LBA 0
     if (ata_read_sector(lba, sector) == 0) {
         // Print the first 16 bytes of the sector
@@ -76,6 +78,7 @@ void kmain()
         kprintf("Error reading sector\n");
     }
     // --- experimental ---
+    */
 
     while(1) {
       // spin
