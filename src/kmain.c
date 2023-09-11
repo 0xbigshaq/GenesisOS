@@ -9,6 +9,8 @@
 #include "pic.h"
 #include "proc.h"
 #include "ata.h"
+#include "fat32.h"
+
 /* Bootstrap Page-Table used for initialization. 
  * Uses the `PTE_PS` bit in order to use 4MB Pages
  * > Map VA's [0 ... 4MB) to PA's [0 ... 4MB)
