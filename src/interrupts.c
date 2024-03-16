@@ -35,9 +35,9 @@ void setup_idt(void) {
     idtr.base  = (uint)&idt[0];
 
     for(uint idx = 0; idx<256; idx++) {
-        set_idt_entry(idx, (void*)vectors[idx], TRAP_GATE|DPL_KERNEL);
+        set_idt_entry(idx, (void*)vectors[idx], (char)TRAP_GATE|DPL_KERNEL);
     }
-    set_idt_entry(INT_SYSCALL, (void*)vectors[INT_SYSCALL], INT_GATE|TRAP_USER); // for syscalls (will be useful when implementing userland)
+    set_idt_entry(INT_SYSCALL, (void*)vectors[INT_SYSCALL], (char)INT_GATE|TRAP_USER); // for syscalls (will be useful when implementing userland)
 
     // enable & load IDT
     lidt(idt, sizeof(idt));

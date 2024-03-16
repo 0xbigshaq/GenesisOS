@@ -3,25 +3,41 @@
 #include "console.h"
 #include "ata.h"
 
+/*
+ * 
+ * Number of FATs: 2
+ * Sectors per FAT (32-bit): 16
+ * Bytes per sector: 512
+ *
+*/
+
 void list_root(struct FAT32BPB *bpb) {
-    uint32_t data_offset = bpb->bytesPerSector * (bpb->reservedSectors + bpb->numFATs * bpb->sectorsPerFAT32);
+    uint32_t data_offset = FAT32_DATA(bpb);
+    uint32_t tbl_offset = FAT32_TBL(bpb);
+
     uint32_t data_sector = data_offset / bpb->bytesPerSector;
+    uint32_t tbl_sector = tbl_offset / bpb->bytesPerSector;
+    
     kprintf("data offset: 0x%x\n", data_offset);
     kprintf("data sector: 0x%x\n", data_sector);
+    kprintf("tbl offset: 0x%x\n", tbl_offset);
+    kprintf("tbl sector: 0x%x\n", tbl_sector);
 
 
     uint8_t buf[512];
     struct msdos_dir_entry* entry;
     ata_read_sector(data_sector, buf);
     entry = (struct msdos_dir_entry*)buf;
-    if(entry->attr & 0x20) kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, entry->starthi, entry->start);
-    entry++;
-    if(entry->attr & 0x20) kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, entry->starthi, entry->start);
-    entry++;
-    if(entry->attr & 0x20) kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, entry->starthi, entry->start);
-    entry++;
-    if(entry->attr & 0x20) kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, entry->starthi, entry->start);
-    // xx 
+    for(int idx = 0 ; idx < (8*2) ; idx++) {
+        if(entry->attr & 0x20) {
+            kprintf("[idx=%d] %s \t %d \t 0x%x \t 0x%x\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry), entry->start);
+            // to get the file contents:
+            uint32_t content_sector = data_sector + (ENTRY_SECTOR(entry) * bpb->sectorsPerCluster) - bpb->numFATs;
+            kprintf("content_sector = 0x%x, offset=0x%p\n", content_sector, content_sector*bpb->bytesPerSector);
+        }
+        entry++;
+    }
+
 }
 
 void dump_fat32_header(struct FAT32BPB *bpb) {

@@ -71,7 +71,8 @@ make qemu:
 	qemu-system-i386 -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
 
 make qemu-nox:
-	qemu-system-i386 -nographic -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
+	qemu-system-i386 -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda dummy_disk.img $(QEMU_EXTRAS)
+# qemu-system-i386 -nographic -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
 
 make qemu-gdb:
 	@echo "\n[*] ======= starting QEMU+gdb ======="

@@ -51,5 +51,9 @@ struct msdos_dir_entry {
         uint32_t   size;           /* file size (in bytes) */
 } __attribute__((packed));
 
+#define ENTRY_SECTOR(e) ((e->starthi<<2)|e->start)
+#define FAT32_DATA(bpb_ptr) (bpb_ptr->bytesPerSector * (bpb_ptr->reservedSectors + bpb_ptr->numFATs * bpb_ptr->sectorsPerFAT32))
+#define FAT32_TBL(bpb_ptr) (bpb_ptr->bytesPerSector * bpb_ptr->reservedSectors)
+
 void dump_fat32_header(struct FAT32BPB *bpb);
 void list_root(struct FAT32BPB *bpb);
