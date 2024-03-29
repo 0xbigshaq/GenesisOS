@@ -11,33 +11,69 @@
  *
 */
 
+fat_region_t file_tbl;
+struct FAT32BPB bios_param_block;
+
 void list_root(struct FAT32BPB *bpb) {
     uint32_t data_offset = FAT32_DATA(bpb);
     uint32_t tbl_offset = FAT32_TBL(bpb);
 
     uint32_t data_sector = data_offset / bpb->bytesPerSector;
     uint32_t tbl_sector = tbl_offset / bpb->bytesPerSector;
-    
+    uint32_t tbl_size_bytes = bpb->bytesPerSector * bpb->sectorsPerFAT32;
+    uint32_t tbl_entries = tbl_size_bytes / 4; /* 4 bytes, 32bit per entry. */
+
     kprintf("data offset: 0x%x\n", data_offset);
     kprintf("data sector: 0x%x\n", data_sector);
+    kprintf("\n");
     kprintf("tbl offset: 0x%x\n", tbl_offset);
     kprintf("tbl sector: 0x%x\n", tbl_sector);
+    kprintf("tbl entries: 0x%x\n", tbl_entries);
 
+    // Copy the whole FAT table from disk to .bss/.data(`file_tbl` global), for later use. 
+    uint8_t* cursor = (uint8_t*)&file_tbl;
+    uint32_t sector_idx = tbl_sector;
+    for(int i = 0; i < bpb->sectorsPerFAT32; i++) {
+        kprintf("reading FAT tbl idx: %d\n", i);
+        ata_read_sector(sector_idx, cursor);
+        sector_idx++;
+        cursor += bpb->bytesPerSector;
+    }
 
+    // listing the root directory, located in the beginning of the `Data` sector.
     uint8_t buf[512];
     struct msdos_dir_entry* entry;
     ata_read_sector(data_sector, buf);
     entry = (struct msdos_dir_entry*)buf;
     for(int idx = 0 ; idx < (8*2) ; idx++) {
         if(entry->attr & 0x20) {
-            kprintf("[idx=%d] %s \t %d \t 0x%x \t 0x%x\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry), entry->start);
+            kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
             // to get the file contents:
-            uint32_t content_sector = data_sector + (ENTRY_SECTOR(entry) * bpb->sectorsPerCluster) - bpb->numFATs;
-            kprintf("content_sector = 0x%x, offset=0x%p\n", content_sector, content_sector*bpb->bytesPerSector);
+            uint32_t content_sector = ENTRY_SECTOR(entry);
+            uint32_t next_sector = file_tbl.info.raw.entry[content_sector];
+            kprintf("content_sector = 0x%x, next_sector=0x%p\n", content_sector, next_sector);
         }
         entry++;
     }
 
+    uint32_t next_sector = file_tbl.info.meta.entry[0];
+    kprintf("root directory next_sector=0x%p\n", next_sector);
+
+    uint32_t next_sector_disk = data_sector+(next_sector-2);
+   /* ------------ */
+    ata_read_sector(next_sector_disk, buf);
+    entry = (struct msdos_dir_entry*)buf;
+    for(int idx = 0 ; idx < (8*2) ; idx++) {
+        if(entry->attr & 0x20) {
+            kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
+            // to get the file contents:
+            uint32_t content_sector = ENTRY_SECTOR(entry);
+            uint32_t next_sector = file_tbl.info.raw.entry[content_sector];
+            kprintf("content_sector = 0x%x, next_sector=0x%p\n", content_sector, next_sector);
+        }
+        entry++;
+    }
+   /* ------------ */
 }
 
 void dump_fat32_header(struct FAT32BPB *bpb) {
@@ -83,3 +119,8 @@ void dump_fat32_header(struct FAT32BPB *bpb) {
     list_root(bpb);
     kprintf("-----------------------------\n");
 }
+
+void dump_file(char *path) {
+    // ...
+}
+

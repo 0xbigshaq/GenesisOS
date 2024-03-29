@@ -53,8 +53,9 @@ void kmain()
     } else {
         kprintf("Error reading sector\n");
     }
+    memmove(&bios_param_block, sector, sizeof(bios_param_block));
 
-    dump_fat32_header((struct FAT32BPB*)sector);
+    dump_fat32_header(&bios_param_block);
     /*
     lba = 0x40; // Read from LBA 0
     if (ata_read_sector(lba, sector) == 0) {

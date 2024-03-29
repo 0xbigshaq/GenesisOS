@@ -51,9 +51,30 @@ struct msdos_dir_entry {
         uint32_t   size;           /* file size (in bytes) */
 } __attribute__((packed));
 
+typedef struct fat_meta { 
+        // https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#Special_entries
+    uint32_t fat_id;
+    uint32_t eoc;      // end of cluster chain marker
+    uint32_t entry[0x800-2];
+} fat_meta_t;
+typedef struct fat_raw { 
+    uint32_t entry[0x800];
+} fat_raw_t;
+
+typedef struct fat_region {
+    union uinfo {
+        fat_meta_t meta;
+        fat_raw_t raw;
+    } info;
+} fat_region_t;
+
 #define ENTRY_SECTOR(e) ((e->starthi<<2)|e->start)
 #define FAT32_DATA(bpb_ptr) (bpb_ptr->bytesPerSector * (bpb_ptr->reservedSectors + bpb_ptr->numFATs * bpb_ptr->sectorsPerFAT32))
 #define FAT32_TBL(bpb_ptr) (bpb_ptr->bytesPerSector * bpb_ptr->reservedSectors)
 
 void dump_fat32_header(struct FAT32BPB *bpb);
 void list_root(struct FAT32BPB *bpb);
+void dump_file(char *path);
+
+extern fat_region_t file_tbl;
+extern struct FAT32BPB bios_param_block;;
