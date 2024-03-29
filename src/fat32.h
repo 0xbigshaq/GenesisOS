@@ -71,9 +71,12 @@ typedef struct fat_region {
 #define ENTRY_SECTOR(e) ((e->starthi<<2)|e->start)
 #define FAT32_DATA(bpb_ptr) (bpb_ptr->bytesPerSector * (bpb_ptr->reservedSectors + bpb_ptr->numFATs * bpb_ptr->sectorsPerFAT32))
 #define FAT32_TBL(bpb_ptr) (bpb_ptr->bytesPerSector * bpb_ptr->reservedSectors)
+#define MAX_ROOT 5 /* maximum recursion for `list_root()` */
 
 void dump_fat32_header(struct FAT32BPB *bpb);
-void list_root(struct FAT32BPB *bpb);
+void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector);
+void follow_dir_chain(struct FAT32BPB *bpb, uint32_t data_sector, uint32_t cur_sector);
+void init_file_table(struct FAT32BPB *bpb, uint32_t tbl_sector);
 void dump_file(char *path);
 
 extern fat_region_t file_tbl;

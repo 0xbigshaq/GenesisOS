@@ -31,7 +31,7 @@ int ata_read_sector(uint32_t lba, uint8_t *buffer) {
         memmove(buffer + (i * 2), &data, sizeof(uint16_t));
     }
 
-    kprintf("Read sector %d successfully\n", lba);  // Add this line for debugging
+    // kprintf("Read sector %d successfully\n", lba);  // Add this line for debugging
 
 
     return 0;
