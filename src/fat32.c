@@ -17,21 +17,21 @@ struct FAT32BPB bios_param_block;
 void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector) {
     // listing the root directory, located in the beginning of the `Data` sector.
     uint8_t buf[512];
-    struct msdos_dir_entry* entry;
+    struct msdos_dir_entry *entry;
+    uint32_t content_sector, next_sector;
     ata_read_sector(data_sector, buf);
     entry = (struct msdos_dir_entry*)buf;
     for(int idx = 0 ; idx < (8*2) ; idx++) {
         if(entry->attr & 0x20) {
-            kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
-            // to get the file contents:
-            uint32_t content_sector = ENTRY_SECTOR(entry);
-            uint32_t next_sector = file_tbl.info.raw.entry[content_sector];
-            kprintf("content_sector = 0x%x, next_sector=0x%p\n", content_sector, next_sector);
+            // kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
+            content_sector = ENTRY_SECTOR(entry);
+            next_sector = file_tbl.info.raw.entry[content_sector];
+            kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
         }
         entry++;
     }
 
-    uint32_t next_sector = file_tbl.info.meta.entry[0];
+    next_sector = file_tbl.info.meta.entry[0];
     kprintf("root directory next_sector=0x%p\n", next_sector);
 
     follow_dir_chain(bpb, data_sector, next_sector);
@@ -43,15 +43,14 @@ void follow_dir_chain(struct FAT32BPB *bpb, uint32_t data_sector, uint32_t cur_s
     struct msdos_dir_entry *entry;
     uint32_t content_sector, next_sector;
 
-    ata_read_sector((data_sector+cur_sector-2), buf);
+    ata_read_sector((data_sector+cur_sector-2), buf); // we subtract 2 bc the first two values in the file_tbl are metadata.
     entry = (struct msdos_dir_entry*)buf;
     for(int idx = 0 ; idx < (8*2) ; idx++) {
         if(entry->attr & 0x20) {
-            kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
-            // to get the file contents:
+            // kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
             content_sector = ENTRY_SECTOR(entry);
             next_sector = file_tbl.info.raw.entry[content_sector];
-            kprintf("content_sector = 0x%x, next_sector=0x%p\n", content_sector, next_sector);
+            kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
         }
         entry++;
     }
