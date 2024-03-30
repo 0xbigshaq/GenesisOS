@@ -2,6 +2,7 @@
 #include "types.h"
 #include "console.h"
 #include "ata.h"
+#include "string.h"
 
 /*
  * 
@@ -13,6 +14,7 @@
 
 fat_region_t file_tbl;
 struct FAT32BPB bios_param_block;
+struct msdos_dir_entry init_file;
 
 void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector) {
     // listing the root directory, located in the beginning of the `Data` sector.
@@ -27,6 +29,7 @@ void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector) 
             content_sector = ENTRY_SECTOR(entry);
             next_sector = file_tbl.info.raw.entry[content_sector];
             kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
+            populate_init(entry);
         }
         entry++;
     }
@@ -51,6 +54,7 @@ void follow_dir_chain(struct FAT32BPB *bpb, uint32_t data_sector, uint32_t cur_s
             content_sector = ENTRY_SECTOR(entry);
             next_sector = file_tbl.info.raw.entry[content_sector];
             kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
+            populate_init(entry);
         }
         entry++;
     }
@@ -133,7 +137,19 @@ void init_file_table(struct FAT32BPB *bpb, uint32_t tbl_sector) {
     }
 }
 
-void dump_file(char *path) {
-    // ...
+void populate_init(struct msdos_dir_entry *entry) {
+    if(strncmp((char*)entry->name, INIT_ELF, strlen(INIT_ELF))) {
+        kprintf("[!] '%s' != '%s'\n", INIT_ELF, entry->name);
+        return ;
+    }
+    memcpy(&init_file, entry, sizeof(init_file));
 }
 
+void dump_file(void) {
+    if(strncmp((char*)init_file.name, INIT_ELF, strlen(INIT_ELF))) {
+        kprintf("[!] Error: init file cannot be found\n");
+        return ;
+    }
+
+    kprintf("[+] Dumping init ELF file now....\n");
+}
