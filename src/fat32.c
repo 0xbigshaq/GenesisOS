@@ -65,6 +65,17 @@ void follow_dir_chain(struct FAT32BPB *bpb, uint32_t data_sector, uint32_t cur_s
     }
 }
 
+void follow_file_chain(struct FAT32BPB *bpb, uint32_t data_sector, uint32_t cur_sector) {
+    kprintf("follow_file_chain called! data_sector = 0x%x , cur_sector = 0x%x \n", data_sector, cur_sector);
+    uint8_t buf[512];
+
+    ata_read_sector((data_sector+cur_sector-2), buf); // we subtract 2 bc the first two values in the file_tbl are metadata.
+    if(file_tbl.info.meta.eoc != file_tbl.info.raw.entry[cur_sector]) {
+        // end of chain detected, enter recursion.
+        follow_file_chain(bpb, data_sector, file_tbl.info.raw.entry[cur_sector]);
+    }
+}
+
 void dump_fat32_header(struct FAT32BPB *bpb) {
     kprintf("\n----- fat32 header dump -----\n");
     kprintf("OEM Name: %s\n", bpb->oemName);
@@ -152,4 +163,25 @@ void dump_file(void) {
     }
 
     kprintf("[+] Dumping init ELF file now....\n");
+    struct msdos_dir_entry *init_ptr = &init_file;
+    uint32_t content_sector, next_sector;
+    struct FAT32BPB* bpb = &bios_param_block;
+    uint32_t data_offset, data_sector, dst_sector;
+    uint8_t buf[512];
+
+    data_offset = FAT32_DATA(bpb);
+    data_sector = data_offset / bpb->bytesPerSector;
+
+    content_sector = ENTRY_SECTOR(init_ptr);
+    next_sector = file_tbl.info.raw.entry[content_sector];
+
+    dst_sector = (data_sector+content_sector-2);
+    ata_read_sector(dst_sector, buf);
+
+    kprintf("[init] size = 0x%x \n", init_ptr->size);
+    kprintf("[init] sector = 0x%x \n", content_sector);
+    kprintf("[init] next sector = 0x%x \n", next_sector);
+    kprintf("[init] content = %s \n", buf);
+
+
 }
