@@ -1,4 +1,5 @@
 #include "fat32.h"
+#include "kmalloc.h"
 #include "types.h"
 #include "console.h"
 #include "ata.h"
@@ -168,6 +169,7 @@ void dump_file(void) {
     struct FAT32BPB* bpb = &bios_param_block;
     uint32_t data_offset, data_sector, dst_sector;
     uint8_t buf[512];
+    char *begin, *cursor;
 
     data_offset = FAT32_DATA(bpb);
     data_sector = data_offset / bpb->bytesPerSector;
@@ -183,5 +185,34 @@ void dump_file(void) {
     kprintf("[init] next sector = 0x%x \n", next_sector);
     kprintf("[init] content = %s \n", buf);
 
+    begin = kmalloc();
+    cursor = begin;
 
+    memcpy(cursor, buf, sizeof(buf));
+    cursor += bpb->bytesPerSector;
+
+    while(1) {
+        kprintf("[init] enterted loop!! \n");
+
+        content_sector = next_sector;
+        dst_sector = (data_sector+content_sector-2);
+
+        ata_read_sector(dst_sector, buf);
+        kprintf("[init] next sector = 0x%x \n", next_sector);
+        memcpy(cursor, buf, sizeof(buf));
+        cursor += bpb->bytesPerSector;
+        next_sector = file_tbl.info.raw.entry[content_sector];
+        if (next_sector == file_tbl.info.meta.eoc)
+            break;
+    };
+
+    // kprintf("[init] full content = %s \n", pew);
+    kprintf("[init] full content = \n", begin);
+    for(int i = 0; i<0x1000; i++) {
+        kprintf("%x ", begin[i]);
+        if((i % 0x10) == 0 && i != 0)
+            kprintf("\n");
+    }
+    // cursor = 0x803be200 , pew =  0x803be000
+    kprintf("cursor = 0x%x , begin = 0x%x , size = 0x%x \n", cursor, begin, (cursor - begin));
 }
