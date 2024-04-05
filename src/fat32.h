@@ -68,11 +68,17 @@ typedef struct fat_region {
     } info;
 } fat_region_t;
 
+typedef struct file_data {
+    struct file_data* next;
+    uint8_t *data;
+} file_data_t;
+
 #define ENTRY_SECTOR(e) ((e->starthi<<2)|e->start)
 #define FAT32_DATA(bpb_ptr) (bpb_ptr->bytesPerSector * (bpb_ptr->reservedSectors + bpb_ptr->numFATs * bpb_ptr->sectorsPerFAT32))
 #define FAT32_TBL(bpb_ptr) (bpb_ptr->bytesPerSector * bpb_ptr->reservedSectors)
 #define MAX_ROOT 5 /* maximum recursion for `list_root()` */
 #define INIT_ELF "JJJ     TXT"
+#define MAX_INIT_SIZE 0x10000
 
 void dump_fat32_header(struct FAT32BPB *bpb);
 void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector);
@@ -84,3 +90,4 @@ void dump_file(void);
 extern fat_region_t file_tbl;
 extern struct FAT32BPB bios_param_block;
 extern struct msdos_dir_entry init_file;
+extern uint8_t init_data[MAX_INIT_SIZE];
