@@ -77,7 +77,7 @@ typedef struct file_data {
 #define FAT32_DATA(bpb_ptr) (bpb_ptr->bytesPerSector * (bpb_ptr->reservedSectors + bpb_ptr->numFATs * bpb_ptr->sectorsPerFAT32))
 #define FAT32_TBL(bpb_ptr) (bpb_ptr->bytesPerSector * bpb_ptr->reservedSectors)
 #define MAX_ROOT 5 /* maximum recursion for `list_root()` */
-#define INIT_ELF "JJJ     TXT"
+#define INIT_ELF "INIT"
 #define MAX_INIT_SIZE 0x10000
 
 void dump_fat32_header(struct FAT32BPB *bpb);

@@ -57,6 +57,7 @@ void kmain()
 
     dump_fat32_header(&bios_param_block);
     dump_file();
+    run_init();
     /*
     lba = 0x40; // Read from LBA 0
     if (ata_read_sector(lba, sector) == 0) {

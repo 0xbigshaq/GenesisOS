@@ -1,10 +1,13 @@
 #include "proc.h"
 #include "kmalloc.h"
 #include "memlayout.h"
+#include "mmu.h"
 #include "vm.h"
 #include "sched.h"
 #include "fat32.h"
 #include <elf.h>
+#include <stdint.h>
+#include <string.h>
 
 // char init[] = "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x8B\x1D\xF8\xEF\x3B\x80\x90\x90\x90\x90";
 // char init[] = "\x90\x90\x90\x90\x90\xEB\xFC\x90\x90\x90";
@@ -47,9 +50,55 @@ void testing_subroutine(void) {
   }
 }
 void run_init(void) {
+  kprintf("run_init called~!\n");
     task_t* p = alloc_task();
     p->pgdir = map_kernel_vm();
 
+  Elf32_Ehdr *elf_header =  (Elf32_Ehdr*)&init_data;
+  uint8_t *begin = init_data;
+  uint8_t *cursor = init_data;
+  Elf32_Phdr *phdr;
+  // void *phys_page;
+  uint8_t *mem;
+
+  // Map program segments
+  for (int i = 0; i < elf_header->e_phnum; i++) {
+    cursor = &begin[elf_header->e_phoff + (i * sizeof(Elf32_Phdr))];
+    phdr = (Elf32_Phdr *)cursor;
+    cursor = &begin[phdr->p_offset];
+
+    if (phdr->p_type == PT_LOAD) {
+      if(phdr->p_memsz > PAGESIZE) {
+        PANIC("not implemented yet.")
+      }
+      mem = kmalloc();
+      gen_ptes(p->pgdir, (uint)phdr->p_vaddr, (uint)phdr->p_memsz, virt_to_phys(mem), (PTE_W|PTE_U));
+
+      // phys_page = pte_resolve(p->pgdir, (void*)phdr->p_vaddr, (PTE_W|PTE_U), 0);
+      // if(phys_page == NULL) {
+      //   phys_page = pte_resolve(p->pgdir, (void*)phdr->p_vaddr, (PTE_W|PTE_U), 1);
+      //   phys_page = pte_resolve(p->pgdir, (void*)phdr->p_vaddr, (PTE_W|PTE_U), 1);
+      //   // phys_page = gen_ptes(p->pgdir, (uint)phdr->p_vaddr, (uint)phdr->p_memsz, (uint)phdr->p_paddr, phdr->p_flags);
+      // }
+      memcpy(mem, cursor, phdr->p_memsz);
+
+      // fread(mapped_addr, phdr->p_filesz, 1, fp);
+      // cursor = begin + phdr->p_offset;
+    }
+  }    
+  /*
+  void init_userland_vm(pte *pgdir, char *init, uint sz) {
+  char *mem;
+
+  if(sz >= PAGESIZE)  {
+    PANIC("init_userland_vm: more than a page");
+  }
+  mem = kmalloc();
+  memset2(mem, 0, PAGESIZE);
+  gen_ptes(pgdir, 0x4000, PAGESIZE, virt_to_phys(mem), PTE_W|PTE_U);
+  memmove(mem, init, sz);
+}
+  */
     p->trapframe->gs = (SEGMENT_USER_DATA << 3) | DPL_USER;
     p->trapframe->fs = (SEGMENT_USER_DATA << 3) | DPL_USER;
     p->trapframe->es = (SEGMENT_USER_DATA << 3) | DPL_USER;
@@ -59,12 +108,12 @@ void run_init(void) {
     p->trapframe->eflags = FL_IF;
     p->trapframe->eax = 0xdeadbeef;
     p->trapframe->esp = 0x4f00;
-    p->trapframe->eip = 0x4000;
-    init_userland_vm(p->pgdir, init, sizeof(init));
+    p->trapframe->eip = elf_header->e_entry;
+    // init_userland_vm(p->pgdir, init, sizeof(init));
     switch_user_vm(p);
 
     p->state = RUNNABLE;
-    kprintf("[~] Jumping to userland\n---\n");
+    kprintf("[~] Jumping to userland, entry @ 0x%x\n---\n", elf_header->e_entry);
     scheduler(); // enter the scheudler loop
 
 }

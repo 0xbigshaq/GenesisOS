@@ -22,6 +22,9 @@ git clone --branch main https://github.com/hugsy/gef.git /root/gef/
 echo "source /root/gef/gef.py" > ~/.gdbinit 
 echo "add-auto-load-safe-path /share/.gdbinit" >> ~/.gdbinit
 
+pip3 install compiledb
+# to generate `compile_commands.json` file, run: `compiledb make iso`
+
 echo "export LC_CTYPE=C.UTF-8" >> ~/.bashrc
 echo "export PS1='\[\e[1;34m\]\u@\h \[\e[1;32m\]\w \[\e[1;31m\]🌀 \\$ \[\e[0m\]'" >> ~/.bashrc
 
