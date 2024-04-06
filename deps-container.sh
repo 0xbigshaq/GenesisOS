@@ -15,6 +15,7 @@ DEBIAN_FRONTEND=noninteractive apt install \
     grub-pc \
     xorriso \
     dosfstools \
+    libc6-dev-i386 \
     -y
 
 git clone --branch main https://github.com/hugsy/gef.git /root/gef/

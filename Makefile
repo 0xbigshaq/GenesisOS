@@ -7,6 +7,7 @@ CFLAGS=-ffreestanding -fno-pic -static -fno-builtin \
 		-Werror -fno-omit-frame-pointer -fno-stack-protector -mno-80387 -Wno-div-by-zero
 
 SRC_DIR=src
+INC_DIR=src  -I/usr/include/ -I/usr/include/x86_64-linux-gnu
 BUILD_DIR=build
 
 OBJS = \
@@ -33,30 +34,30 @@ QEMU_OPTS=-smp $(CPUS) -m 512 -serial pty -serial stdio
 
 kentry: $(SRC_DIR)/kentry.S
 	@echo "\n[*] ======= Building kentry ======="
-	$(CC) -m32 -ggdb -gdwarf-2 -I$(SRC_DIR) -c $(SRC_DIR)/kentry.S -o $(BUILD_DIR)/kentry.o
+	$(CC) -m32 -ggdb -gdwarf-2 -I$(INC_DIR) -c $(SRC_DIR)/kentry.S -o $(BUILD_DIR)/kentry.o
 
 kvectors: $(SRC_DIR)/trap_dispatcher.S
 	@echo "\n[*] ======= Compiling trap_dispatcher dispatcher ======="
 	./gen_vectors.py > src/trap_dispatcher.S
-	$(CC) -m32 -ggdb -gdwarf-2 -I$(SRC_DIR) -c $(SRC_DIR)/trap_dispatcher.S -o $(BUILD_DIR)/trap_dispatcher.o
-	$(CC) -m32 -ggdb -gdwarf-2 -I$(SRC_DIR) -c $(SRC_DIR)/trap_entry.S -o $(BUILD_DIR)/trap_entry.o
+	$(CC) -m32 -ggdb -gdwarf-2 -I$(INC_DIR) -c $(SRC_DIR)/trap_dispatcher.S -o $(BUILD_DIR)/trap_dispatcher.o
+	$(CC) -m32 -ggdb -gdwarf-2 -I$(INC_DIR) -c $(SRC_DIR)/trap_entry.S -o $(BUILD_DIR)/trap_entry.o
 
 
 kernel: kentry kvectors
 	@echo "\n[*] ======= Building kernel.elf ======="
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/kmain.c -o $(BUILD_DIR)/kmain.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/console.c -o $(BUILD_DIR)/console.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/kmalloc.c -o $(BUILD_DIR)/kmalloc.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/vm.c -o $(BUILD_DIR)/vm.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/uart.c -o $(BUILD_DIR)/uart.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/interrupts.c -o $(BUILD_DIR)/interrupts.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/pic.c -o $(BUILD_DIR)/pic.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/proc.c -o $(BUILD_DIR)/proc.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/sched.c -o $(BUILD_DIR)/sched.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/string.c -o $(BUILD_DIR)/string.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/syscall.c -o $(BUILD_DIR)/syscall.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/ata.c -o $(BUILD_DIR)/ata.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(SRC_DIR) -c $(SRC_DIR)/fat32.c -o $(BUILD_DIR)/fat32.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/kmain.c -o $(BUILD_DIR)/kmain.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/console.c -o $(BUILD_DIR)/console.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/kmalloc.c -o $(BUILD_DIR)/kmalloc.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/vm.c -o $(BUILD_DIR)/vm.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/uart.c -o $(BUILD_DIR)/uart.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/interrupts.c -o $(BUILD_DIR)/interrupts.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/pic.c -o $(BUILD_DIR)/pic.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/proc.c -o $(BUILD_DIR)/proc.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/sched.c -o $(BUILD_DIR)/sched.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/string.c -o $(BUILD_DIR)/string.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/syscall.c -o $(BUILD_DIR)/syscall.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/ata.c -o $(BUILD_DIR)/ata.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/fat32.c -o $(BUILD_DIR)/fat32.o
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 
