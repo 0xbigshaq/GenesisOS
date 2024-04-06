@@ -32,6 +32,14 @@ OBJS = \
 CPUS=1
 QEMU_OPTS=-smp $(CPUS) -m 512 -serial pty -serial stdio
 
+# temporary hack, should be with Makefile variables
+userland: src/userland/init.asm
+	nasm -f elf32 -o build/userland/init.o src/userland/init.asm
+	ld -m elf_i386 -o build/userland/init build/userland/init.o
+	mount dummy_disk.img /mnt/disk/
+	cp ./build/userland/init /mnt/disk/init
+	umount /mnt/disk/
+
 kentry: $(SRC_DIR)/kentry.S
 	@echo "\n[*] ======= Building kentry ======="
 	$(CC) -m32 -ggdb -gdwarf-2 -I$(INC_DIR) -c $(SRC_DIR)/kentry.S -o $(BUILD_DIR)/kentry.o
