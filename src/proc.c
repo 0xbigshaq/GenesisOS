@@ -79,7 +79,7 @@ void run_init(void) {
   // set up stack
     mem = kmalloc();
     memset(mem, NULL, PAGESIZE);
-    gen_ptes(p->pgdir, 0x4000, PAGESIZE, virt_to_phys(0x4000), (PTE_W|PTE_U));
+    gen_ptes(p->pgdir, 0x4000, PAGESIZE, virt_to_phys(mem), (PTE_W|PTE_U));
 
     p->trapframe->gs = (SEGMENT_USER_DATA << 3) | DPL_USER;
     p->trapframe->fs = (SEGMENT_USER_DATA << 3) | DPL_USER;

@@ -1,21 +1,20 @@
-section .text                   
-    global  _start              
-                                
-_start:                   
-    mov ebp, esp 
-    push 0x100        
-    push 0x200        
-    push 0x300        
+%define SYS_write 1
+
+section .text
+    global  _start
+
+_start:
+    mov ebp, esp
     push msg
-    push 1
-    mov     eax,1               
-    int     0x80                
+    push SYS_write
+    mov     eax,1
+    int     0x80
 
-_wow:                            
+_loop:
         nop
         nop
-        jmp _wow
+        jmp _loop
 
-section .data                   
-msg db      "Hello from userland!",0xa 
-len equ     $ - msg             
+section .data
+msg db      "Hello from userland!"
+len equ     $ - msg
