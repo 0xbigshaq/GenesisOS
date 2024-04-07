@@ -31,7 +31,7 @@ void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector) 
             // kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
             content_sector = ENTRY_SECTOR(entry);
             next_sector = file_tbl.info.raw.entry[content_sector];
-            kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
+            // kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
             populate_init(entry);
         }
         entry++;
@@ -44,19 +44,19 @@ void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector) 
 }
 
 void follow_dir_chain(struct FAT32BPB *bpb, uint32_t data_sector, uint32_t cur_sector) {
-    kprintf("follow_dir_chain called! data_sector = 0x%x , cur_sector = 0x%x \n", data_sector, cur_sector);
+    // kprintf("follow_dir_chain called! data_sector = 0x%x , cur_sector = 0x%x \n", data_sector, cur_sector);
     uint8_t buf[512];
     struct msdos_dir_entry *entry;
-    uint32_t content_sector, next_sector;
+    // uint32_t content_sector, next_sector;
 
     ata_read_sector((data_sector+cur_sector-2), buf); // we subtract 2 bc the first two values in the file_tbl are metadata.
     entry = (struct msdos_dir_entry*)buf;
     for(int idx = 0 ; idx < (8*2) ; idx++) {
         if(entry->attr & 0x20) {
             // kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
-            content_sector = ENTRY_SECTOR(entry);
-            next_sector = file_tbl.info.raw.entry[content_sector];
-            kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
+            // content_sector = ENTRY_SECTOR(entry);
+            // next_sector = file_tbl.info.raw.entry[content_sector];
+            // kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
             populate_init(entry);
         }
         entry++;
@@ -80,6 +80,8 @@ void follow_file_chain(struct FAT32BPB *bpb, uint32_t data_sector, uint32_t cur_
 }
 
 void dump_fat32_header(struct FAT32BPB *bpb) {
+    kprintf("[*] Parsing FAT32 Header Dump\n");
+    /*
     kprintf("\n----- fat32 header dump -----\n");
     kprintf("OEM Name: %s\n", bpb->oemName);
     kprintf("Bytes per sector: %d\n", bpb->bytesPerSector);
@@ -118,6 +120,7 @@ void dump_fat32_header(struct FAT32BPB *bpb) {
     kprintf("\n");
     kprintf("Boot signature 2: 0x%x\n", bpb->bootSignature2);
     kprintf("\n");
+    */
 
     // more data
     uint32_t data_offset = FAT32_DATA(bpb);
@@ -128,12 +131,11 @@ void dump_fat32_header(struct FAT32BPB *bpb) {
     uint32_t tbl_size_bytes = bpb->bytesPerSector * bpb->sectorsPerFAT32;
     uint32_t tbl_entries = tbl_size_bytes / 4; /* 4 bytes, 32bit per entry. */
 
-    kprintf(">data offset: 0x%x\n", data_offset);
-    kprintf(">data sector: 0x%x\n", data_sector);
-    kprintf("\n");
-    kprintf(">tbl offset: 0x%x\n", tbl_offset);
-    kprintf(">tbl sector: 0x%x\n", tbl_sector);
-    kprintf(">tbl entries: 0x%x\n", tbl_entries);
+    kprintf(" >data offset: 0x%x\n", data_offset);
+    kprintf(" >data sector: 0x%x\n", data_sector);
+    kprintf(" >tbl offset: 0x%x\n", tbl_offset);
+    kprintf(" >tbl sector: 0x%x\n", tbl_sector);
+    kprintf(" >tbl entries: 0x%x\n", tbl_entries);
 
     init_file_table(bpb, tbl_sector); // Copy the whole FAT table from disk to .bss/.data(`file_tbl` global), for later use. 
     list_root(bpb, tbl_sector, data_sector);   // list root 
@@ -203,5 +205,5 @@ void dump_file(void) {
         next_sector = file_tbl.info.raw.entry[content_sector];
     };
 
-    kprintf("\n[+] Finished reading init from disk\n");
+    kprintf("[+] Finished reading init from disk\n");
 }

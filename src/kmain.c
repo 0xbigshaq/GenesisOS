@@ -45,11 +45,11 @@ void kmain()
     int lba = 0; // Read from LBA 0
     if (ata_read_sector(lba, sector) == 0) {
         // Print the first 16 bytes of the sector
-        for (int i = 0; i < 256; i++) {
-            kprintf("%x ", sector[i]);
+        // for (int i = 0; i < 256; i++) {
+            // kprintf("%x ", sector[i]);
             // uart_putchar(sector[i]);
-        }
-        kprintf("\n\n");
+        // }
+        // kprintf("\n\n");
     } else {
         kprintf("Error reading sector\n");
     }
