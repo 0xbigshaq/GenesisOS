@@ -50,7 +50,7 @@ void testing_subroutine(void) {
   }
 }
 void run_init(void) {
-  kprintf("run_init called~!\n");
+  kprintf("[*] <run_init> Loading init ELF file into VA.\n");
     task_t* p = alloc_task();
     p->pgdir = map_kernel_vm();
 
@@ -70,6 +70,7 @@ void run_init(void) {
       if(phdr->p_memsz > PAGESIZE) {
         PANIC("not implemented yet.")
       }
+      kprintf(" > PT_LOAD @ 0x%x\n", phdr->p_vaddr);
       mem = kmalloc();
       memset(mem, NULL, PAGESIZE);
       gen_ptes(p->pgdir, (uint)phdr->p_vaddr, (uint)phdr->p_memsz, virt_to_phys(mem), (PTE_W|PTE_U));

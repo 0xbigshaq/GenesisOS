@@ -128,12 +128,12 @@ void dump_fat32_header(struct FAT32BPB *bpb) {
     uint32_t tbl_size_bytes = bpb->bytesPerSector * bpb->sectorsPerFAT32;
     uint32_t tbl_entries = tbl_size_bytes / 4; /* 4 bytes, 32bit per entry. */
 
-    kprintf("data offset: 0x%x\n", data_offset);
-    kprintf("data sector: 0x%x\n", data_sector);
+    kprintf(">data offset: 0x%x\n", data_offset);
+    kprintf(">data sector: 0x%x\n", data_sector);
     kprintf("\n");
-    kprintf("tbl offset: 0x%x\n", tbl_offset);
-    kprintf("tbl sector: 0x%x\n", tbl_sector);
-    kprintf("tbl entries: 0x%x\n", tbl_entries);
+    kprintf(">tbl offset: 0x%x\n", tbl_offset);
+    kprintf(">tbl sector: 0x%x\n", tbl_sector);
+    kprintf(">tbl entries: 0x%x\n", tbl_entries);
 
     init_file_table(bpb, tbl_sector); // Copy the whole FAT table from disk to .bss/.data(`file_tbl` global), for later use. 
     list_root(bpb, tbl_sector, data_sector);   // list root 
@@ -153,7 +153,7 @@ void init_file_table(struct FAT32BPB *bpb, uint32_t tbl_sector) {
 
 void populate_init(struct msdos_dir_entry *entry) {
     if(strncmp((char*)entry->name, INIT_ELF, strlen(INIT_ELF))) {
-        kprintf("[!] '%s' != '%s'\n", INIT_ELF, entry->name);
+        // kprintf("[!] '%s' != '%s'\n", INIT_ELF, entry->name);
         return ;
     }
     memcpy(&init_file, entry, sizeof(init_file));
@@ -183,10 +183,10 @@ void dump_file(void) {
     ata_read_sector(dst_sector, cursor);
     cursor += bpb->bytesPerSector;
 
-    kprintf("[init] size = 0x%x \n", init_ptr->size);
-    kprintf("[init] sector = 0x%x \n", content_sector);
-    kprintf("[init] next sector = 0x%x \n", next_sector);
-    kprintf("[init] content = %s \n", init_data);
+    kprintf("[*] size = 0x%x \n", init_ptr->size);
+    kprintf("[*] sector = 0x%x \n", content_sector);
+    kprintf("[*] next sector = 0x%x \n", next_sector);
+    // kprintf("[*] content = %s \n", init_data);
 
     while(1) {
         if (next_sector == file_tbl.info.meta.eoc)
@@ -194,21 +194,14 @@ void dump_file(void) {
         if (cursor >= &init_data[sizeof(init_data)])
             break;
         
-        kprintf("[init] enterted loop!! \n");
         content_sector = next_sector;
         dst_sector = (data_sector+content_sector-2);
 
         ata_read_sector(dst_sector, cursor);
-        kprintf("[init] next sector = 0x%x \n", next_sector);
+        kprintf(" > next sector/cluster = 0x%x \n", next_sector);
         cursor += bpb->bytesPerSector;
         next_sector = file_tbl.info.raw.entry[content_sector];
     };
 
-    for(int i = 0; i<0x1000; i++) {
-        kprintf("%x ", init_data[i]);
-        if((i % 0x10) == 0 && i != 0)
-            kprintf("\n");
-    }
-    // cursor = 0x803be200 , pew =  0x803be000
-    kprintf("\n cursor = 0x%x , begin = 0x%x , size = 0x%x \n", cursor, init_data, (cursor - init_data));
+    kprintf("\n[+] Finished reading init from disk\n");
 }
