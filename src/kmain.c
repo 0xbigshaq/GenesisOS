@@ -58,32 +58,6 @@ void kmain()
     dump_fat32_header(&bios_param_block);
     dump_file();
     run_init();
-    /*
-    lba = 0x40; // Read from LBA 0
-    if (ata_read_sector(lba, sector) == 0) {
-        // Print the first 16 bytes of the sector
-        for (int i = 0; i < 256; i++) {
-            // kprintf("%x ", sector[i]);
-            uart_putchar(sector[i]);
-        }
-        kprintf("\n");
-    } else {
-        kprintf("Error reading sector\n");
-    }
-
-    lba = 0x42; // Read from LBA 0
-    if (ata_read_sector(lba, sector) == 0) {
-        // Print the first 16 bytes of the sector
-        for (int i = 0; i < 256; i++) {
-            // kprintf("%x ", sector[i]);
-            uart_putchar(sector[i]);
-        }
-        kprintf("\n");
-    } else {
-        kprintf("Error reading sector\n");
-    }
-    // --- experimental ---
-    */
 
     while(1) {
       // spin

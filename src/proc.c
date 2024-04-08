@@ -80,7 +80,7 @@ void run_init(void) {
   // set up stack
     mem = kmalloc();
     memset(mem, NULL, PAGESIZE);
-    gen_ptes(p->pgdir, 0x4000, PAGESIZE, virt_to_phys(mem), (PTE_W|PTE_U));
+    gen_ptes(p->pgdir, USERLAND_STACK_ADDR, PAGESIZE, virt_to_phys(mem), (PTE_W|PTE_U));
 
     p->trapframe->gs = (SEGMENT_USER_DATA << 3) | DPL_USER;
     p->trapframe->fs = (SEGMENT_USER_DATA << 3) | DPL_USER;
@@ -90,7 +90,7 @@ void run_init(void) {
     p->trapframe->cs = (SEGMENT_USER_CODE << 3) | DPL_USER;
     p->trapframe->eflags = FL_IF;
     p->trapframe->eax = 0xdeadbeef;
-    p->trapframe->esp = 0x4f00;
+    p->trapframe->esp = USERLAND_STACK_TOP;
     p->trapframe->eip = elf_header->e_entry;
     switch_user_vm(p);
 

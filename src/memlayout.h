@@ -7,6 +7,9 @@
 #define KBASE_PHYS   0x100000                // Start of extended memory
 #define VIRTBASE     0x80000000              // First kernel virtual address
 #define KBASE_VIRT  (VIRTBASE+KBASE_PHYS)    // Address where kernel is linked
+#define USERLAND_STACK_SIZE 0x1000
+#define USERLAND_STACK_ADDR (VIRTBASE-USERLAND_STACK_SIZE-0x1000)
+#define USERLAND_STACK_TOP (USERLAND_STACK_ADDR+USERLAND_STACK_SIZE-0x100)
 
 #define virt_to_phys(a) (((uint) (a)) - VIRTBASE)
 #define phys_to_virt(a) ((void *)(((char *) (a)) + VIRTBASE))
