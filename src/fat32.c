@@ -38,9 +38,11 @@ void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector) 
     }
 
     next_sector = file_tbl.info.meta.entry[0];
-    kprintf("root directory next_sector=0x%p\n", next_sector);
+    kprintf("root directory next_sector=0x%p , eoc=0x%x, fat_id=0x%x\n", next_sector, file_tbl.info.meta.eoc, file_tbl.info.meta.fat_id);
 
-    follow_dir_chain(bpb, data_sector, next_sector);
+    if(next_sector != 0xffffff8) { // end of cluster (for directories, mkdosfs/Linux)
+        follow_dir_chain(bpb, data_sector, next_sector);
+    }
 }
 
 void follow_dir_chain(struct FAT32BPB *bpb, uint32_t data_sector, uint32_t cur_sector) {

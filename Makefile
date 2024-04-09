@@ -10,6 +10,8 @@ SRC_DIR=src
 INC_DIR=src  -I/usr/include/ -I/usr/include/x86_64-linux-gnu
 BUILD_DIR=build
 
+DISK_IMG=disk.img
+
 OBJS = \
 	$(BUILD_DIR)/kentry.o\
 	$(BUILD_DIR)/kmain.o\
@@ -31,14 +33,6 @@ OBJS = \
 
 CPUS=1
 QEMU_OPTS=-smp $(CPUS) -m 512 -serial pty -serial stdio
-
-# temporary hack, should be with Makefile variables
-userland: src/userland/init.asm
-	nasm -f elf32 -o build/userland/init.o src/userland/init.asm
-	ld -m elf_i386 -o build/userland/init build/userland/init.o
-	mount dummy_disk.img /mnt/disk/
-	cp ./build/userland/init /mnt/disk/init
-	umount /mnt/disk/
 
 kentry: $(SRC_DIR)/kentry.S
 	@echo "\n[*] ======= Building kentry ======="
@@ -69,27 +63,34 @@ kernel: kentry kvectors
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 
-iso: kernel
+iso: kernel fs
 	cp $(BUILD_DIR)/kernel.elf iso/targets/x86/boot/kernel.bin && \
 	grub-mkrescue /usr/lib/grub/i386-pc -o $(BUILD_DIR)/kernel.iso iso/targets/x86 
 
 clean:
-	rm -f $(BUILD_DIR)/*
+	rm -rf $(BUILD_DIR)/*
+	$(MAKE) clean -C ./src/userland/
 
-make qemu:
+qemu:
 	qemu-system-i386 -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
 
-make qemu-nox:
-	qemu-system-i386 -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda dummy_disk.img $(QEMU_EXTRAS)
+qemu-nox:
+	qemu-system-i386 -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda $(DISK_IMG) $(QEMU_EXTRAS)
 # qemu-system-i386 -nographic -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
 
-make qemu-gdb:
+qemu-gdb:
 	@echo "\n[*] ======= starting QEMU+gdb ======="
 	@echo "[*]         To close: Ctrl-A X"
 	@echo "Starting "
-	qemu-system-i386 -s -S -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda dummy_disk.img $(QEMU_EXTRAS)
+	qemu-system-i386 -s -S -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda $(DISK_IMG) $(QEMU_EXTRAS)
 
-# ASM=nasm
+disk:
+	@echo "\n[*] ======= Generating FAT32 disk image ======="
+	dd if=/dev/zero of=disk.img bs=1M count=1
+	mkfs.vfat -F 32 disk.img
+
+fs: disk
+	$(MAKE) fs -C ./src/userland/
 
 # SRC_DIR=src
 # BUILD_DIR=build
