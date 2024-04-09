@@ -63,9 +63,15 @@ int sys_read(void) {
 
 
 int sys_write(void) {
-    // uint32_t fd = arg_word(0);
-    char* str = (char*)arg_word(1);
-    kprintf("\n[*] SYS_write called!, value: \"%s\"\n",str);
+    uint32_t fd = arg_word(0);
+    char *buf = (char*)arg_ptr(1);
+    uint32_t count = arg_word(2);
+    kprintf("[*] SYS_write called! fd=%d, buf=0x%x, count=%d \n",fd, buf, count);
+    for(int i=0; i<count; i++) {
+        if(fd == 1) { // stdout
+            uart_putchar(buf[i]);
+        }
+    }
     return 0;
 }
 

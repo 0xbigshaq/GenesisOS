@@ -1,7 +1,8 @@
 #include "libs/std.h"
 
 void _start(void) {
-    write(1, "Hello from C :^)");
+    char out[] = "Hello from C :^)\n";
+    write(1, out, sizeof(out));
 
         asm volatile(
         "_hello: \n" 
