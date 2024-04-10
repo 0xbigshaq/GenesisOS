@@ -43,7 +43,7 @@ int sys_read(void) {
     char c = 0;
     int i = 0;
 
-    kprintf("\n[*] SYS_read called!, fd=%d, buf=0x%p, count=%d\n", fd, out, count);
+    // kprintf("\n[*] SYS_read called!, fd=%d, buf=0x%p, count=%d\n", fd, out, count);
 
     if(fd == 0) { // stdin
         for(; i<count; i++) {
@@ -66,7 +66,7 @@ int sys_write(void) {
     uint32_t fd = arg_word(0);
     char *buf = (char*)arg_ptr(1);
     uint32_t count = arg_word(2);
-    kprintf("[*] SYS_write called! fd=%d, buf=0x%x, count=%d \n",fd, buf, count);
+    // kprintf("[*] SYS_write called! fd=%d, buf=0x%x, count=%d \n",fd, buf, count);
     for(int i=0; i<count; i++) {
         if(fd == 1) { // stdout
             uart_putchar(buf[i]);
