@@ -1,14 +1,20 @@
 #include "libs/std.h"
 
 void _start(void) {
-    char out[] = "Hello from C :^)\nEnter your name: ";
-    char welcome[] = "\nWelcome, ";
+    char banner[] = "Welcome to init!\n";
+    char prompt[] = "[root@world]~# ";
+    char resp[] = "\nYou typed: ";
     char input[0x20];
     int count;
-    write(1, out, sizeof(out));
-    count = read(0, input, 0x8);
-     write(1, welcome, sizeof(welcome));
-     write(1, input, count);
+    write(1, banner, sizeof(banner));
+
+    while(1) {
+        write(1, prompt, sizeof(prompt));
+        count = read(0, input, sizeof(input));
+        write(1, resp, sizeof(resp));
+        write(1, input, count);
+        write(1, "\n", 1);
+    }
 
      // spin
         asm volatile(

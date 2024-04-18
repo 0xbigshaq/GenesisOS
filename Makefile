@@ -29,6 +29,7 @@ OBJS = \
 	$(BUILD_DIR)/syscall.o\
 	$(BUILD_DIR)/ata.o\
 	$(BUILD_DIR)/fat32.o\
+	$(BUILD_DIR)/file.o\
 
 
 CPUS=1
@@ -60,6 +61,7 @@ kernel: kentry kvectors
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/syscall.c -o $(BUILD_DIR)/syscall.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/ata.c -o $(BUILD_DIR)/ata.o
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/fat32.c -o $(BUILD_DIR)/fat32.o
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/file.c -o $(BUILD_DIR)/file.o
 	@echo "\n[*] ======= Linking kernel.elf ======="
 	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
 

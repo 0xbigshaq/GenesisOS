@@ -3,6 +3,7 @@
 #include "proc.h"
 #include "types.h"
 #include "uart.h"
+#include "file.h"
 
 int (*syscalls[])(void) = {
     [SYS_read]  sys_read,
@@ -32,32 +33,31 @@ void sys_dispatch(void) {
 }
 
 
-/*
- * FIXME: dumb impl, should use real fd, not put a nullbyte at the end, 
- * should also stop at EOF(and not a newline)
- */
 int sys_read(void) {
     uint32_t fd = arg_word(0);
     char* out = (char*)arg_ptr(1);
     uint32_t count = arg_word(2);
     char c = 0;
     int i = 0;
+    task_t *proc = cur_proc();
 
-    // kprintf("\n[*] SYS_read called!, fd=%d, buf=0x%p, count=%d\n", fd, out, count);
-
-    if(fd == 0) { // stdin
-        for(; i<count; i++) {
-            while(c<=0)
-                c = uart_getchar();
-            uart_putchar(c);
-            if (c == '\r' || c == '\n')
+    if(proc->ofile[fd].type == FD_DEVICE) {
+        for(; i<count; ) {
+            c = devices[proc->ofile[fd].devno].read();
+            if (c == '\n' || c == '\r') {
                 break;
-            out[i] = c;
-            c = 0;
+            }
+            else if(c == 0x7f && i>0) {
+                i--;
+            } else if( c != 0x7f) {
+                out[i] = c;
+                i++;
+            } else {
+                continue;
+            }
         }
         out[i] = 0;
     }
-
     return i;
 }
 
@@ -66,10 +66,11 @@ int sys_write(void) {
     uint32_t fd = arg_word(0);
     char *buf = (char*)arg_ptr(1);
     uint32_t count = arg_word(2);
-    // kprintf("[*] SYS_write called! fd=%d, buf=0x%x, count=%d \n",fd, buf, count);
-    for(int i=0; i<count; i++) {
-        if(fd == 1) { // stdout
-            uart_putchar(buf[i]);
+    task_t *proc = cur_proc();
+
+    if(proc->ofile[fd].type == FD_DEVICE) {
+        for(int i=0; i<count; i++) {
+            devices[proc->ofile[fd].devno].write(buf[i]);
         }
     }
     return 0;
@@ -92,3 +93,6 @@ int sys_stat(void) {
     // not implemented yet
     return 0;
 }
+
+// TODO:
+// https://manpages.debian.org/unstable/manpages-dev/getdents.2.en.html

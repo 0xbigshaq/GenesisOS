@@ -16,6 +16,7 @@ DEBIAN_FRONTEND=noninteractive apt install \
     xorriso \
     dosfstools \
     libc6-dev-i386 \
+    python3-pip \
     -y
 
 git clone --branch main https://github.com/hugsy/gef.git /root/gef/

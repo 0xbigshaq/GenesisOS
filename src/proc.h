@@ -2,10 +2,12 @@
 #include "interrupts.h"
 #include "types.h"
 #include "mmu.h"
+#include "file.h"
 
 #define N_SEG   0x10
 #define N_PROCS 0x10
 #define N_CPUS  1
+#define NOFILE  16 
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
@@ -16,6 +18,7 @@ typedef struct task {
     char *kstack;
     enum procstate state;
     uint32_t pid;
+    file_t ofile[NOFILE];
 } task_t;
 
 extern task_t proc_tbl[N_PROCS];

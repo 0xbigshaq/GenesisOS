@@ -25,8 +25,8 @@ void uart_putchar(char c)
 
 int uart_getchar(void)
 {
-  if(!(inb(UART_BASE_ADDR+5) & 0x01))
-    return -1;
+  while(!(inb(UART_BASE_ADDR+5) & 0x01))
+    continue;
   return inb(UART_BASE_ADDR+0);
 }
 

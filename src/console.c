@@ -1,9 +1,35 @@
 #include "console.h"
 #include "memlayout.h"
 #include "uart.h"
+#include "file.h"
 
 // Video Memory related funcs
 uint16_t *const video = (uint16_t*) phys_to_virt(0xB8000);
+
+void console_putchar(char c) {
+  uart_putchar(c);
+}
+
+int console_getchar(void) {
+  int ch;
+  ch = uart_getchar();
+  if(ch == 0x7f) {
+    uart_putchar('\b');
+    uart_putchar(' ');
+    uart_putchar('\b');
+  } else if(ch == '\r' || ch == '\n') {
+    uart_putchar('\r');
+    uart_putchar('\n');
+  } else {
+    uart_putchar(ch);
+  }
+  return ch;
+}
+
+void init_console() {
+  devices[DEV_CONSOLE].write = &console_putchar;
+  devices[DEV_CONSOLE].read = &console_getchar;
+}
 
 void putc(uint8_t x, uint8_t y, enum color fg, enum color bg, char c) {
     video[y * COLS + x] = (bg << 12) | (fg << 8) | c;

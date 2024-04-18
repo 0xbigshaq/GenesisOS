@@ -32,6 +32,7 @@ void kmain()
     
     init_kernelvm();
     init_uart();
+    init_console();
     uart_write("[*] *OS booting...\n");
     init_pic();
     setup_idt();

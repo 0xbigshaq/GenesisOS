@@ -25,6 +25,7 @@ bins:
 
 fs: bins
 	@echo "\n[*] Copying userland binaries to disk.img"
+	mkdir -p /mnt/disk/
 	mount /share/disk.img /mnt/disk/
 	cp $(BUILD_PATH)/init.elf /mnt/disk/init
 	umount /mnt/disk/
