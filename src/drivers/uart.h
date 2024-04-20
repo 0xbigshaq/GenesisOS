@@ -1,6 +1,6 @@
 // https://wiki.osdev.org/Serial_Ports
 #pragma once
-#include "x86.h"
+#include "kernel/x86.h"
 
 // this is hard-coded for now, because I don't have any plans for GUI 
 #define NOGRAPHIC 1 

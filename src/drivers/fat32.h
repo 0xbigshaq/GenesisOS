@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "kernel/types.h"
 
 #pragma pack(1)
 struct FAT32BPB {

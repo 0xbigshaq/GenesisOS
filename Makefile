@@ -1,7 +1,6 @@
 CC=gcc
 ASM=nasm
 LD=ld
-
 CFLAGS=-ffreestanding -fno-pic -static -fno-builtin \
 		-fno-strict-aliasing -O2 -Wall -ggdb -m32 \
 		-Werror -fno-omit-frame-pointer -fno-stack-protector -mno-80387 -Wno-div-by-zero
@@ -9,63 +8,65 @@ CFLAGS=-ffreestanding -fno-pic -static -fno-builtin \
 SRC_DIR=src
 INC_DIR=src  -I/usr/include/ -I/usr/include/x86_64-linux-gnu
 BUILD_DIR=build
-
 DISK_IMG=disk.img
 
-OBJS = \
-	$(BUILD_DIR)/kentry.o\
-	$(BUILD_DIR)/kmain.o\
-	$(BUILD_DIR)/console.o\
-	$(BUILD_DIR)/kmalloc.o\
-	$(BUILD_DIR)/vm.o\
-	$(BUILD_DIR)/uart.o\
-	$(BUILD_DIR)/interrupts.o\
-	$(BUILD_DIR)/trap_dispatcher.o\
-	$(BUILD_DIR)/trap_entry.o\
-	$(BUILD_DIR)/pic.o\
-	$(BUILD_DIR)/proc.o\
-	$(BUILD_DIR)/sched.o\
-	$(BUILD_DIR)/string.o\
-	$(BUILD_DIR)/syscall.o\
-	$(BUILD_DIR)/ata.o\
-	$(BUILD_DIR)/fat32.o\
-	$(BUILD_DIR)/file.o\
+KERN_SRC_DIR=$(SRC_DIR)/kernel
+KERN_OBJ_DIR=$(BUILD_DIR)/kernel
 
+DRIVERS_SRC_DIR=$(SRC_DIR)/drivers
+DRIVERS_OBJ_DIR=$(BUILD_DIR)/drivers
+
+# $(wildcard *.cpp /xxx/xxx/*.cpp): get all .cpp files from the current directory and dir "/xxx/xxx/"
+# $(patsubst %.cpp,%.o,$(SRCS)): substitute all ".cpp" file name strings to ".o" file name strings
+
+KERNEL_SRCS := $(wildcard $(KERN_SRC_DIR)/*.c)
+KERNEL_SRCS += $(wildcard $(KERN_SRC_DIR)/*.S)
+KERNEL_OBJS := $(patsubst $(KERN_SRC_DIR)/%.c,$(KERN_OBJ_DIR)/%.o,$(KERNEL_SRCS))
+KERNEL_OBJS := $(patsubst $(KERN_SRC_DIR)/%.S,$(KERN_OBJ_DIR)/%.o,$(KERNEL_OBJS))
+
+DRIVER_SRCS := $(wildcard $(DRIVERS_SRC_DIR)/*.c)
+DRIVER_OBJS := $(patsubst $(DRIVERS_SRC_DIR)/%.c,$(DRIVERS_OBJ_DIR)/%.o,$(DRIVER_SRCS))
 
 CPUS=1
 QEMU_OPTS=-smp $(CPUS) -m 512 -serial pty -serial stdio
 
-kentry: $(SRC_DIR)/kentry.S
-	@echo "\n[*] ======= Building kentry ======="
-	$(CC) -m32 -ggdb -gdwarf-2 -I$(INC_DIR) -c $(SRC_DIR)/kentry.S -o $(BUILD_DIR)/kentry.o
-
-kvectors: $(SRC_DIR)/trap_dispatcher.S
-	@echo "\n[*] ======= Compiling trap_dispatcher dispatcher ======="
-	./gen_vectors.py > src/trap_dispatcher.S
-	$(CC) -m32 -ggdb -gdwarf-2 -I$(INC_DIR) -c $(SRC_DIR)/trap_dispatcher.S -o $(BUILD_DIR)/trap_dispatcher.o
-	$(CC) -m32 -ggdb -gdwarf-2 -I$(INC_DIR) -c $(SRC_DIR)/trap_entry.S -o $(BUILD_DIR)/trap_entry.o
+dirsetup:
+	mkdir -p $(DRIVERS_OBJ_DIR)
+	mkdir -p $(KERN_OBJ_DIR)
+	./gen_vectors.py > $(KERN_SRC_DIR)/trap_dispatcher.S
 
 
-kernel: kentry kvectors
-	@echo "\n[*] ======= Building kernel.elf ======="
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/kmain.c -o $(BUILD_DIR)/kmain.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/console.c -o $(BUILD_DIR)/console.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/kmalloc.c -o $(BUILD_DIR)/kmalloc.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/vm.c -o $(BUILD_DIR)/vm.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/uart.c -o $(BUILD_DIR)/uart.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/interrupts.c -o $(BUILD_DIR)/interrupts.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/pic.c -o $(BUILD_DIR)/pic.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/proc.c -o $(BUILD_DIR)/proc.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/sched.c -o $(BUILD_DIR)/sched.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/string.c -o $(BUILD_DIR)/string.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/syscall.c -o $(BUILD_DIR)/syscall.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/ata.c -o $(BUILD_DIR)/ata.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/fat32.c -o $(BUILD_DIR)/fat32.o
-	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $(SRC_DIR)/file.c -o $(BUILD_DIR)/file.o
+# drivers
+# -------------------------
+build/drivers/%.o: src/drivers/%.c
+	@echo "[*] Compiling $^"
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $^ -o $@
+
+drivers: $(DRIVER_OBJS)
+	@echo "[*] ======= Done compiling drivers ======="
+
+# kernel (C sources & assemblies)
+# -------------------------
+build/kernel/%.o: src/kernel/%.c
+	@echo "[*] Compiling $^"
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $^ -o $@
+
+build/kernel/%.o: src/kernel/%.S
+	@echo "[*] Compiling $^"
+	$(CC) $(CFLAGS) -fno-pic -nostdinc -I$(INC_DIR) -c $^ -o $@
+
+kern: $(KERNEL_OBJS)
+	@echo "[*] ======= Done compiling kernel ======="
+
+kernel: kern drivers
 	@echo "\n[*] ======= Linking kernel.elf ======="
-	$(LD) $(LDFLAGS) -T$(SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(OBJS) -b binary
+	$(LD) $(LDFLAGS) -T$(KERN_SRC_DIR)/kernel.ld -o $(BUILD_DIR)/kernel.elf $(KERNEL_OBJS) $(DRIVER_OBJS) -b binary
 
+
+# OS image
+# -------------------------
 iso: kernel fs
+	@echo "\n[*] ======= Making iso image w/ GRUB bootloader ======="
 	cp $(BUILD_DIR)/kernel.elf iso/targets/x86/boot/kernel.bin && \
 	grub-mkrescue /usr/lib/grub/i386-pc -o $(BUILD_DIR)/kernel.iso iso/targets/x86 
 
@@ -73,12 +74,13 @@ clean:
 	rm -rf $(BUILD_DIR)/*
 	$(MAKE) clean -C ./src/userland/
 
+# Emulation & debugging
+# -------------------------
 qemu:
 	qemu-system-i386 -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
 
 qemu-nox:
 	qemu-system-i386 -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda $(DISK_IMG) $(QEMU_EXTRAS)
-# qemu-system-i386 -nographic -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
 
 qemu-gdb:
 	@echo "\n[*] ======= starting QEMU+gdb ======="
@@ -86,6 +88,8 @@ qemu-gdb:
 	@echo "Starting "
 	qemu-system-i386 -s -S -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda $(DISK_IMG) $(QEMU_EXTRAS)
 
+# Disk / filesystem
+# -------------------------
 disk:
 	@echo "\n[*] ======= Generating FAT32 disk image ======="
 	dd if=/dev/zero of=disk.img bs=1M count=1
@@ -93,18 +97,3 @@ disk:
 
 fs: disk
 	$(MAKE) fs -C ./src/userland/
-
-# SRC_DIR=src
-# BUILD_DIR=build
-
-# $(BUILD_DIR)/main_floppy.img: $(BUILD_DIR)/main.bin
-# 	cp $(BUILD_DIR)/main.bin $(BUILD_DIR)/main_floppy.img
-# 	truncate -s 1440k $(BUILD_DIR)/main_floppy.img
-
-# $(BUILD_DIR)/main.bin: $(SRC_DIR)/main.asm
-# 	$(ASM) $(SRC_DIR)/main.asm -f bin -o $(BUILD_DIR)/main.bin
-
-
-# To generate FAT32 disk:
-# dd if=/dev/zero of=dummy_disk.img bs=1M count=1
-# mkfs.vfat -F 32 dummy_disk.img

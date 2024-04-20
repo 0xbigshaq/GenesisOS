@@ -1,9 +1,9 @@
-#include "syscall.h"
-#include "console.h"
-#include "proc.h"
-#include "types.h"
-#include "uart.h"
-#include "file.h"
+#include "kernel/syscall.h"
+#include "drivers/console.h"
+#include "kernel/proc.h"
+#include "kernel/types.h"
+#include "drivers/uart.h"
+#include "kernel/file.h"
 
 int (*syscalls[])(void) = {
     [SYS_read]  sys_read,

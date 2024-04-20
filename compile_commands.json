@@ -3,52 +3,31 @@
   "directory": "/share",
   "arguments": [
    "gcc",
-   "-m32",
+   "-ffreestanding",
+   "-fno-pic",
+   "-static",
+   "-fno-builtin",
+   "-fno-strict-aliasing",
+   "-O2",
+   "-Wall",
    "-ggdb",
-   "-gdwarf-2",
+   "-m32",
+   "-Werror",
+   "-fno-omit-frame-pointer",
+   "-fno-stack-protector",
+   "-mno-80387",
+   "-Wno-div-by-zero",
+   "-fno-pic",
+   "-nostdinc",
    "-Isrc",
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/kentry.S",
+   "src/kernel/interrupts.c",
    "-o",
-   "build/kentry.o"
+   "build/kernel/interrupts.o"
   ],
-  "file": "src/kentry.S"
- },
- {
-  "directory": "/share",
-  "arguments": [
-   "gcc",
-   "-m32",
-   "-ggdb",
-   "-gdwarf-2",
-   "-Isrc",
-   "-I/usr/include/",
-   "-I/usr/include/x86_64-linux-gnu",
-   "-c",
-   "src/trap_dispatcher.S",
-   "-o",
-   "build/trap_dispatcher.o"
-  ],
-  "file": "src/trap_dispatcher.S"
- },
- {
-  "directory": "/share",
-  "arguments": [
-   "gcc",
-   "-m32",
-   "-ggdb",
-   "-gdwarf-2",
-   "-Isrc",
-   "-I/usr/include/",
-   "-I/usr/include/x86_64-linux-gnu",
-   "-c",
-   "src/trap_entry.S",
-   "-o",
-   "build/trap_entry.o"
-  ],
-  "file": "src/trap_entry.S"
+  "file": "src/kernel/interrupts.c"
  },
  {
   "directory": "/share",
@@ -74,11 +53,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/kmain.c",
+   "src/kernel/file.c",
    "-o",
-   "build/kmain.o"
+   "build/kernel/file.o"
   ],
-  "file": "src/kmain.c"
+  "file": "src/kernel/file.c"
  },
  {
   "directory": "/share",
@@ -104,11 +83,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/console.c",
+   "src/kernel/string.c",
    "-o",
-   "build/console.o"
+   "build/kernel/string.o"
   ],
-  "file": "src/console.c"
+  "file": "src/kernel/string.c"
  },
  {
   "directory": "/share",
@@ -134,11 +113,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/kmalloc.c",
+   "src/kernel/sched.c",
    "-o",
-   "build/kmalloc.o"
+   "build/kernel/sched.o"
   ],
-  "file": "src/kmalloc.c"
+  "file": "src/kernel/sched.c"
  },
  {
   "directory": "/share",
@@ -164,11 +143,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/vm.c",
+   "src/kernel/kmain.c",
    "-o",
-   "build/vm.o"
+   "build/kernel/kmain.o"
   ],
-  "file": "src/vm.c"
+  "file": "src/kernel/kmain.c"
  },
  {
   "directory": "/share",
@@ -194,11 +173,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/uart.c",
+   "src/kernel/syscall.c",
    "-o",
-   "build/uart.o"
+   "build/kernel/syscall.o"
   ],
-  "file": "src/uart.c"
+  "file": "src/kernel/syscall.c"
  },
  {
   "directory": "/share",
@@ -224,11 +203,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/interrupts.c",
+   "src/kernel/vm.c",
    "-o",
-   "build/interrupts.o"
+   "build/kernel/vm.o"
   ],
-  "file": "src/interrupts.c"
+  "file": "src/kernel/vm.c"
  },
  {
   "directory": "/share",
@@ -254,11 +233,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/pic.c",
+   "src/kernel/kmalloc.c",
    "-o",
-   "build/pic.o"
+   "build/kernel/kmalloc.o"
   ],
-  "file": "src/pic.c"
+  "file": "src/kernel/kmalloc.c"
  },
  {
   "directory": "/share",
@@ -284,11 +263,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/proc.c",
+   "src/kernel/pic.c",
    "-o",
-   "build/proc.o"
+   "build/kernel/pic.o"
   ],
-  "file": "src/proc.c"
+  "file": "src/kernel/pic.c"
  },
  {
   "directory": "/share",
@@ -314,11 +293,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/sched.c",
+   "src/kernel/proc.c",
    "-o",
-   "build/sched.o"
+   "build/kernel/proc.o"
   ],
-  "file": "src/sched.c"
+  "file": "src/kernel/proc.c"
  },
  {
   "directory": "/share",
@@ -344,11 +323,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/string.c",
+   "src/kernel/trap_entry.S",
    "-o",
-   "build/string.o"
+   "build/kernel/trap_entry.o"
   ],
-  "file": "src/string.c"
+  "file": "src/kernel/trap_entry.S"
  },
  {
   "directory": "/share",
@@ -374,11 +353,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/syscall.c",
+   "src/kernel/trap_dispatcher.S",
    "-o",
-   "build/syscall.o"
+   "build/kernel/trap_dispatcher.o"
   ],
-  "file": "src/syscall.c"
+  "file": "src/kernel/trap_dispatcher.S"
  },
  {
   "directory": "/share",
@@ -404,11 +383,11 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/ata.c",
+   "src/kernel/kentry.S",
    "-o",
-   "build/ata.o"
+   "build/kernel/kentry.o"
   ],
-  "file": "src/ata.c"
+  "file": "src/kernel/kentry.S"
  },
  {
   "directory": "/share",
@@ -434,10 +413,148 @@
    "-I/usr/include/",
    "-I/usr/include/x86_64-linux-gnu",
    "-c",
-   "src/fat32.c",
+   "src/drivers/uart.c",
    "-o",
-   "build/fat32.o"
+   "build/drivers/uart.o"
   ],
-  "file": "src/fat32.c"
+  "file": "src/drivers/uart.c"
+ },
+ {
+  "directory": "/share",
+  "arguments": [
+   "gcc",
+   "-ffreestanding",
+   "-fno-pic",
+   "-static",
+   "-fno-builtin",
+   "-fno-strict-aliasing",
+   "-O2",
+   "-Wall",
+   "-ggdb",
+   "-m32",
+   "-Werror",
+   "-fno-omit-frame-pointer",
+   "-fno-stack-protector",
+   "-mno-80387",
+   "-Wno-div-by-zero",
+   "-fno-pic",
+   "-nostdinc",
+   "-Isrc",
+   "-I/usr/include/",
+   "-I/usr/include/x86_64-linux-gnu",
+   "-c",
+   "src/drivers/ata.c",
+   "-o",
+   "build/drivers/ata.o"
+  ],
+  "file": "src/drivers/ata.c"
+ },
+ {
+  "directory": "/share",
+  "arguments": [
+   "gcc",
+   "-ffreestanding",
+   "-fno-pic",
+   "-static",
+   "-fno-builtin",
+   "-fno-strict-aliasing",
+   "-O2",
+   "-Wall",
+   "-ggdb",
+   "-m32",
+   "-Werror",
+   "-fno-omit-frame-pointer",
+   "-fno-stack-protector",
+   "-mno-80387",
+   "-Wno-div-by-zero",
+   "-fno-pic",
+   "-nostdinc",
+   "-Isrc",
+   "-I/usr/include/",
+   "-I/usr/include/x86_64-linux-gnu",
+   "-c",
+   "src/drivers/console.c",
+   "-o",
+   "build/drivers/console.o"
+  ],
+  "file": "src/drivers/console.c"
+ },
+ {
+  "directory": "/share",
+  "arguments": [
+   "gcc",
+   "-ffreestanding",
+   "-fno-pic",
+   "-static",
+   "-fno-builtin",
+   "-fno-strict-aliasing",
+   "-O2",
+   "-Wall",
+   "-ggdb",
+   "-m32",
+   "-Werror",
+   "-fno-omit-frame-pointer",
+   "-fno-stack-protector",
+   "-mno-80387",
+   "-Wno-div-by-zero",
+   "-fno-pic",
+   "-nostdinc",
+   "-Isrc",
+   "-I/usr/include/",
+   "-I/usr/include/x86_64-linux-gnu",
+   "-c",
+   "src/drivers/fat32.c",
+   "-o",
+   "build/drivers/fat32.o"
+  ],
+  "file": "src/drivers/fat32.c"
+ },
+ {
+  "directory": "/share/src/userland",
+  "arguments": [
+   "gcc",
+   "-fno-pic",
+   "-static",
+   "-Wall",
+   "-ggdb",
+   "-m32",
+   "-nostdlib",
+   "-masm=intel",
+   "-fno-omit-frame-pointer",
+   "-fno-stack-protector",
+   "-I/share/src",
+   "-I/share/src/userland/libs",
+   "-I/usr/include",
+   "-I/usr/include/linux/",
+   "-c",
+   "/share/src/userland/init.c",
+   "-o",
+   "/share/src/userland/build/init.o"
+  ],
+  "file": "/share/src/userland/init.c"
+ },
+ {
+  "directory": "/share/src/userland",
+  "arguments": [
+   "gcc",
+   "-fno-pic",
+   "-static",
+   "-Wall",
+   "-ggdb",
+   "-m32",
+   "-nostdlib",
+   "-masm=intel",
+   "-fno-omit-frame-pointer",
+   "-fno-stack-protector",
+   "-I/share/src",
+   "-I/share/src/userland/libs",
+   "-I/usr/include",
+   "-I/usr/include/linux/",
+   "-c",
+   "/share/src/userland/libs/std.c",
+   "-o",
+   "/share/src/userland/build/libs/std.o"
+  ],
+  "file": "/share/src/userland/libs/std.c"
  }
 ]

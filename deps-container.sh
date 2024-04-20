@@ -26,15 +26,27 @@ echo "add-auto-load-safe-path /share/.gdbinit" >> ~/.gdbinit
 pip3 install compiledb
 # to generate `compile_commands.json` file, run: `compiledb make iso`
 
-echo "export LC_CTYPE=C.UTF-8" >> ~/.bashrc
-echo "export PS1='\[\e[1;34m\]\u@\h \[\e[1;32m\]\w \[\e[1;31m\]🌀 \\$ \[\e[0m\]'" >> ~/.bashrc
+echo "" > ~/.osdevrc
+echo "export LC_CTYPE=C.UTF-8" >> ~/.osdevrc
+echo "export PS1='\[\e[31m\][\[\e[m\]\[\e[38;5;172m\]\u\[\e[m\]@\[\e[38;5;153m\]\h\[\e[m\] \[\e[38;5;214m\]\w\[\e[m\]\[\e[31m\]]\[\e[m\]\\$ '" >> ~/.osdevrc
+echo "cat /tmp/penguin.txt" >> ~/.osdevrc
 
-# Note: to exit qemu, Ctrl-A X    (source: https://www.ics.uci.edu/~aburtsev/238P/2020spring/hw/hw2-boot-xv6.html)
+cat > /tmp/penguin.txt<<'EOF'
+           _..._
+         .'     '.
+        /  _   _  \
+        | (o)_(o) |
+         \(     ) /
+         //'._.'\ \
+        //   .   \ \
+       ||   .     \ \
+       |\   :     / |
+       \ `) '   (`  /_
+     _)``".____,.'"` (_
+     )     )'--'(     (
+      '---`      `---`
+EOF
 
-
-# tmux commands:
-# :set-window-option -g mode-keys vi
-# 
-# more: https://tmuxcheatsheet.com/
-# 
-# 
+if ! grep -Fq "osdevrc" ~/.bashrc; then
+    echo "source ~/.osdevrc" >> ~/.bashrc
+fi

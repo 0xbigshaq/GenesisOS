@@ -1,13 +1,13 @@
-#include "proc.h"
-#include "kmalloc.h"
-#include "memlayout.h"
-#include "mmu.h"
-#include "vm.h"
-#include "sched.h"
-#include "fat32.h"
+#include "kernel/proc.h"
+#include "kernel/kmalloc.h"
+#include "kernel/memlayout.h"
+#include "kernel/mmu.h"
+#include "kernel/vm.h"
+#include "kernel/sched.h"
+#include "drivers/fat32.h"
 #include <elf.h>
 #include <stdint.h>
-#include <string.h>
+#include "kernel/string.h"
 
 cpu_t cpus[N_CPUS];
 task_t proc_tbl[N_PROCS];

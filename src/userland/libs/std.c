@@ -1,5 +1,5 @@
 #include "std.h"
-#include "syscall.h"
+#include "kernel/syscall.h"
 #include <stdint.h>
 
 int write(int fd, char *buf, uint32_t count) {

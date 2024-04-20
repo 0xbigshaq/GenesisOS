@@ -1,10 +1,10 @@
-#include "fat32.h"
-#include "kmalloc.h"
-#include "mmu.h"
-#include "types.h"
-#include "console.h"
-#include "ata.h"
-#include "string.h"
+#include "drivers/fat32.h"
+#include "kernel/kmalloc.h"
+#include "kernel/mmu.h"
+#include "kernel/types.h"
+#include "drivers/console.h"
+#include "drivers/ata.h"
+#include "kernel/string.h"
 
 /*
  * 

@@ -1,7 +1,7 @@
 #pragma once 
 
-#include "string.h"
-#include "x86.h"
+#include "kernel/string.h"
+#include "kernel/x86.h"
 
 #define ATA_DATA_REG 0x1F0
 #define ATA_ERROR_REG 0x1F1

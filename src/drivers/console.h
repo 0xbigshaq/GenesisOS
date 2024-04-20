@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "kernel/types.h"
 
 // TODO: this should be splitted into two different drivers:
 //       1. Video Memory driver

@@ -1,6 +1,6 @@
 #pragma once
 #include "types.h"
-#include "console.h"
+#include "drivers/console.h"
 
 #define PANIC(str) puts(0, 0, RED, BLACK, "panic @ " str); while(1) { /*nothing*/ } 
 

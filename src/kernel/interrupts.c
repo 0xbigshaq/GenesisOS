@@ -1,12 +1,12 @@
-#include "interrupts.h"
-#include "uart.h"
-#include "x86.h"
-#include "mmu.h"
-#include "console.h"
-#include "pic.h"
-#include "sched.h"
-#include "proc.h"
-#include "syscall.h"
+#include "kernel/interrupts.h"
+#include "drivers/uart.h"
+#include "kernel/x86.h"
+#include "kernel/mmu.h"
+#include "drivers/console.h"
+#include "kernel/pic.h"
+#include "kernel/sched.h"
+#include "kernel/proc.h"
+#include "kernel/syscall.h"
 
 idt_entry_t idt[256];  // IDT Entries
 idt_reg_t idtr;        // This is loaded to the IDT Register
