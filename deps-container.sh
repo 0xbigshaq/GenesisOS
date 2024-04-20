@@ -1,7 +1,7 @@
 #!/bin/bash
 
-apt update
-DEBIAN_FRONTEND=noninteractive apt install \
+sudo apt update
+DEBIAN_FRONTEND=noninteractive sudo apt install \
     build-essential \
     gdb \
     file \
@@ -17,7 +17,9 @@ DEBIAN_FRONTEND=noninteractive apt install \
     dosfstools \
     libc6-dev-i386 \
     python3-pip \
+    mtools \
     -y
+
 
 git clone --branch main https://github.com/hugsy/gef.git /root/gef/
 echo "source /root/gef/gef.py" > ~/.gdbinit 

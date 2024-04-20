@@ -1,0 +1,24 @@
+name: Pipeline
+
+on: push
+
+jobs:
+  build-os:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: ./deps-container.sh
+
+      - name: Compile Kernel
+        run: |
+          make dirsetup
+          make kernel
+      
+      - name: Compile Filesystem/Userland
+        run: make fs
+
+      - name: Build iso image
+        run: make iso

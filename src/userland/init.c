@@ -2,7 +2,7 @@
 
 void _start(void) {
     char banner[] = "Welcome to init!\n";
-    char prompt[] = "[root@world]~# ";
+    char prompt[] = "[root@os]~# ";
     char resp[] = "\nYou typed: ";
     char input[0x20];
     int count;
