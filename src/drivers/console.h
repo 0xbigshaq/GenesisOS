@@ -1,11 +1,6 @@
 #pragma once
 #include "kernel/types.h"
 
-// TODO: this should be splitted into two different drivers:
-//       1. Video Memory driver
-//       2. UART/Serial driver
-
-
 // Video Memory
 // https://wiki.osdev.org/Printing_To_Screen#Color_Table
 enum color {

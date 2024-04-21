@@ -6,11 +6,11 @@
 #include "drivers/uart.h"
 
 int (*syscalls[])(void) = {
-    [SYS_read]  sys_read,
-    [SYS_write] sys_write,
-    [SYS_open]  sys_open,
-    [SYS_close] sys_close,
-    [SYS_stat]  sys_stat
+    [SYS_read]  = sys_read,
+    [SYS_write] = sys_write,
+    [SYS_open]  = sys_open,
+    [SYS_close] = sys_close,
+    [SYS_stat]  = sys_stat
 };
 
 uint32_t arg_word(int n) {

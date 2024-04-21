@@ -4,7 +4,6 @@
 <br />
 <img src='https://github.com/0xbigshaq/GenesisOS/actions/workflows/ci.yaml/badge.svg' />
 <a href='https://discord.gg/PpeeR64k'><img src='https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white' /></a>
-
 </p>
 
 Dumb project I made because I wanted to learn about kernels and how they work.
@@ -67,3 +66,4 @@ For easier code navigation and auto-completion, use _clangd_'s vscode plugin + [
 make clean && make dirsetup
 compiledb make iso
 ```
+

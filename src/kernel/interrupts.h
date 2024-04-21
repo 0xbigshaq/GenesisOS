@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "kernel/types.h"
 /* 
  * Intel SDM Vol. 3, Section 6.10 - "Interrupt Descriptor Table (IDT)"
  * Figure 6-2. IDT Gate Descriptors

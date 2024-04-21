@@ -40,12 +40,9 @@ void kmain()
     puts(0, 1, BRIGHT, BLACK, "Hello from BereshitOS  :^)");
 
     uart_write("[+] Ready\n");
-    // run_init();
-    // --- experimental ---
     uint8_t sector[512];
     int lba = 0; // Read from LBA 0
     if (ata_read_sector(lba, sector) == 0) {
-        // Print the first 16 bytes of the sector
         // for (int i = 0; i < 256; i++) {
             // kprintf("%x ", sector[i]);
             // uart_putchar(sector[i]);

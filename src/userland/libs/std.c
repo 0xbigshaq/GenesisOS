@@ -1,9 +1,9 @@
-#include "std.h"
+#include "userland/libs/std.h"
 #include "kernel/syscall.h"
 #include <stdint.h>
 
 int write(int fd, char *buf, uint32_t count) {
-    int sysno = SYS_write ;//SYS_write;
+    int sysno = SYS_write;
     int result;
     asm volatile(
         "mov eax, %1\n" 
@@ -18,11 +18,11 @@ int write(int fd, char *buf, uint32_t count) {
           "c" (buf),
           "d" (fd)
     );
-    return result;  // Return value is already in %eax
+    return result;
 }
 
 int read(int fd, char *buf, uint32_t count) {
-    int sysno = SYS_read ;//SYS_write;
+    int sysno = SYS_read;
     int result;
     asm volatile(
         "mov eax, %1\n" 
@@ -37,5 +37,5 @@ int read(int fd, char *buf, uint32_t count) {
           "c" (buf),
           "d" (fd)
     );
-    return result;  // Return value is already in %eax
+    return result;
 }

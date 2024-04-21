@@ -1,9 +1,9 @@
 
-#include "kmalloc.h"
-#include "types.h"
-#include "mmu.h"
-#include "memlayout.h"
-#include "x86.h"
+#include "kernel/kmalloc.h"
+#include "kernel/types.h"
+#include "kernel/mmu.h"
+#include "kernel/memlayout.h"
+#include "kernel/x86.h"
 
 extern char kern_end[]; // first address after kernel loaded from ELF file
                    // defined by the kernel linker script in kernel.ld

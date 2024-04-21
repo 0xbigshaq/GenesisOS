@@ -46,10 +46,6 @@ void setup_idt(void) {
 
 void handle_trap(trap_ctx_t* ctx)
 {
-    // if(ctx->vector_idx != 0x20) {
-        // kprintf("handle_trap() triggered! Interrupt number(ctx->vector_idx) = %d (hex: 0x%x)\n", ctx->vector_idx, ctx->vector_idx);
-    // }
-
     if(ctx->vector_idx >= 0 && ctx->vector_idx <= 21) {
         kprintf("\n[!] KERNEL/CPU EXCEPTION %d at 0x%p\n", ctx->vector_idx, ctx->eip);
         while(1) { }
@@ -59,23 +55,6 @@ void handle_trap(trap_ctx_t* ctx)
         sys_dispatch();
         return ;
     }
-
-    // if(ctx->vector_idx == IRQ_COM1) {
-    //     char ch;
-    //     if((ch = uart_getchar()) >= '\0') {
-    //         // kprintf("[*] IRQ_COM1 triggered! recv'd: 0x%x", ch);
-    //         // uart_putchar(ch);
-    //         // uart_putchar('\n');
-    //         if(ch == '\r' || ch == '\n') {
-    //             kprintf("\n[root@wrld]> ");
-    //         } else if (ch == 0x7f) { // Handle backspace
-    //             uart_putchar('\b'); uart_putchar(' '); uart_putchar('\b');
-    //         }
-    //          else {
-    //             uart_putchar(ch);
-    //         }
-    //     }
-    // }
 
     if(ctx->vector_idx == IRQ_TIMER) {
         // kprintf("[*] IRQ_TIMER triggered\n");

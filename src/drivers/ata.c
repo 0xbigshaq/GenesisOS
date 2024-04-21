@@ -1,5 +1,5 @@
-#include "ata.h"
-#include "console.h"
+#include "drivers/ata.h"
+#include "drivers/console.h"
 
 void delay() {
     for (int i = 0; i < 1000; i++) {
@@ -30,9 +30,6 @@ int ata_read_sector(uint32_t lba, uint8_t *buffer) {
         uint16_t data = inw(ATA_DATA_REG);
         memmove(buffer + (i * 2), &data, sizeof(uint16_t));
     }
-
-    // kprintf("Read sector %d successfully\n", lba);  // Add this line for debugging
-
 
     return 0;
 }

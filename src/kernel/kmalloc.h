@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "kernel/types.h"
 #include "drivers/console.h"
 
 #define PANIC(str) puts(0, 0, RED, BLACK, "panic @ " str); while(1) { /*spin*/ } 
