@@ -1,7 +1,7 @@
-#include "sched.h"
-#include "interrupts.h"
-#include "proc.h"
-#include "types.h"
+#include "kernel/sched.h"
+#include "kernel/interrupts.h"
+#include "kernel/proc.h"
+#include "kernel/types.h"
 
 
 void scheduler(void) {

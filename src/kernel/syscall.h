@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "kernel/types.h"
 
 #define SYS_read    0
 #define SYS_write   1

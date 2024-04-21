@@ -3,7 +3,7 @@
 /* The following include is a dirty hack, we include the `linker.h`
  * file here because `types.h` is almost always included in all files.
 */
-#include "linker.h"
+#include "kernel/linker.h"
 
 typedef unsigned int   uint;
 typedef unsigned short ushort;

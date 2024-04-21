@@ -1,9 +1,9 @@
 #include "kernel/syscall.h"
-#include "drivers/console.h"
 #include "kernel/proc.h"
 #include "kernel/types.h"
-#include "drivers/uart.h"
 #include "kernel/file.h"
+#include "drivers/console.h"
+#include "drivers/uart.h"
 
 int (*syscalls[])(void) = {
     [SYS_read]  sys_read,
@@ -29,7 +29,7 @@ void* arg_ptr(int n) {
 
 void sys_dispatch(void) {
     trap_ctx_t* ctx = cur_proc()->trapframe;
-    ctx->eax = syscalls[ctx->eax](); // FIXME: add bounds-check
+    ctx->eax = syscalls[ctx->eax](); // FIXME: add bounds-check lol
 }
 
 

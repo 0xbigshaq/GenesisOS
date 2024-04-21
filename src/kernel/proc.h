@@ -1,22 +1,22 @@
 #pragma once
-#include "interrupts.h"
-#include "types.h"
-#include "mmu.h"
-#include "file.h"
+#include "kernel/interrupts.h"
+#include "kernel/types.h"
+#include "kernel/mmu.h"
+#include "kernel/file.h"
 
 #define N_SEG   0x10
 #define N_PROCS 0x10
 #define N_CPUS  1
 #define NOFILE  16 
 
-enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+enum proc_state { UNUSED, FRESH, RUNNABLE, RUNNING };
 
 typedef struct task {
     trap_ctx_t *trapframe;
     cpu_context_t *ctx;
     pte *pgdir;
     char *kstack;
-    enum procstate state;
+    enum proc_state state;
     uint32_t pid;
     file_t ofile[NOFILE];
 } task_t;
@@ -29,8 +29,6 @@ typedef struct cpu {
   cpu_context_t *scheduler;   // swtch() here to enter scheduler
   task_state_t ts;         // Used by x86 to find stack for interrupt
   seg_desc_t gdt[N_SEG];       // x86 global descriptor table
-  int ncli;                    // Depth of pushcli nesting.
-  int intena;                  // Were interrupts enabled before pushcli?
   task_t *proc;           // The process running on this cpu or null
 } cpu_t;
 

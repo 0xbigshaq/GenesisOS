@@ -1,12 +1,12 @@
-#include "types.h"
-#include "memlayout.h"
-#include "mmu.h"
-#include "linker.h"
-#include "vm.h"
-#include "kmalloc.h"
-#include "x86.h"
-#include "proc.h"
-#include "string.h"
+#include "kernel/types.h"
+#include "kernel/memlayout.h"
+#include "kernel/mmu.h"
+#include "kernel/linker.h"
+#include "kernel/vm.h"
+#include "kernel/kmalloc.h"
+#include "kernel/x86.h"
+#include "kernel/proc.h"
+#include "kernel/string.h"
 
 vmmap kern_vmmap[] = {
     { VIRTBASE,   virt_to_phys(VIRTBASE),   KBASE_PHYS,           PTE_W|PTE_P }, /*  IO Devices */

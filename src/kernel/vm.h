@@ -1,7 +1,7 @@
 #pragma once
-#include "types.h"
-#include "mmu.h"
-#include "proc.h"
+#include "kernel/types.h"
+#include "kernel/mmu.h"
+#include "kernel/proc.h"
 
 #define WRAPAROUND 0
 

@@ -4,10 +4,10 @@
 #include "kernel/mmu.h"
 #include "kernel/vm.h"
 #include "kernel/sched.h"
+#include "kernel/string.h"
 #include "drivers/fat32.h"
 #include <elf.h>
 #include <stdint.h>
-#include "kernel/string.h"
 
 cpu_t cpus[N_CPUS];
 task_t proc_tbl[N_PROCS];
@@ -21,14 +21,6 @@ task_t* cur_proc(void) {
     return cur_cpu()->proc;
 }
 
-void testing_subroutine(void) {
-  while(1) {
-    for(int i = 0; i<0xffffff; i++) {
-      // nothing
-    }
-    kprintf("Hello from task! :^)\n");
-  }
-}
 void run_init(void) {
   kprintf("[*] <run_init> Loading init ELF file into VA.\n");
   task_t* p = alloc_task();
@@ -91,7 +83,7 @@ task_t* alloc_task(void)
   return 0;
 
 found:
-  p->state = EMBRYO;
+  p->state = FRESH;
   p->pid = nextpid++;
 
   // Allocate kernel stack.

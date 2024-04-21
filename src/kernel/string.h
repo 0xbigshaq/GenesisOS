@@ -1,4 +1,4 @@
-#include "types.h"
+#include "kernel/types.h"
 // string.c
 int             memcmp(const void*, const void*, uint);
 void*           memmove(void*, const void*, uint);

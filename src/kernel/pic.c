@@ -1,7 +1,7 @@
 // http://www.brokenthorn.com/Resources/OSDevPic.html
-#include "x86.h"
-#include "pic.h"
-#include "types.h"
+#include "kernel/x86.h"
+#include "kernel/pic.h"
+#include "kernel/types.h"
 
 
 static inline void enable_uart_interrupts()

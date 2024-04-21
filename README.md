@@ -28,7 +28,7 @@ All this work, just to load an ELF binary that echoes back whatever you write to
 
 To write this project, I used:
 * _Intel SDM Vol 3_(`325384-sdm-vol-3abcd.pdf`)
-* OSDev Discord community
+* OSDev Discord community([link](https://discord.gg/osdev))
 * OSDev: https://wiki.osdev.org/
 * "_The little book about OS development_": https://littleosbook.github.io/
 * Academic projects: SerenityOS, JOS and xv6 (to get inspiration for design ideas)
@@ -51,6 +51,8 @@ make iso
 ```
 make qemu-nox
 ```
+
+>Note: _nox_ stands for _no-graphics_. If you run `make qemu` a qemu window will pop. However, it has bugs because the video driver is not finished(unlike the UART/console driver, which is more mature)
 
 # Debug
 ```

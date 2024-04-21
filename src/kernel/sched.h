@@ -1,5 +1,5 @@
 #pragma once
-#include "interrupts.h"
+#include "kernel/interrupts.h"
 
 void scheduler(void) __attribute__((noreturn));
 void sched(void);

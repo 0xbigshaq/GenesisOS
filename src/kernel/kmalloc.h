@@ -2,7 +2,7 @@
 #include "types.h"
 #include "drivers/console.h"
 
-#define PANIC(str) puts(0, 0, RED, BLACK, "panic @ " str); while(1) { /*nothing*/ } 
+#define PANIC(str) puts(0, 0, RED, BLACK, "panic @ " str); while(1) { /*spin*/ } 
 
 #define APPEND(head, node)    \
 {                             \
@@ -16,7 +16,7 @@ void* memset(void *dst, int c, uint n);
 void kfree(char *v);
 void* kmalloc(void);
 
-
+// this type is for future allocator
 typedef struct _kmalloc_chunk {
   struct _kmalloc_chunk *next;
 } kmalloc_chunk;

@@ -1,7 +1,7 @@
-#include "drivers/console.h"
 #include "kernel/memlayout.h"
-#include "drivers/uart.h"
 #include "kernel/file.h"
+#include "drivers/console.h"
+#include "drivers/uart.h"
 
 // Video Memory related funcs
 uint16_t *const video = (uint16_t*) phys_to_virt(0xB8000);
