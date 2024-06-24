@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Add the LLVM repository to your sources list
+sudo bash -c 'echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" > /etc/apt/sources.list.d/llvm.list'
+sudo bash -c 'echo "deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" >> /etc/apt/sources.list.d/llvm.list'
+
+# Import the GPG key
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+
+
 sudo apt update
 DEBIAN_FRONTEND=noninteractive sudo apt install \
     build-essential \
@@ -18,7 +26,7 @@ DEBIAN_FRONTEND=noninteractive sudo apt install \
     libc6-dev-i386 \
     python3-pip \
     mtools \
-    clang-18 \
+    clang-18 lldb-18 lld-18 clangd-18 \
     ninja-build \
     -y
 
