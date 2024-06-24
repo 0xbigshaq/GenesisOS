@@ -4,7 +4,7 @@ on: push
 
 jobs:
   build-os:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -14,13 +14,16 @@ jobs:
           chmod +x ./deps-container.sh
           sudo ./deps-container.sh
 
+      - name: Generate Ninja project with CMake
+        run: |
+          cmake -GNinja -S . -B ./build/
+
       - name: Compile Kernel
         run: |
-          make dirsetup
-          make kernel
+          ninja -C build/ kernel
       
       - name: Compile Filesystem/Userland
-        run: make fs
+        run: ninja -C build/ userland
 
       - name: Build iso image
-        run: make iso
+        run: ninja -C build/ iso

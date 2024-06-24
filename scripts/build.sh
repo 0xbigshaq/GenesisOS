@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 # rm -rf build/
 # cmake -GNinja -S . -B ./build/
@@ -7,7 +8,7 @@ set -e
 # ninja -C build/ -v iso
 ninja -C build/ iso
 
-dd if=/dev/zero of=build/disk.img bs=1M count=2
+dd if=/dev/zero of=build/disk.img bs=1M count=1
 mkfs.vfat -F 32 build/disk.img
 
 echo "\n[*] Copying userland binaries to disk.img"

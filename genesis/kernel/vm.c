@@ -50,6 +50,7 @@ void init_kernelvm(void) {
 void gen_ptes(pte *pgdir, uint vaddr, uint size, uint paddr, int perms) {
     uint cur_entry  = PAGE_ROUNDUP(vaddr);
     uint last_entry = PAGE_ROUNDDOWN(vaddr + size - 1);
+    // kprintf("cur_entry = 0x%x , last_entry = 0x%x\n", cur_entry, last_entry);
 
     while(1) {
         pte* pml1 = pte_resolve(pgdir, (void*)cur_entry, perms, 1);

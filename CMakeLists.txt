@@ -33,7 +33,8 @@ file(GLOB_RECURSE DRIVERS_SRCS ${DRIVERS_SRC_DIR}/*.c)
 
 add_executable(kernel.elf ${KERNEL_SRCS} ${DRIVERS_SRCS})
 add_dependencies(kernel.elf dispatcher)
-
+add_custom_target(kernel
+    DEPENDS kernel.elf)
 
 # Set linker options to skip standard libraries and startup files
 set_target_properties(kernel.elf PROPERTIES
@@ -52,23 +53,3 @@ add_custom_target(iso
     COMMAND grub-mkrescue /usr/lib/grub/i386-pc -o ${CMAKE_BINARY_DIR}/kernel.iso ${CMAKE_BINARY_DIR}/iso/targets/x86
     DEPENDS kernel.elf userland
 )
-
-# Custom target to generate the FAT32 disk image and build userland file system
-add_custom_target(disk
-    # COMMAND dd if=/dev/zero of=${CMAKE_BINARY_DIR}/disk.img bs=1M count=2
-    # method 1
-    # COMMAND mformat -F -t 16 -n 2048 -i ${CMAKE_BINARY_DIR}/disk.img ::
-    # mformat -F -t 16 -n 2048 -i build/disk.img ::
-
-    # method 2
-    # COMMAND dd if=/dev/zero of=${CMAKE_BINARY_DIR}/disk.img bs=1M count=64
-    # COMMAND mkfs.vfat -F 32 ${CMAKE_BINARY_DIR}/disk.img
-
-    # method 3 
-    # COMMAND mkdosfs -F32 -r 16 ${CMAKE_BINARY_DIR}/disk.img
-)
-
-# add_custom_target(fs
-#     COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_BINARY_DIR}/genesis/userland/init.elf INIT
-#     DEPENDS disk userland
-# )

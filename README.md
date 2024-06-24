@@ -44,9 +44,11 @@ docker run -v $(pwd):/share/ --rm --privileged --name osdev -it ubuntu:20.04
 
 ```
 cmake -GNinja -S . -B build/
-
 ```
 
+This will generate a `build/` directory, with a _ninja_ file in it. 
+* To start the build with ninja and generate a filesystem, run `./scripts/build.sh`
+* To run GenesisOS, run `./scripts/run.sh`
 
 # Debug
 

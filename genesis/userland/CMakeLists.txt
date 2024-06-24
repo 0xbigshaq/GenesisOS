@@ -7,7 +7,7 @@ set(CMAKE_ASM_NASM_OBJECT_FORMAT elf32)
 
 # Set compiler flags
 set(CMAKE_C_FLAGS "-fno-pic -static -Wall -ggdb -m32 -nostdlib -masm=intel \
-                   -fno-omit-frame-pointer -fno-stack-protector")
+                   -no-pie -fno-omit-frame-pointer -fno-stack-protector")
 
 # Set linker flags
 # set(CMAKE_EXE_LINKER_FLAGS "-b binary")
@@ -28,7 +28,7 @@ add_executable(init.elf ${BINS_SRC})
 target_link_libraries(init.elf genesis_common)
 
 set_target_properties(init.elf PROPERTIES
-    LINK_FLAGS "-fuse-ld=lld -nostdlib -nodefaultlibs -nostartfiles -Wl,--build-id=none")
+    LINK_FLAGS "-fuse-ld=lld -nostdlib -Wl,-T${CMAKE_CURRENT_SOURCE_DIR}/prog.ld ${CMAKE_C_FLAGS}")
 
 # Custom command to copy binaries to disk image
 add_custom_target(userland

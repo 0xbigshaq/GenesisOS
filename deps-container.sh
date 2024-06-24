@@ -18,6 +18,8 @@ DEBIAN_FRONTEND=noninteractive sudo apt install \
     libc6-dev-i386 \
     python3-pip \
     mtools \
+    clang-18 \
+    ninja-build \
     -y
 
 
