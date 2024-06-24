@@ -23,10 +23,10 @@ header_end:
 _start = (entry)
 
 # Entering boot process, with paging off.
-.globl entry
-entry:
+.globl _start
+_start:
   # spin(for gdb)
-  # je entry
+  # je _start
 
   # Turn on page size extension for 4Mbyte pages
   mov    eax, cr4

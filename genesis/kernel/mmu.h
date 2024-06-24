@@ -106,12 +106,13 @@ typedef struct seg_desc_reg {
 #define NPDENTRIES      1024    // # directory entries per page directory
 #define NPTENTRIES      1024    // # PTEs per page table
 #define PAGESIZE        4096    // bytes mapped by a page
+#define PAGE_MASK       (~(PAGESIZE-1))
 
 #define PTXSHIFT        12      // offset of PTX in a linear address
 #define PDXSHIFT        22      // offset of PDX in a linear address
 
-#define PAGE_ROUNDUP(x)  (((x)+PAGESIZE-1) & ~(PAGESIZE-1))
-#define PAGE_ROUNDDOWN(x) (((x)) & ~(PAGESIZE-1))
+#define PAGE_ROUNDUP(x)    ((((uint)(x)) + PAGESIZE - 1) & PAGE_MASK)
+#define PAGE_ROUNDDOWN(x)  (((uint)(x)) & PAGE_MASK)
 #define IS_PALIGN(x) !((uint)x % PAGESIZE)
 
 // Page table/directory entry flags.

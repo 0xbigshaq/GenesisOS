@@ -15,7 +15,7 @@ typedef struct vmmap_ {
 void init_kernelvm(void);
 void gen_ptes(pte *pgdir, uint vaddr, uint size, uint paddr, int perms);
 pte* pte_resolve(pte *pgdir, void *vaddr, int perms, int should_alloc);
-void init_segmentation();
+void init_segmentation() __attribute__((noinline));
 void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint dpl, uint flags);
 
 void switch_user_vm(task_t *p);

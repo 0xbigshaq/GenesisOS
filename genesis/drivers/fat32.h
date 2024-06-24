@@ -55,10 +55,10 @@ typedef struct fat_meta {
         // https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#Special_entries
     uint32_t fat_id;
     uint32_t eoc;      // end of cluster chain marker
-    uint32_t entry[0x800-2];
+    uint32_t entry[(0x800*2)-2];
 } fat_meta_t;
 typedef struct fat_raw { 
-    uint32_t entry[0x800];
+    uint32_t entry[(0x800*2)];
 } fat_raw_t;
 
 typedef struct fat_region {

@@ -42,12 +42,10 @@ Launch an `ubuntu:20.04` container and follow the steps below
 docker run -v $(pwd):/share/ --rm --privileged --name osdev -it ubuntu:20.04
 ```
 
-1. First, run `./deps-container.sh` to install the required dependencies.
-2. prepare the directory tree by running `make dirsetup`
-3. Compile & pack everything by running `make iso`
-4. To run the OS in qemu, run `make qemu-nox`
+```
+cmake -GNinja -S . -B build/
 
->Note: _nox_ stands for _no-graphics_. If you run `make qemu` a qemu window will pop. However, it has bugs because the video driver is not finished(unlike the UART/console driver, which is more mature)
+```
 
 
 # Debug

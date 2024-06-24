@@ -20,7 +20,7 @@ void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector) 
     entry = (struct msdos_dir_entry*)buf;
     for(int idx = 0 ; idx < (8*2) ; idx++) {
         if(entry->attr & 0x20) {
-            // kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
+            kprintf("[idx=%d] %s \t %d \t 0x%x \t\n", idx, entry->name, entry->size, ENTRY_SECTOR(entry));
             content_sector = ENTRY_SECTOR(entry);
             next_sector = file_tbl.info.raw.entry[content_sector];
             // kprintf("%s \t %d \t 0x%x \t 0x%x\n", entry->name, entry->size, content_sector, next_sector);
@@ -32,7 +32,7 @@ void list_root(struct FAT32BPB *bpb, uint32_t tbl_sector, uint32_t data_sector) 
     next_sector = file_tbl.info.meta.entry[0];
     kprintf("root directory next_sector=0x%p , eoc=0x%x, fat_id=0x%x\n", next_sector, file_tbl.info.meta.eoc, file_tbl.info.meta.fat_id);
 
-    if(next_sector != 0xffffff8) { // end of cluster (for directories, mkdosfs/Linux)
+    if(next_sector != 0xffffff8) { // end of cluster (for directories, mkdosfs/Linux uses 0xffffff8)
         follow_dir_chain(bpb, data_sector, next_sector);
     }
 }
@@ -118,6 +118,7 @@ void dump_file(void) {
     uint8_t *cursor;
 
     data_offset = FAT32_DATA(bpb);
+    kprintf("[*] bpb->bytesPerSector = %d \n", bpb->bytesPerSector);
     data_sector = data_offset / bpb->bytesPerSector;
 
     content_sector = ENTRY_SECTOR(init_ptr);

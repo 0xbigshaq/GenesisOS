@@ -2,7 +2,7 @@
 #include "kernel/types.h"
 #include "drivers/console.h"
 
-#define PANIC(str) puts(0, 0, RED, BLACK, "panic @ " str); while(1) { /*spin*/ } 
+#define PANIC(str) kprintf("panic @ " str); while(1) { /*spin*/ } 
 
 #define APPEND(head, node)    \
 {                             \
