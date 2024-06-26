@@ -11,9 +11,17 @@ extern char kern_end[]; // first address after kernel loaded from ELF file
 
 kpool_t kpool;
 
+char* kernel_heap_start;
+size_t kernel_heap_size;
+
+extern int init_mparams(void);
+
 void kmalloc_init(void *virt_start, void *virt_end)
 {
     free_range(virt_start, virt_end);
+    kernel_heap_start = ((char*)virt_end)+0x1000;
+    kernel_heap_size = 0x40000;
+    init_mparams();
 }
 
 void free_range(void *virt_start, void *virt_end)
@@ -60,11 +68,8 @@ void* kmalloc(void)
     return (void*)chunk;
 }
 
-
-char* kernel_heap_start;
-size_t kernel_heap_size;
-
 void* morecore(ptrdiff_t increment) {
+    kprintf("[*] mmorecore called!\n");
     static char* heap_end = NULL;
     static char* heap_limit = NULL;
 
@@ -92,11 +97,21 @@ void* morecore(ptrdiff_t increment) {
     return (void*)-1;
 }
 
-// Define the MORECORE macro to your morecore function
+
+// Disable mmap
+#define HAVE_MMAP 0
+#define HAVE_MORECORE 1
+
+// Define MORECORE function and other configurations
 #define MORECORE morecore
 #define MORECORE_CONTIGUOUS 1
-#define ABORT abort
 #define NO_MALLOC_STATS 1
+#define ABORT abort
+
+// Other configurations
+#define USE_LOCKS 0 // Use this if you do not want thread safety (single-threaded)
+#define MALLOC_ALIGNMENT 16 // Alignment for allocations
+
 
 // Disable mmap
 #define HAVE_MMAP 0
@@ -115,10 +130,9 @@ time_t time(time_t *tloc) {
 }
 
 // -----
-// #define _SC_PAGESIZE 0x1000
 
 long sysconf(int name) {
-    if (name == 0x1000) {
+    if (name == 30) { // _SC_PAGESIZE
         // Return your system's page size
         return 4096; // Example page size
     }
