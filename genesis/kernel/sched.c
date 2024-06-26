@@ -1,7 +1,7 @@
 #include "kernel/sched.h"
 #include "kernel/interrupts.h"
 #include "kernel/proc.h"
-#include "kernel/types.h"
+#include "kernel/types.h" // IWYU pragma: keep
 
 
 void scheduler(void) {

@@ -1,5 +1,5 @@
 #pragma once
-#include "kernel/types.h"
+#include "kernel/types.h" // IWYU pragma: keep
 
 // Video Memory
 // https://wiki.osdev.org/Printing_To_Screen#Color_Table

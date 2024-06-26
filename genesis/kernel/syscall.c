@@ -1,9 +1,9 @@
 #include "kernel/syscall.h"
 #include "kernel/proc.h"
-#include "kernel/types.h"
+#include "kernel/types.h" // IWYU pragma: keep
 #include "kernel/file.h"
-#include "drivers/console.h"
-#include "drivers/uart.h"
+#include "drivers/console.h" // IWYU pragma: keep
+#include "drivers/uart.h" // IWYU pragma: keep
 
 int (*syscalls[])(void) = {
     [SYS_read]  = sys_read,

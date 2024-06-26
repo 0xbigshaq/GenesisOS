@@ -5,7 +5,7 @@
 #include "kernel/sched.h"
 #include "kernel/proc.h"
 #include "kernel/syscall.h"
-#include "drivers/uart.h"
+#include "drivers/uart.h" // IWYU pragma: keep
 #include "drivers/console.h"
 
 idt_entry_t idt[256];  // IDT Entries

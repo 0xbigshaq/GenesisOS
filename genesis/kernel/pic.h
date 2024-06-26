@@ -1,5 +1,5 @@
 #pragma once
-#include "kernel/types.h"
+#include "kernel/types.h" // IWYU pragma: keep
 
 // 8259A Software Port Mappings
 #define PIC1		0x20		/* base addr for master PIC */

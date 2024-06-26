@@ -1,5 +1,5 @@
 #pragma once
-#include "kernel/types.h"
+#include "kernel/types.h" // IWYU pragma: keep
 
 #define SYS_read    0
 #define SYS_write   1
