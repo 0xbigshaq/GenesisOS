@@ -28,8 +28,14 @@ add_custom_target(dispatcher
 )
 
 # Find all source files
-file(GLOB_RECURSE KERNEL_SRCS ${KERNEL_SRC_DIR}/*.c ${KERNEL_SRC_DIR}/*.S ${KERNEL_SRC_DIR}/trap_dispatcher.S)
+file(GLOB KERNEL_SRCS ${KERNEL_SRC_DIR}/*.c ${KERNEL_SRC_DIR}/*.S ${KERNEL_SRC_DIR}/trap_dispatcher.S)
 file(GLOB_RECURSE DRIVERS_SRCS ${DRIVERS_SRC_DIR}/*.c)
+
+set_property(SOURCE ${KERNEL_SRC_DIR}/kmalloc.c
+            APPEND_STRING
+            PROPERTY COMPILE_FLAGS
+            " -Wno-parentheses-equality -Wno-expansion-to-defined -Wno-shorten-64-to-32 \
+            -Wno-unused-but-set-variable")
 
 add_executable(kernel.elf ${KERNEL_SRCS} ${DRIVERS_SRCS})
 add_dependencies(kernel.elf dispatcher)
