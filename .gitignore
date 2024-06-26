@@ -7,3 +7,4 @@ tmp/
 *.o
 **/*.o
 disk.img
+dgen/
