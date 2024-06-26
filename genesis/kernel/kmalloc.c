@@ -4,17 +4,16 @@
 #include "kernel/mmu.h"
 #include "kernel/memlayout.h"
 #include "kernel/x86.h"
-
 #include <stddef.h>
 extern char kern_end[]; // first address after kernel loaded from ELF file
                    // defined by the kernel linker script in kernel.ld
 
-kpool_t kpool;
-
-char* kernel_heap_start;
-size_t kernel_heap_size;
-
+// imported from `kernel/allocator/dlmalloc.h`
+extern char* kernel_heap_start;
+extern size_t kernel_heap_size;
 extern int init_mparams(void);
+
+kpool_t kpool;
 
 void kmalloc_init(void *virt_start, void *virt_end)
 {
@@ -67,81 +66,3 @@ void* kmalloc(void)
     }
     return (void*)chunk;
 }
-
-void* morecore(ptrdiff_t increment) {
-    kprintf("[*] mmorecore called!\n");
-    static char* heap_end = NULL;
-    static char* heap_limit = NULL;
-
-    if (heap_end == NULL) {
-        heap_end = kernel_heap_start;
-        heap_limit = kernel_heap_start + kernel_heap_size;
-    }
-
-    if (increment == 0) {
-        return heap_end;
-    }
-
-    if (increment > 0) {
-        if (heap_end + increment > heap_limit) {
-            // Not enough memory
-            return (void*)-1;
-        }
-
-        char* old_heap_end = heap_end;
-        heap_end += increment;
-        return old_heap_end;
-    }
-
-    // If increment < 0, you need to implement memory release (optional)
-    return (void*)-1;
-}
-
-
-// Disable mmap
-#define HAVE_MMAP 0
-#define HAVE_MORECORE 1
-
-// Define MORECORE function and other configurations
-#define MORECORE morecore
-#define MORECORE_CONTIGUOUS 1
-#define NO_MALLOC_STATS 1
-#define ABORT abort
-
-// Other configurations
-#define USE_LOCKS 0 // Use this if you do not want thread safety (single-threaded)
-#define MALLOC_ALIGNMENT 16 // Alignment for allocations
-
-
-// Disable mmap
-#define HAVE_MMAP 0
-#define HAVE_MREMAP 0
-
-// -----
-#include <time.h>
-
-time_t time(time_t *tloc) {
-    // Return a dummy time or implement your own time function
-    time_t current_time = 0; // Example: always return 0
-    if (tloc) {
-        *tloc = current_time;
-    }
-    return current_time;
-}
-
-// -----
-
-long sysconf(int name) {
-    if (name == 30) { // _SC_PAGESIZE
-        // Return your system's page size
-        return 4096; // Example page size
-    }
-    return -1;
-}
-
-int* __errno_location() {
-    static int errno;
-    return &errno;
-}
-
-#include "kernel/external/dlmalloc.c"

@@ -1,6 +1,7 @@
 #pragma once
 #include "kernel/types.h"
 #include "drivers/console.h"  // IWYU pragma: keep
+#include "kernel/allocator/dlmalloc.h" // IWYU pragma: keep
 
 #define PANIC(str) kprintf("panic @ " str); while(1) { /*spin*/ } 
 

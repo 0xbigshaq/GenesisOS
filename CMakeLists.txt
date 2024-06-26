@@ -10,7 +10,7 @@ set(CMAKE_ASM_NASM_OBJECT_FORMAT elf32)
 set(CMAKE_C_FLAGS "-ffreestanding -fno-pic -static -fno-builtin \
                    -fno-strict-aliasing -O2 -Wall -ggdb -m32 \
                    -Werror -Wno-pragma-pack -fno-omit-frame-pointer -fno-stack-protector \
-                   -mno-80387 -Wno-div-by-zero")
+                   -mno-80387 -Wno-div-by-zero -Wno-int-conversion")
 
 SET(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS}" )
 
@@ -41,6 +41,10 @@ add_executable(kernel.elf ${KERNEL_SRCS} ${DRIVERS_SRCS})
 add_dependencies(kernel.elf dispatcher)
 add_custom_target(kernel
     DEPENDS kernel.elf)
+
+add_subdirectory(genesis/kernel/allocator)
+target_link_libraries(kernel.elf dlmalloc)
+
 
 # Set linker options to skip standard libraries and startup files
 set_target_properties(kernel.elf PROPERTIES
