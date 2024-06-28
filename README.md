@@ -1,6 +1,6 @@
 # GenesisOS
 <p align="center">
-<img src='images/logo.png' />
+<img src='docs/images/logo.png' />
 <br />
 <img src='https://github.com/0xbigshaq/GenesisOS/actions/workflows/ci.yaml/badge.svg' />
 <a href='https://discord.gg/PpeeR64k'><img src='https://img.shields.io/discord/1231650335802789959.svg?logo=discord&logoColor=white&logoWidth=20labelColor=7289DA&color=17cf48&label=Discord' /></a>
@@ -24,7 +24,7 @@ This operating system have the following features:
 
 All this work, just to load an ELF binary that echoes back whatever you write to it by calling `SYS_read` and `SYS_write`:
 
-<img src='images/terminal.gif' />
+<img src='docs/images/terminal.gif' />
 
 To write this project, I used:
 * _Intel SDM Vol 3_(`325384-sdm-vol-3abcd.pdf`)

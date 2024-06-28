@@ -21,8 +21,8 @@ DEBIAN_FRONTEND=noninteractive sudo apt install \
     -y
 
 
-git clone --branch main https://github.com/hugsy/gef.git /root/gef/
-echo "source /root/gef/gef.py" > ~/.gdbinit 
+git clone --branch main https://github.com/hugsy/gef.git $HOME/gef/
+echo "source $HOME/gef/gef.py" > ~/.gdbinit 
 echo "add-auto-load-safe-path /share/.gdbinit" >> ~/.gdbinit
 
 pip3 install compiledb

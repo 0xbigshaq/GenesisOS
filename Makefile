@@ -33,7 +33,7 @@ QEMU_OPTS=-smp $(CPUS) -m 512 -serial pty -serial stdio
 dirsetup:
 	mkdir -p $(DRIVERS_OBJ_DIR)
 	mkdir -p $(KERN_OBJ_DIR)
-	./gen_vectors.py > $(KERN_SRC_DIR)/trap_dispatcher.S
+	python3 ./gen_vectors.py > $(KERN_SRC_DIR)/trap_dispatcher.S
 
 
 # drivers

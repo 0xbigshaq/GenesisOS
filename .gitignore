@@ -6,3 +6,4 @@ tmp/
 .cache/
 *.o
 **/*.o
+disk.img
