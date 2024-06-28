@@ -29,7 +29,7 @@ add_custom_target(dispatcher
 
 # Find all source files
 file(GLOB KERNEL_SRCS ${KERNEL_SRC_DIR}/*.c ${KERNEL_SRC_DIR}/*.S ${KERNEL_SRC_DIR}/trap_dispatcher.S)
-file(GLOB_RECURSE DRIVERS_SRCS ${DRIVERS_SRC_DIR}/*.c)
+file(GLOB DRIVERS_SRCS ${DRIVERS_SRC_DIR}/*.c)
 
 set_property(SOURCE ${KERNEL_SRC_DIR}/kmalloc.c
             APPEND_STRING
@@ -44,6 +44,9 @@ add_custom_target(kernel
 
 add_subdirectory(genesis/kernel/allocator)
 target_link_libraries(kernel.elf dlmalloc)
+
+add_subdirectory(genesis/drivers/ff15)
+target_link_libraries(kernel.elf fatfs)
 
 
 # Set linker options to skip standard libraries and startup files
