@@ -1,4 +1,3 @@
-#include "ff.h"
 #include "kernel/kmalloc.h"
 #include "kernel/string.h"
 #include "drivers/fat32.h"
@@ -45,4 +44,44 @@ void load_init(void) {
     fs_error:
         kprintf("[!] FAT FS Error: %d\n", rc);
         PANIC("Cannot open init file")
+}
+
+DRESULT handle_fat32_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
+    DRESULT rc = RES_PARERR;
+    
+    switch(cmd) {
+    /* Generic command (Used by FatFs) */
+        case CTRL_SYNC:
+            PANIC("[!] fat32 ioctl CTRL_SYNC not implemented");
+            break;
+        case GET_SECTOR_COUNT:
+            PANIC("[!] fat32 ioctl GET_SECTOR_COUNT not implemented");
+            break;
+        case GET_SECTOR_SIZE:
+            PANIC("[!] fat32 ioctl GET_SECTOR_SIZE not implemented");
+            break;
+        case GET_BLOCK_SIZE:
+            PANIC("[!] fat32 ioctl GET_BLOCK_SIZE not implemented");
+            break;
+        case CTRL_TRIM:
+            PANIC("[!] fat32 ioctl CTRL_TRIM not implemented");
+            break;
+    
+    /* ATA/CF specific ioctl command */
+        case ATA_GET_REV:
+            PANIC("[!] ATA ioctl ATA_GET_REV not implemented");
+            break;
+        case ATA_GET_MODEL:
+            PANIC("[!] ATA ioctl ATA_GET_MODEL not implemented");
+            break;
+        case ATA_GET_SN:
+            PANIC("[!] ATA ioctl ATA_GET_SN not implemented");
+            break;
+        
+        default:
+            rc = RES_OK;
+            break;
+    }
+
+    return rc;
 }

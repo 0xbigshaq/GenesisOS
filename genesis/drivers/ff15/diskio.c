@@ -1,6 +1,7 @@
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"		/* Declarations of disk functions */
 #include "drivers/ata.h"
+#include "drivers/fat32.h"
 
 /* Definitions of physical drive number for each drive */
 #define DEV_SDA		0	
@@ -76,12 +77,12 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count) {
 	DRESULT rc;
 
 	switch (pdrv) {
-	case DEV_SDA :
-		rc = ata_disk_write(buff, sector, count);
-		break;
-	default:
-		rc = STA_NOINIT;
-		break;
+		case DEV_SDA :
+			rc = ata_disk_write(buff, sector, count);
+			break;
+		default:
+			rc = STA_NOINIT;
+			break;
 	}
 
 	return rc;
@@ -98,29 +99,22 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count) {
 /* BYTE cmd			Control code */
 /* void *buff		Buffer to send/receive control data */
 DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
-	// DRESULT res;
-	// int result;
+	DRESULT rc = RES_PARERR;
 
-	// switch (pdrv) {
-	// case DEV_RAM :
+	switch (pdrv) {
+		case DEV_SDA:
+			rc = handle_fat32_ioctl(pdrv, cmd, buff);
+			return rc;
 
-	// 	// Process of the command for the RAM drive
+		case DEV_MMC :
+			// Process of the command for the MMC/SD card
+			return rc;
 
-	// 	return res;
+		case DEV_USB :
+			// Process of the command the USB drive
+			return rc;
+	}
 
-	// case DEV_MMC :
-
-	// 	// Process of the command for the MMC/SD card
-
-	// 	return res;
-
-	// case DEV_USB :
-
-	// 	// Process of the command the USB drive
-
-	// 	return res;
-	// }
-
-	return RES_PARERR;
+	return rc;
 }
 
