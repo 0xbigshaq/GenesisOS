@@ -80,3 +80,20 @@ int strlen(const char *s)
     ;
   return n;
 }
+
+char* strchr(const char* str, int c) {
+    // Iterate over each character in the string
+    while (*str != '\0') {
+        // If the character matches, return a pointer to it
+        if (*str == (char)c) {
+            return (char*)str;
+        }
+        str++;
+    }
+    // If the character is '\0', check the null terminator
+    if (c == '\0') {
+        return (char*)str;
+    }
+    // Character not found, return NULL
+    return NULL;
+}

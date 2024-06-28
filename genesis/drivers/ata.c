@@ -1,5 +1,5 @@
 #include "drivers/ata.h"
-#include "drivers/console.h"
+
 
 void delay() {
     for (int i = 0; i < 1000; i++) {
@@ -7,29 +7,64 @@ void delay() {
     }
 }
 
-void ata_wait_ready() {
-  // Wait for disk ready.
-  while((inb(0x1F7) & 0xC0) != 0x40)
-    ;
+int ata_wait_ready() {
+    while (inb(ATA_STATUS_REG) & ATA_STATUS_BSY);
+    return (inb(ATA_STATUS_REG) & ATA_STATUS_DRDY);
 }
 
-int ata_read_sector(uint32_t lba, uint8_t *buffer) {
-    outb(ATA_SECTOR_COUNT_REG, 1);
-    // Set block
-    outb(ATA_LBA_LOW_REG, lba & 0xFF);
-    outb(ATA_LBA_MID_REG, (lba >> 8) & 0xFF);
-    outb(ATA_LBA_HIGH_REG, (lba >> 16) & 0xFF);
-    outb(ATA_DEVICE_REG, 0xE0 | ((lba >> 24) & 0x0F));
+DRESULT ata_disk_read(BYTE *buff, LBA_t sector, UINT count) {
+        // Wait for the drive to be ready
+    if (!ata_wait_ready()) return RES_NOTRDY;
 
-    // launch command
-    outb(ATA_COMMAND_REG, ATA_CMD_READ_SECTORS);
+    for (UINT i = 0; i < count; i++) {
+        // Set up the registers for the read operation
+        outb(ATA_SECTOR_COUNT_REG, 1);
+        outb(ATA_LBA_LOW_REG, (sector & 0xFF));
+        outb(ATA_LBA_MID_REG, ((sector >> 8) & 0xFF));
+        outb(ATA_LBA_HIGH_REG, ((sector >> 16) & 0xFF));
+        outb(ATA_DEVICE_REG, 0xE0 | ((sector >> 24) & 0x0F));
+        outb(ATA_COMMAND_REG, ATA_CMD_READ_SECTORS);
 
-    ata_wait_ready();
+        // Wait for the drive to be ready to transfer data
+        if (!ata_wait_ready()) return RES_NOTRDY;
 
-    for (int i = 0; i < 256; i++) {
-        uint16_t data = inw(ATA_DATA_REG);
-        memmove(buffer + (i * 2), &data, sizeof(uint16_t));
+        // Read data from the data register
+        for (int j = 0; j < 256; j++) {
+            ((WORD*)buff)[j] = inw(ATA_DATA_REG);
+        }
+
+        buff += 512;
+        sector++;
     }
 
-    return 0;
+    return RES_OK;
+}
+
+
+DRESULT ata_disk_write(const BYTE *buff, LBA_t sector, UINT count) {
+    // Wait for the drive to be ready
+    if (!ata_wait_ready()) return RES_NOTRDY;
+
+    for (UINT i = 0; i < count; i++) {
+        // Set up the registers for the write operation
+        outb(ATA_SECTOR_COUNT_REG, 1);
+        outb(ATA_LBA_LOW_REG, (sector & 0xFF));
+        outb(ATA_LBA_MID_REG, ((sector >> 8) & 0xFF));
+        outb(ATA_LBA_HIGH_REG, ((sector >> 16) & 0xFF));
+        outb(ATA_DEVICE_REG, 0xE0 | ((sector >> 24) & 0x0F));
+        outb(ATA_COMMAND_REG, ATA_CMD_WRITE_SECTORS);
+
+        // Wait for the drive to be ready to accept data
+        if (!ata_wait_ready()) return RES_NOTRDY;
+
+        // Write data to the data register
+        for (int j = 0; j < 256; j++) {
+            outw(ATA_DATA_REG, ((WORD*)buff)[j]);
+        }
+
+        buff += 512;
+        sector++;
+    }
+
+    return RES_OK;
 }

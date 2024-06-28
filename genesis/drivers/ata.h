@@ -1,7 +1,7 @@
 #pragma once 
 
 #include "kernel/string.h"
-#include "kernel/x86.h"
+#include "kernel/x86.h" // IWYU pragma: keep
 
 #define ATA_DATA_REG 0x1F0
 #define ATA_ERROR_REG 0x1F1
@@ -20,9 +20,12 @@
 #define ATA_STATUS_ERR 0x01
 
 #define ATA_CMD_READ_SECTORS 0x20
-
+#define ATA_CMD_WRITE_SECTORS 0x30
 
 void delay();
-void ata_wait_ready();
-int ata_read_sector(uint32_t lba, uint8_t *buffer);
+int ata_wait_ready();
 
+// glue functions for ff15
+#include "drivers/ff15/diskio.h"
+DRESULT ata_disk_read(BYTE *buff, LBA_t sector, UINT count);
+DRESULT ata_disk_write(const BYTE *buff, LBA_t sector, UINT count);

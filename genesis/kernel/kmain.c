@@ -1,3 +1,5 @@
+#include "diskio.h"
+#include "ff.h"
 #include "kernel/types.h"
 #include "kernel/mmu.h"
 #include "kernel/memlayout.h"
@@ -28,7 +30,7 @@ void kmain()
     puts(0, 0, GREEN, BLACK, "Hello from BereshitOS  :^)");
     
     kmalloc_init(kern_end, phys_to_virt(1024*1024*4)); // Map only 4MBs  because the  mapping 
-                                                      // at `entrypgdir` has a limit of 4MB.
+                                                                            // at `entrypgdir` has a limit of 4MB.
     
     init_kernelvm();
     init_uart();
@@ -39,22 +41,9 @@ void kmain()
 
     puts(0, 1, BRIGHT, BLACK, "Hello from BereshitOS  :^)");
 
+    mount_fs();
+    load_init();
     uart_write("[+] Ready\n");
-    uint8_t sector[512];
-    int lba = 0; // Read from LBA 0
-    if (ata_read_sector(lba, sector) == 0) {
-        // for (int i = 0; i < 256; i++) {
-            // kprintf("%x ", sector[i]);
-            // uart_putchar(sector[i]);
-        // }
-        // kprintf("\n\n");
-    } else {
-        kprintf("Error reading sector\n");
-    }
-    memmove(&bios_param_block, sector, sizeof(bios_param_block));
-
-    dump_fat32_header(&bios_param_block);
-    dump_file();
     run_init();
 
     while(1) {

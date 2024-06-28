@@ -19,7 +19,8 @@
 /----------------------------------------------------------------------------*/
 
 
-#include <string.h>
+#include "kernel/string.h"
+#define memset memset2
 #include "ff.h"			/* Declarations of FatFs API */
 #include "diskio.h"		/* Declarations of device I/O functions */
 
@@ -3539,8 +3540,9 @@ static FRESULT mount_volume (	/* FR_OK(0): successful, !=0: an error occurred */
 		if (nclst == 0) return FR_NO_FILESYSTEM;		/* (Invalid volume size) */
 		fmt = 0;
 		if (nclst <= MAX_FAT32) fmt = FS_FAT32;
-		if (nclst <= MAX_FAT16) fmt = FS_FAT16;
-		if (nclst <= MAX_FAT12) fmt = FS_FAT12;
+		// FIXME: uncomment the two lines below once we switch a `mkfs` tool during build 
+		// if (nclst <= MAX_FAT16) fmt = FS_FAT16;
+		// if (nclst <= MAX_FAT12) fmt = FS_FAT12;
 		if (fmt == 0) return FR_NO_FILESYSTEM;
 
 		/* Boundaries and Limits */
