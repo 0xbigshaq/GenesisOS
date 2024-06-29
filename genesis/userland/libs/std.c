@@ -57,6 +57,21 @@ int open(char *pathname, uint32_t flags) {
     return result;
 }
 
+void exit(int rc) {
+    int sysno = SYS_exit;
+    int result;
+
+    asm volatile(
+        "mov eax, %1\n" 
+        "push %2\n"
+        "int 0x80\n"
+        "add esp, 0x4\n"
+        : "=a" (result)
+        : "a" (sysno), "b" (rc)
+    );
+
+}
+
 void *memcpy(void *dest, const void *src, unsigned int n)
 {
     for (unsigned int i = 0; i < n; i++)

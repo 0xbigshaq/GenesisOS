@@ -13,7 +13,8 @@ int (*syscalls[])(void) = {
     [SYS_write] = sys_write,
     [SYS_open]  = sys_open,
     [SYS_close] = sys_close,
-    [SYS_stat]  = sys_stat
+    [SYS_stat]  = sys_stat,
+    [SYS_exit]  = sys_exit,
 };
 
 uint32_t arg_word(int n) {
@@ -117,6 +118,13 @@ int sys_close(void) {
 int sys_stat(void) {
     // not implemented yet
     return 0;
+}
+
+int sys_exit(void) {
+    uint32_t ret_code = arg_word(0);
+    kprintf("SYS_exit was called, ret_code = %d\n", ret_code);
+    while(1) { /* ... spin ... */ }
+    return OK;
 }
 
 // TODO:

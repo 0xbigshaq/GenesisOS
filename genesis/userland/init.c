@@ -1,7 +1,7 @@
 #include "userland/libs/std.h"
-#include<fcntl.h>
+#include <fcntl.h>
 
-void _start(void) {
+int main(int argc, char *argv[]) {
     char banner[] = "Welcome to init!\n";
     char prompt[] = "[root@os]~# ";
     char resp[] = "\nYou typed: ";
@@ -19,13 +19,11 @@ void _start(void) {
         write(1, resp, sizeof(resp));
         write(1, input, count);
         write(1, "\n", 1);
+
+        if(input[0]=='b' && input[1]=='y' & input[2]=='e') {
+            break;
+        }
     }
 
-     // spin
-        asm volatile(
-        "_hello: \n" 
-        "nop\n" 
-        "nop\n" 
-        "jmp _hello\n"
-    );
+    return 0;
 }

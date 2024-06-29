@@ -7,10 +7,7 @@ set(CMAKE_ASM_NASM_OBJECT_FORMAT elf32)
 
 # Set compiler flags
 set(CMAKE_C_FLAGS "-fno-pic -static -Wall -ggdb -m32 -nostdlib -masm=intel \
-                   -no-pie -fno-omit-frame-pointer -fno-stack-protector")
-
-# Set linker flags
-# set(CMAKE_EXE_LINKER_FLAGS "-b binary")
+                   -no-pie -fno-omit-frame-pointer -fno-stack-protector -Wno-invalid-noreturn")
 
 
 # Include directories
