@@ -16,6 +16,7 @@ void free_range(void *virt_start, void *virt_end);
 void* memset(void *dst, int c, uint n);
 void kfree(char *v);
 void* kmalloc(void);
+void* kmalloc_pages(uint32_t sz);
 
 // this type is for future allocator
 typedef struct _kmalloc_chunk {

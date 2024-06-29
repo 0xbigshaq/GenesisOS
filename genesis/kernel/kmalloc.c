@@ -66,3 +66,13 @@ void* kmalloc(void)
     }
     return (void*)chunk;
 }
+
+void* kmalloc_pages(uint32_t sz) {
+    void *p = kmalloc();
+    uint32_t len = 0;
+    while(len < sz) {
+        kmalloc();
+        len += PAGESIZE;
+    }
+    return p;
+}

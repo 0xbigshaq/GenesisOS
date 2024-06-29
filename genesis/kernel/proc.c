@@ -39,9 +39,7 @@ void run_init(void) {
 
     if (phdr->p_type == PT_LOAD) {
       kprintf(" > PT_LOAD @ 0x%x\n", phdr->p_vaddr);
-      mem = kmalloc();
-            kmalloc(); // FIXME: kmalloc should return adjacent chunks 
-                       //        it should accept a `size` parameter
+      mem = kmalloc_pages(phdr->p_memsz);  // FIXME: kmalloc should return adjacent chunks
       memset(mem, NULL, phdr->p_memsz);
       gen_ptes(p->pgdir, (uint)phdr->p_vaddr, (uint)phdr->p_memsz, virt_to_phys(mem), (PTE_W|PTE_U));
       memcpy(mem, cursor, phdr->p_memsz);
