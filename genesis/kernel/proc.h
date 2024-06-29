@@ -40,3 +40,4 @@ void run_init(void);
 task_t* cur_proc(void);
 cpu_t* cur_cpu(void);
 extern void trap_ret(void); // part of trap_entry.S
+int alloc_fd(task_t *proc);

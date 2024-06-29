@@ -116,3 +116,17 @@ found:
 
   return p;
 }
+
+int alloc_fd(task_t *proc) {
+  int fd = -1;
+
+  for(int idx=0; idx<NOFILE; idx++) {
+    if(proc->ofile[idx].refcount == 0 && proc->ofile[idx].type == FD_NONE) {
+      proc->ofile[idx].refcount++;
+      fd = idx;
+      break;
+    }
+  }
+
+  return fd;
+}

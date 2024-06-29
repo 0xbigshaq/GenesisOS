@@ -1,6 +1,7 @@
 #include "userland/libs/std.h"
 #include "kernel/syscall.h"
 #include <stdint.h>
+#include <unistd.h>
 
 int write(int fd, char *buf, uint32_t count) {
     int sysno = SYS_write;
@@ -54,6 +55,22 @@ int open(char *pathname, uint32_t flags) {
           "b" (flags),
           "c" (pathname)
     );
+    return result;
+}
+
+int close(int fd) {
+    int sysno = SYS_close;
+    int result;
+
+    asm volatile(
+        "mov eax, %1\n" 
+        "push %2\n"
+        "int 0x80\n"
+        "add esp, 0x4\n"
+        : "=a" (result)
+        : "a" (sysno), "b" (fd)
+    );
+    
     return result;
 }
 
