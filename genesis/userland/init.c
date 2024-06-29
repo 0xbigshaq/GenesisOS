@@ -1,13 +1,5 @@
 #include "userland/libs/std.h"
-
-void *memcpy(void *dest, const void *src, unsigned int n)
-{
-    for (unsigned int i = 0; i < n; i++)
-    {
-        ((char*)dest)[i] = ((char*)src)[i];
-    }
-    return (void*)NULL;
-}
+#include<fcntl.h>
 
 void _start(void) {
     char banner[] = "Welcome to init!\n";
@@ -17,6 +9,10 @@ void _start(void) {
     int count;
     write(1, banner, sizeof(banner));
 
+    int fd = open("0:lol.txt", 1); // 1 = FA_READ
+    char contents[0x100];
+    int bread = read(fd, contents, sizeof(contents));
+    write(1, contents, bread);
     while(1) {
         write(1, prompt, sizeof(prompt));
         count = read(0, input, sizeof(input));
