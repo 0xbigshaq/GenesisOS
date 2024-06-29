@@ -12,8 +12,8 @@ typedef FIL file_descriptor_t;
 typedef FILINFO file_info_t;
 
 typedef struct device {
-  int (*read)(void);
-  void (*write)(char byte);
+  int (*read)(uint8_t*, uint32_t);
+  int (*write)(uint8_t*, uint32_t);
 } device_t;
 
 typedef struct file {

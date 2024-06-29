@@ -5,7 +5,7 @@
 #include "kernel/file.h"
 #include "drivers/console.h" // IWYU pragma: keep
 #include "drivers/uart.h" // IWYU pragma: keep
-#include "kernel/kmalloc.h"
+#include "kernel/kmalloc.h" // IWYU pragma: keep
 #include <errno.h>
 
 int (*syscalls[])(void) = {
@@ -40,47 +40,37 @@ int sys_read(void) {
     uint32_t fd = arg_word(0);
     char* out = (char*)arg_ptr(1);
     uint32_t count = arg_word(2);
-    char c = 0;
-    int i = 0;
     task_t *proc = cur_proc();
+    int rc = 0;
 
     if(proc->ofile[fd].type == FD_DEVICE) {
-        for(; i<count; ) {
-            c = devices[proc->ofile[fd].devno].read();
-            if (c == '\n' || c == '\r') {
-                break;
-            }
-            else if(c == 0x7f && i>0) {
-                i--;
-            } else if( c != 0x7f) {
-                out[i] = c;
-                i++;
-            } else {
-                continue;
-            }
-        }
-        out[i] = 0;
+        rc = devices[proc->ofile[fd].devno].read((uint8_t*)out, count);
     }
-    return i;
+
+    else if(proc->ofile[fd].type == FD_FILE) {
+        f_read(proc->ofile[fd].fd, out, count, (UINT*)&rc);
+    }
+    else {
+        rc = -EBADF;
+    }
+
+    return rc;
 }
 
 
 int sys_write(void) {
     uint32_t fd = arg_word(0);
-    char *buf = (char*)arg_ptr(1);
+    uint8_t *buf = (uint8_t*)arg_ptr(1);
     uint32_t count = arg_word(2);
     task_t *proc = cur_proc();
     int rc = OK;
     UINT bytes_out;
 
     if(proc->ofile[fd].type == FD_DEVICE) {
-        for(int i=0; i<count; i++) {
-            devices[proc->ofile[fd].devno].write(buf[i]);
-        }
+        rc = devices[proc->ofile[fd].devno].write(buf, count);
     }
 
     else if(proc->ofile[fd].type == FD_FILE) {
-        // implement file ops on disk
         rc = f_write(proc->ofile[fd].fd, buf, count, &bytes_out);
         if(rc == FR_OK) {
             rc = bytes_out;
@@ -113,7 +103,7 @@ int sys_open(void) {
         proc->ofile[newFD].type = FD_FILE;
         rc = newFD;
     }
-    
+
     return rc;
 }
 

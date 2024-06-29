@@ -6,8 +6,52 @@
 // Video Memory related funcs
 uint16_t *const video = (uint16_t*) phys_to_virt(0xB8000);
 
-void console_putchar(char c) {
-  uart_putchar(c);
+int console_write(uint8_t *buf, uint32_t count) {
+  int off = 0;
+  for(; off < count; off++) {
+    uart_putchar(buf[off]);
+  }
+  return off;
+}
+
+int console_read(uint8_t *buf, uint32_t count) {
+  int i = 0;
+  char c = NULL;
+
+  while(i < count) {
+    c = uart_getchar();
+    uart_putchar(c); // display char as the user type it
+    if (c == '\n' || c == '\r') {
+        break;
+    }
+
+    else if(c == 0x7f && i>0) {
+        uart_putchar(0x08); // backspace
+        uart_putchar(0x20); // clear char
+        uart_putchar(0x08); // backspace
+        buf[i] = 0x00;
+        i--;
+    }
+    
+    else if( c != 0x7f) {
+        buf[i] = c;
+        i++;
+    }
+    else {
+        continue;
+    }
+  }
+  buf[i] = 0;
+  return i;
+}
+
+void init_console() {
+  devices[DEV_CONSOLE].write = &console_write;
+  devices[DEV_CONSOLE].read = &console_read;
+}
+
+void putc(uint8_t x, uint8_t y, enum color fg, enum color bg, char c) {
+    video[y * COLS + x] = (bg << 12) | (fg << 8) | c;
 }
 
 int console_getchar(void) {
@@ -24,15 +68,6 @@ int console_getchar(void) {
     uart_putchar(ch);
   }
   return ch;
-}
-
-void init_console() {
-  devices[DEV_CONSOLE].write = &console_putchar;
-  devices[DEV_CONSOLE].read = &console_getchar;
-}
-
-void putc(uint8_t x, uint8_t y, enum color fg, enum color bg, char c) {
-    video[y * COLS + x] = (bg << 12) | (fg << 8) | c;
 }
 
 void puts(uint8_t x, uint8_t y, enum color fg, enum color bg, const char *s) {

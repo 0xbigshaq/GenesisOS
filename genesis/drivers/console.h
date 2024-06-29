@@ -23,7 +23,8 @@ void puts(uint8_t x, uint8_t y, enum color fg, enum color bg, const char *s);
 void clear(enum color bg);
 void console_putchar(char c);
 int console_getchar(void);
-
+int console_read(uint8_t *buf, uint32_t count);
+int console_write(uint8_t *buf, uint32_t count);
 
 // Serial
 void printint(int xx, int base, int sign);
