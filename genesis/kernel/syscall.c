@@ -1,9 +1,12 @@
 #include "kernel/syscall.h"
+#include "ff.h"
 #include "kernel/proc.h"
 #include "kernel/types.h" // IWYU pragma: keep
 #include "kernel/file.h"
 #include "drivers/console.h" // IWYU pragma: keep
 #include "drivers/uart.h" // IWYU pragma: keep
+#include "kernel/kmalloc.h"
+#include <errno.h>
 
 int (*syscalls[])(void) = {
     [SYS_read]  = sys_read,
@@ -67,19 +70,51 @@ int sys_write(void) {
     char *buf = (char*)arg_ptr(1);
     uint32_t count = arg_word(2);
     task_t *proc = cur_proc();
+    int rc = OK;
+    UINT bytes_out;
 
     if(proc->ofile[fd].type == FD_DEVICE) {
         for(int i=0; i<count; i++) {
             devices[proc->ofile[fd].devno].write(buf[i]);
         }
     }
-    return 0;
+
+    else if(proc->ofile[fd].type == FD_FILE) {
+        // implement file ops on disk
+        rc = f_write(proc->ofile[fd].fd, buf, count, &bytes_out);
+        if(rc == FR_OK) {
+            rc = bytes_out;
+        } else {
+            rc = -EIO;
+        }
+    }
+
+    else {
+        // fallback
+        rc = -EINVAL;
+    }
+    return rc;
 }
 
 
 int sys_open(void) {
-    // not implemented yet
-    return 0;
+    char *pathname = (char*)arg_ptr(0);
+    uint32_t flags = arg_word(1);
+    task_t *proc = cur_proc();
+    int newFD = 3; // FIXME: should impl & add a call to `alloc_fd() `
+    int rc = OK;
+    file_descriptor_t *fd = malloc(sizeof(file_descriptor_t));
+
+    rc = f_open(fd, pathname, flags);
+    if(rc != FR_OK) {
+        rc = -EPERM;
+    } else {
+        proc->ofile[newFD].fd = fd;
+        proc->ofile[newFD].type = FD_FILE;
+        rc = newFD;
+    }
+    
+    return rc;
 }
 
 

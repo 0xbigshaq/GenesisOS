@@ -1,10 +1,15 @@
 #pragma once
+#include "ff.h"
 #include "kernel/types.h"
+#include "drivers/fat32.h"
 
 #define NDEV 10
 #define NFILE 100
 
 #define DEV_CONSOLE 1
+
+typedef FIL file_descriptor_t;
+typedef FILINFO file_info_t;
 
 typedef struct device {
   int (*read)(void);
@@ -12,9 +17,10 @@ typedef struct device {
 } device_t;
 
 typedef struct file {
-  enum { FD_NONE, FD_INODE, FD_DEVICE } type;
+  enum { FD_NONE, FD_FILE, FD_DEVICE } type;
   int refcount;
-  struct inode *ip;
+  file_descriptor_t *fd;
+  file_info_t *info;
   uint32_t off;
   short devno;
 } file_t;
