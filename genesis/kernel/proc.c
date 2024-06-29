@@ -25,7 +25,7 @@ void run_init(void) {
   kprintf("[*] <run_init> Loading init ELF file into VA.\n");
   task_t* p = alloc_task();
   p->pgdir = map_kernel_vm();
-  Elf32_Ehdr *elf_header =  (Elf32_Ehdr*)&init_data;
+  Elf32_Ehdr *elf_header =  (Elf32_Ehdr*)init_data;
   uint8_t *begin = init_data;
   uint8_t *cursor = init_data;
   Elf32_Phdr *phdr;
@@ -38,20 +38,19 @@ void run_init(void) {
     cursor = &begin[phdr->p_offset];
 
     if (phdr->p_type == PT_LOAD) {
-      if(phdr->p_memsz > PAGESIZE) {
-        PANIC("not implemented yet.")
-      }
       kprintf(" > PT_LOAD @ 0x%x\n", phdr->p_vaddr);
       mem = kmalloc();
-      memset(mem, NULL, PAGESIZE);
+            kmalloc(); // FIXME: kmalloc should return adjacent chunks 
+                       //        it should accept a `size` parameter
+      memset(mem, NULL, phdr->p_memsz);
       gen_ptes(p->pgdir, (uint)phdr->p_vaddr, (uint)phdr->p_memsz, virt_to_phys(mem), (PTE_W|PTE_U));
       memcpy(mem, cursor, phdr->p_memsz);
     }
   }    
   // set up stack
-    mem = kmalloc();
-    memset(mem, NULL, PAGESIZE);
-    gen_ptes(p->pgdir, USERLAND_STACK_ADDR, PAGESIZE, virt_to_phys(mem), (PTE_W|PTE_U));
+    mem = malloc(USERLAND_STACK_SIZE);
+    memset(mem, NULL, USERLAND_STACK_SIZE);
+    gen_ptes(p->pgdir, USERLAND_STACK_ADDR, USERLAND_STACK_SIZE, virt_to_phys(mem), (PTE_W|PTE_U));
 
     p->trapframe->gs = (SEGMENT_USER_DATA << 3) | DPL_USER;
     p->trapframe->fs = (SEGMENT_USER_DATA << 3) | DPL_USER;
@@ -62,6 +61,7 @@ void run_init(void) {
     p->trapframe->eflags = FL_IF;
     p->trapframe->eax = 0xdeadbeef;
     p->trapframe->esp = USERLAND_STACK_TOP;
+    p->trapframe->ebp = USERLAND_STACK_TOP;
     p->trapframe->eip = elf_header->e_entry;
     switch_user_vm(p);
 

@@ -11,4 +11,4 @@ DRESULT handle_fat32_ioctl(BYTE pdrv, BYTE cmd, void *buff);
 
 extern FATFS os_fs;
 extern FIL init_fp;
-extern uint8_t init_data[MAX_INIT_SIZE];
+extern uint8_t *init_data;
