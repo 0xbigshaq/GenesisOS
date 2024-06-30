@@ -135,3 +135,9 @@ static inline void lcr3(uint val)
 {
   asm volatile("movl %0,%%cr3" : : "r" (val));
 }
+
+static inline uint32_t get_ebx() {
+    uint32_t val;
+    __asm__ volatile ("movl %%ebx, %0" : "=r"(val));
+    return val;
+}

@@ -2,8 +2,8 @@
 set -e
 set -x
 
-# rm -rf build/
-# cmake -GNinja -S . -B ./build/
+rm -rf build/
+cmake -GNinja -S . -B ./build/
 
 # ninja -C build/ -v iso
 ninja -C build/ iso

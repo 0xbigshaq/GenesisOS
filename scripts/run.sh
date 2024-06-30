@@ -6,12 +6,19 @@ set -x
 # 	qemu-system-i386 -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
 
 # qemu-nox:
+# qemu-system-i386 \
+#     -nographic \
+#     -boot d \
+#     -cdrom build/kernel.iso \
+#     -hda build/disk.img \
+#     -m 512 
+
 qemu-system-i386 \
-    -nographic \
     -boot d \
     -cdrom build/kernel.iso \
     -hda build/disk.img \
-    -m 512 
+    -vga std -serial mon:stdio \
+    -m 512
 
 # qemu-gdb:
 # 	@echo "\n[*] ======= starting QEMU+gdb ======="
