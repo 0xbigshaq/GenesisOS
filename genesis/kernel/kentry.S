@@ -1,39 +1,40 @@
+#define ASM_FILE
+#include "multiboot2.h"
 .intel_syntax noprefix
 #include "mmu.h"
 #include "memlayout.h"
-#define MULTIBOOT_HEADER_MAGIC                 0xe85250d6
-#define MULTIBOOT_HEADER_ARCHITECTURE          0
-#define MULTIBOOT_HEADER_ALIGN                 8
-#define MULTIBOOT_TAG_ALIGN                    8
 
-#define MULTIBOOT_HEADER_TAG_FRAMEBUFFER       5
-#define MULTIBOOT_TAG_TYPE_FRAMEBUFFER         8
-#define MULTIBOOT_HEADER_TAG_END               0
+#define __u8  .byte
+#define __u16 .word
+#define __u32 .long
+#define __u64 .quad
+
 
 .section .multiboot2_header
-.align MULTIBOOT_HEADER_ALIGN
 .text
-.globl multiboot2_header
+.align MULTIBOOT_HEADER_ALIGN
 multiboot2_header:
-header_start:
-    .int MULTIBOOT_HEADER_MAGIC               # Magic number
-    .int MULTIBOOT_HEADER_ARCHITECTURE        # Architecture
-    .int header_end - header_start            # Header length
-    .int -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_ARCHITECTURE + (header_end - header_start)) # Checksum
+    .align MULTIBOOT_TAG_ALIGN
+    __u32 MULTIBOOT2_HEADER_MAGIC               # Magic number
+    __u32 MULTIBOOT_ARCHITECTURE_I386           # Architecture
+    __u32 header_end - multiboot2_header             # Header length
+    __u32 -(MULTIBOOT2_HEADER_MAGIC + MULTIBOOT_ARCHITECTURE_I386 + (header_end - multiboot2_header)) # Checksum
 
     .align MULTIBOOT_TAG_ALIGN
-    tag_framebuffer:
-      .long MULTIBOOT_HEADER_TAG_FRAMEBUFFER  # Framebuffer request tag type
-      .long 20                                # Size of the tag (including this header)
-      .int 1600                                # Width
-      .int 900                                # Height
-      .int 32                                 # Bits per pixel
-    tag_framebuffer_end:
+    tag_fb:
+      __u16 MULTIBOOT_HEADER_TAG_FRAMEBUFFER    # Framebuffer request tag type
+      __u16  0      # flags 
+      __u32  tag_fb_end-tag_fb                  # Size of the tag, 20 bytes (including this header)
+      __u32  1024                               # Width
+      __u32  768                                # Height
+      __u32  32                                 # Bits per pixel
+    tag_fb_end:
 
     .align MULTIBOOT_TAG_ALIGN
     tag_terminator:
-      .long MULTIBOOT_HEADER_TAG_END          # End tag
-      .long 8                                 # Size of the tag (including this header)
+      __u16 MULTIBOOT_HEADER_TAG_END          # End tag
+      __u16 0
+      __u32 8                                 # Size of the tag (including this header)
 header_end:
 
 .globl _start

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.28.0)
 project(GenesisOS VERSION 0.1.0 LANGUAGES C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+set(CMAKE_ASM_COMPILER /usr/bin/gcc)
 
 # set the compiler
 set(CMAKE_C_COMPILER clang-18)
@@ -12,7 +13,7 @@ set(CMAKE_C_FLAGS "-ffreestanding -fno-pic -static -fno-builtin \
                    -Werror -Wno-pragma-pack -fno-omit-frame-pointer -fno-stack-protector \
                    -mno-80387 -Wno-div-by-zero -Wno-int-conversion")
 
-SET(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS}" )
+set(CMAKE_ASM_FLAGS "-m32")
 
 # include directories
 include_directories(${CMAKE_SOURCE_DIR}/genesis /usr/include/ /usr/include/x86_64-linux-gnu)
@@ -27,8 +28,14 @@ add_custom_target(dispatcher
     COMMENT "Generating trap_dispatcher.S"
 )
 
+
 # Find all source files
-file(GLOB KERNEL_SRCS ${KERNEL_SRC_DIR}/*.c ${KERNEL_SRC_DIR}/*.S ${KERNEL_SRC_DIR}/trap_dispatcher.S)
+file(GLOB KERNEL_SRCS           ${KERNEL_SRC_DIR}/*.c)
+
+file(GLOB KERNEL_ASSEMBLIES     ${KERNEL_SRC_DIR}/trap_entry.S 
+                                ${KERNEL_SRC_DIR}/trap_dispatcher.S
+                                ${KERNEL_SRC_DIR}/kentry.S)
+
 file(GLOB DRIVERS_SRCS ${DRIVERS_SRC_DIR}/*.c)
 
 set_property(SOURCE ${KERNEL_SRC_DIR}/kmalloc.c
@@ -37,7 +44,7 @@ set_property(SOURCE ${KERNEL_SRC_DIR}/kmalloc.c
             " -Wno-parentheses-equality -Wno-expansion-to-defined -Wno-shorten-64-to-32 \
             -Wno-unused-but-set-variable")
 
-add_executable(kernel.elf ${KERNEL_SRCS} ${DRIVERS_SRCS})
+add_executable(kernel.elf ${KERNEL_SRCS} ${KERNEL_ASSEMBLIES} ${DRIVERS_SRCS})
 add_dependencies(kernel.elf dispatcher)
 add_custom_target(kernel
     DEPENDS kernel.elf)

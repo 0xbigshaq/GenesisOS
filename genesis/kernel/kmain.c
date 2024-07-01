@@ -25,16 +25,9 @@ pte entrypgdir[NPDENTRIES] = {
   [PDX(VIRTBASE)] = (0) | PTE_P | PTE_W | PTE_PS,
 };
 
+typedef struct multiboot_tag_framebuffer mb_tag_framebuffer_t;
 
-typedef struct {
-    uint32_t framebuffer_addr;
-    uint32_t framebuffer_pitch;
-    uint32_t framebuffer_width;
-    uint32_t framebuffer_height;
-    uint8_t  framebuffer_bpp;
-} framebuffer_info_t;
-
-framebuffer_info_t framebuffer_info;
+mb_tag_framebuffer_t fb_info;
 
 void parse_multiboot2_info(void* multiboot_info) {
     uint32_t* header = (uint32_t*)multiboot_info;
@@ -44,29 +37,47 @@ void parse_multiboot2_info(void* multiboot_info) {
 
     uint8_t* tag = (uint8_t*)header;
 
+    kprintf("Multiboot info address: 0x%x\n", multiboot_info);
+    kprintf("Total size: 0x%x\n", total_size);
+
     while (tag < (uint8_t*)multiboot_info + total_size) {
         uint32_t type = *((uint32_t*)tag);
         uint32_t size = *((uint32_t*)(tag + 4));
 
-        kprintf("Tag type: 0x%x, size: 0x%x\n", type, size);
+        // kprintf("Tag type: 0x%x, size: 0x%x\n", type, size);
+
+        // Print the tag content for debugging purposes
+        // for (uint32_t i = 0; i < size; i += 4) {
+        //     kprintf("Tag data[%d]: 0x%x\n", i, *((uint32_t*)(tag + i)));
+        // }
 
         if (type == MULTIBOOT_TAG_TYPE_FRAMEBUFFER) { // Framebuffer tag
-            framebuffer_info.framebuffer_addr = *((uint32_t*)(tag + 8));
-            framebuffer_info.framebuffer_pitch = *((uint32_t*)(tag + 12));
-            framebuffer_info.framebuffer_width = *((uint32_t*)(tag + 16));
-            framebuffer_info.framebuffer_height = *((uint32_t*)(tag + 20));
-            framebuffer_info.framebuffer_bpp = *((uint8_t*)(tag + 24));
+            memcpy(&fb_info.common, tag, sizeof(fb_info.common));
             kprintf("Framebuffer info: addr=0x%x, pitch=%d, width=%d, height=%d, bpp=%d\n",
-                   framebuffer_info.framebuffer_addr,
-                   framebuffer_info.framebuffer_pitch,
-                   framebuffer_info.framebuffer_width,
-                   framebuffer_info.framebuffer_height,
-                   framebuffer_info.framebuffer_bpp);
+                   fb_info.common.framebuffer_addr,
+                   fb_info.common.framebuffer_pitch,
+                   fb_info.common.framebuffer_width,
+                   fb_info.common.framebuffer_height,
+                   fb_info.common.framebuffer_bpp);
         }
 
         tag += size;
         if (size % 8 != 0) {
             tag += 8 - (size % 8);
+        }
+    }
+}
+
+void fill_screen(uint32_t color) {
+    if (fb_info.common.framebuffer_addr == 0 || fb_info.common.framebuffer_pitch == 0) {
+        kprintf("Invalid framebuffer configuration\n");
+        return;
+    }
+
+    uint32_t* framebuffer = (uint32_t*)fb_info.common.framebuffer_addr;
+    for (uint32_t y = 0; y < fb_info.common.framebuffer_height; ++y) {
+        for (uint32_t x = 0; x < fb_info.common.framebuffer_width; ++x) {
+            framebuffer[y * fb_info.common.framebuffer_width + x] = color + x/3+1;
         }
     }
 }
@@ -97,6 +108,17 @@ void kmain()
     load_init();
     uart_write("[+] Ready\n");
     // putpixel(0,0, 255);
+    kprintf("[+] fb_info.common @ 0x%x \n", &fb_info.common);
+    // Fill screen with red color if framebuffer info is valid
+    if (fb_info.common.framebuffer_addr && fb_info.common.framebuffer_pitch) {
+        uint32_t lol = 0xFF0000;
+      while(1) {
+        fill_screen(lol++); // Red color in 0xRRGGBB format
+      }
+    } else {
+        kprintf("Failed to initialize framebuffer\n");
+    }
+
     run_init();
 
     while(1) {

@@ -27,6 +27,7 @@ DEBIAN_FRONTEND=noninteractive sudo apt install \
     python3-pip \
     mtools \
     graphviz \
+    nasm \
     clang-18 lldb-18 lld-18 clangd-18 \
     ninja-build \
     -y
