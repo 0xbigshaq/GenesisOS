@@ -2,26 +2,23 @@
 set -e
 set -x
 
-# qemu:
-# 	qemu-system-i386 -cdrom $(BUILD_DIR)/kernel.iso $(QEMU_OPTS)
 
-# qemu-nox:
-# qemu-system-i386 \
-#     -nographic \
-#     -boot d \
-#     -cdrom build/kernel.iso \
-#     -hda build/disk.img \
-#     -m 512 
-
-qemu-system-i386 \
+# run Genesis OS with graphics
+cmd="qemu-system-i386 \
     -boot d \
     -cdrom build/kernel.iso \
     -hda build/disk.img \
     -vga std -serial mon:stdio \
-    -m 512
+    -m 512"
 
-# qemu-gdb:
-# 	@echo "\n[*] ======= starting QEMU+gdb ======="
-# 	@echo "[*]         To close: Ctrl-A X"
-# 	@echo "Starting "
-# 	qemu-system-i386 -s -S -nographic -boot d -cdrom $(BUILD_DIR)/kernel.iso -hda $(DISK_IMG) $(QEMU_EXTRAS)
+# 'headless'/serial mode
+if [ "$1" == "-s" ]; then
+    cmd="qemu-system-i386 \
+        -nographic \
+        -boot d \
+        -cdrom build/kernel.iso \
+        -hda build/disk.img \
+        -m 512"
+fi
+
+eval $cmd
