@@ -25,7 +25,9 @@ void pic_ack(uint8_t irq);
 // IRQ(s). We receive these as (IRQ_OFFSET+n)
 #define IRQ_COM1 PIC1 + 0x4
 #define IRQ_OFFSET	32
-#define IRQ_TIMER        (IRQ_OFFSET+0)
+#define IRQ_TIMER       (IRQ_OFFSET+0)
+#define IRQ_PS2_MOUSE   (IRQ_OFFSET+12)
+#define IRQ_KEYBOARD    (IRQ_OFFSET+1)
 
 // Custom for our kernel
 #define INT_SYSCALL     0x80

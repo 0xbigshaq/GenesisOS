@@ -7,6 +7,8 @@
 #include "kernel/syscall.h"
 #include "drivers/uart.h" // IWYU pragma: keep
 #include "drivers/console.h"
+#include "drivers/mouse.h"
+#include "drivers/keyboard.h"
 
 idt_entry_t idt[256];  // IDT Entries
 idt_reg_t idtr;        // This is loaded to the IDT Register
@@ -62,5 +64,14 @@ void handle_trap(trap_ctx_t* ctx)
             yield();
         }
     }
+
+    if(ctx->vector_idx == IRQ_PS2_MOUSE) {
+        handle_mouse_irq();
+    }
+
+    if(ctx->vector_idx == IRQ_KEYBOARD) {
+        handle_keyboard_irq();
+    }
+
     pic_ack(ctx->vector_idx);
 }

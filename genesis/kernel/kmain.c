@@ -14,6 +14,8 @@
 #include "drivers/fat32.h"
 #include "kernel/mb.h"
 #include "drivers/gfx.h"
+#include "drivers/mouse.h"
+#include "drivers/keyboard.h"
 
 /* Bootstrap Page-Table used for initialization. 
  * Uses the `PTE_PS` bit in order to use 4MB Pages
@@ -37,6 +39,8 @@ void kmain()
     init_console();
     uart_write("[*] *OS booting...\n");
 
+    init_mouse();
+    init_keyboard();
     init_pic();
     setup_idt();
 
