@@ -1,6 +1,8 @@
 #ifndef KEYBOARD_DRIVER_H
 #define KEYBOARD_DRIVER_H
 
+#include "kernel/types.h"
+
 #define PS2_DATA_PORT      0x60
 #define PS2_CMD_PORT       0x64
 #define PS2_ENABLE_PORT_1  0xAE
@@ -179,6 +181,8 @@ typedef enum {
     KEY_F12_RELEASED = 0xD8
 } KeyCode;
 
+extern uint8_t incoming_char;
+extern volatile uint8_t pending_char;
 
 void init_keyboard();
 void enable_keyboard_interrupts();

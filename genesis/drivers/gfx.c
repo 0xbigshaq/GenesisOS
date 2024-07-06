@@ -10,7 +10,7 @@ void init_gfx(void) {
     ENSURE_GFX()
     kprintf("[+] fb_info.common @ 0x%x \n", &fb_info.common);
 
-    fill_screen(BG_COLOR);
+    // fill_screen(BG_COLOR);
 }
 
 void fill_screen(uint32_t color) {

@@ -1,5 +1,3 @@
-#include "diskio.h"
-#include "ff.h"
 #include "kernel/types.h"
 #include "kernel/mmu.h"
 #include "kernel/memlayout.h"
@@ -8,11 +6,10 @@
 #include "kernel/interrupts.h"
 #include "kernel/pic.h"
 #include "kernel/proc.h"
-#include "drivers/console.h"
-#include "drivers/uart.h"
-#include "drivers/ata.h"
-#include "drivers/fat32.h"
 #include "kernel/mb.h"
+#include "drivers/vconsole.h"
+#include "drivers/uart.h"
+#include "drivers/fat32.h"
 #include "drivers/gfx.h"
 #include "drivers/mouse.h"
 #include "drivers/keyboard.h"
@@ -36,7 +33,6 @@ void kmain()
     init_kernelvm();
 
     init_uart();
-    init_console();
     uart_write("[*] *OS booting...\n");
 
     init_mouse();
@@ -47,6 +43,7 @@ void kmain()
     mount_fs();
     load_init();
     init_gfx();
+    init_vconsole();
     uart_write("[+] Ready\n");
     run_init();
 

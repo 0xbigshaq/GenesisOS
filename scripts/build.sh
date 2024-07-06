@@ -8,7 +8,7 @@ cmake -GNinja -S . -B ./build/
 # ninja -C build/ -v iso
 ninja -C build/ iso
 
-dd if=/dev/zero of=build/disk.img bs=1M count=1
+dd if=/dev/zero of=build/disk.img bs=1M count=10
 mkfs.vfat -F 32 build/disk.img
 
 echo "\n[*] Copying userland binaries to disk.img"
@@ -32,6 +32,11 @@ fi
 sudo mount build/disk.img /mnt/disk/
 sudo cp build/genesis/userland/init.elf /mnt/disk/init
 # sudo sh -c 'echo "It works! this is lol.txt" > /mnt/disk/lol.txt'
-sudo cp docs/banner.txt /mnt/disk/lol.txt
+sudo cp scripts/res/banner.txt /mnt/disk/lol.txt
+
+# rendering testing
+sudo cp scripts/res/out.sfn2 /mnt/disk/font.sfn
+sudo cp scripts/res/logo.bmp /mnt/disk/logo.bmp
+
 sudo umount /mnt/disk/
 

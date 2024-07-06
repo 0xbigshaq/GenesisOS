@@ -3,9 +3,6 @@
 #include "drivers/console.h"
 #include "drivers/uart.h"
 
-// Video Memory related funcs
-uint16_t *const video = (uint16_t*) phys_to_virt(0xB8000);
-
 int console_write(uint8_t *buf, uint32_t count) {
   int off = 0;
   for(; off < count; off++) {
@@ -50,10 +47,6 @@ void init_console() {
   devices[DEV_CONSOLE].read = &console_read;
 }
 
-void putc(uint8_t x, uint8_t y, enum color fg, enum color bg, char c) {
-    video[y * COLS + x] = (bg << 12) | (fg << 8) | c;
-}
-
 int console_getchar(void) {
   int ch;
   ch = uart_getchar();
@@ -69,21 +62,6 @@ int console_getchar(void) {
   }
   return ch;
 }
-
-void puts(uint8_t x, uint8_t y, enum color fg, enum color bg, const char *s) {
-    while(*s != 0) {
-        putc(x, y, fg, bg, *s);
-        s++; x++;
-    }
-}
-
-void clear(enum color bg) {
-    uint8_t x, y;
-    for (y = 0; y < ROWS; y++)
-        for (x = 0; x < COLS; x++)
-            putc(x, y, bg, bg, ' ');
-}
-
 
 // UART/Serial related funcs
 void printint(int xx, int base, int sign)

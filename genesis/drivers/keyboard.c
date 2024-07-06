@@ -14,6 +14,9 @@ const char scancode_to_char[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 // 0x54 to 0x63
 };
 
+uint8_t incoming_char = 0;
+volatile uint8_t pending_char = 0;
+
 void init_keyboard() {
     // Enable the keyboard by sending the appropriate command to the PS/2 controller
     outb(PS2_CMD_PORT, PS2_ENABLE_PORT_1);
@@ -117,6 +120,12 @@ void keyboard_debug(uint8_t scancode) {
 
 void handle_keyboard_irq() {
     KeyCode scancode = inb(PS2_DATA_PORT);
-    keyboard_debug(scancode);
-    kprintf("\n");
+    // keyboard_debug(scancode);
+
+    if(scancode > 0 && scancode < 0x80) {
+        incoming_char = scancode_to_char[scancode];
+        pending_char = 1;
+    } else if(scancode >= 0x80) {
+        // handle_key_release(scancode);
+    }
 }
