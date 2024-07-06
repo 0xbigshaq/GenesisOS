@@ -19,7 +19,7 @@ void kmalloc_init(void *virt_start, void *virt_end)
 {
     free_range(virt_start, virt_end);
     kernel_heap_start = ((char*)virt_end)+0x1000;
-    kernel_heap_size = 0x40000;
+    kernel_heap_size = 0x20000000;
     init_mparams();
 }
 
