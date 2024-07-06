@@ -1,12 +1,12 @@
 #include "kernel/mb.h"
-#include "drivers/gfx.h"
+#include "drivers/gfx/framebuffer.h"
 #include "drivers/console.h"
 #include <stdint.h>
 
 int gfx_enabled = 0;  // `parse_multiboot2_info` set this to 1
 
 
-void init_gfx(void) {
+void init_framebuffer(void) {
     ENSURE_GFX()
     kprintf("[+] fb_info.common @ 0x%x \n", &fb_info.common);
 

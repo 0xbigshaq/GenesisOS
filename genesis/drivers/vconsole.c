@@ -4,11 +4,11 @@
 #include "kernel/string.h"
 #include "kernel/mb.h"
 #define SSFN_CONSOLEBITMAP_TRUECOLOR 1        /* use the special renderer for 32 bit truecolor packed pixels */
-#include "drivers/ssfn.h"
+#include "drivers/gfx/ssfn.h"
 #include "drivers/keyboard.h"
 #include "drivers/console.h"
 #include "drivers/vconsole.h"
-#include "drivers/bmp.h"
+#include "drivers/gfx/bmp.h"
 
 ssfn_font_t *ssfn_src;  // Font info, for SSFN
 ssfn_buf_t ssfn_dst;    // Framebuffer context

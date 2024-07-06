@@ -36,7 +36,9 @@ file(GLOB KERNEL_ASSEMBLIES     ${KERNEL_SRC_DIR}/trap_entry.S
                                 ${KERNEL_SRC_DIR}/trap_dispatcher.S
                                 ${KERNEL_SRC_DIR}/kentry.S)
 
-file(GLOB DRIVERS_SRCS ${DRIVERS_SRC_DIR}/*.c)
+file(GLOB DRIVERS_SRCS 
+            ${DRIVERS_SRC_DIR}/*.c
+            ${DRIVERS_SRC_DIR}/gfx/*.c)
 
 set_property(SOURCE ${KERNEL_SRC_DIR}/kmalloc.c
             APPEND_STRING

@@ -1,4 +1,4 @@
-#include "drivers/bmp.h"
+#include "drivers/gfx/bmp.h"
 #include "drivers/fat32.h"
 #include "drivers/console.h"
 #include "kernel/kmalloc.h"

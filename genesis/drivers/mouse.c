@@ -4,7 +4,7 @@
 #include "kernel/kmalloc.h"
 #include "drivers/mouse.h"
 #include "drivers/console.h"
-#include "drivers/gfx.h"
+#include "drivers/gfx/framebuffer.h"
 
 // globs
 mouse_ctx_t mouse_ctx = {

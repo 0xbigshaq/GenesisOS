@@ -10,7 +10,7 @@
 #include "drivers/vconsole.h"
 #include "drivers/uart.h"
 #include "drivers/fat32.h"
-#include "drivers/gfx.h"
+#include "drivers/gfx/framebuffer.h"
 #include "drivers/mouse.h"
 #include "drivers/keyboard.h"
 
@@ -42,7 +42,7 @@ void kmain()
 
     mount_fs();
     load_init();
-    init_gfx();
+    init_framebuffer();
     init_vconsole();
     uart_write("[+] Ready\n");
     run_init();

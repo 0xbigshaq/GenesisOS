@@ -1,7 +1,7 @@
 #include "kernel/mb.h"
 #include "kernel/string.h"
 #include "drivers/console.h"
-#include "drivers/gfx.h"
+#include "drivers/gfx/framebuffer.h"
 
 mb_tag_framebuffer_t fb_info;
 

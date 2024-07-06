@@ -2,7 +2,7 @@
 #define GFX_H
 #include "kernel/types.h"
 
-void init_gfx(void);
+void init_framebuffer(void);
 void fill_screen(uint32_t color);
 void fill_square(uint32_t x_pos, uint32_t y_pos, uint32_t square_size, uint32_t color);
 
