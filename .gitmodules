@@ -1,3 +1,0 @@
-[submodule "genesis/kernel/openlibm"]
-	path = genesis/kernel/openlibm
-	url = git@github.com:JuliaMath/openlibm.git
