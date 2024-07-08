@@ -24,6 +24,9 @@ mouse_ctx_t mouse_ctx = {
     .packet.y_sign = NULL
 };
 
+mouse_ctx_t* get_mouse_ctx() {
+    return &mouse_ctx;
+}
 
 // funcs
 MousePacket* parse_mouse_packet(uint8_t packet[3]) {
@@ -97,10 +100,10 @@ void handle_mouse_irq() {
             mp = parse_mouse_packet(packet);
             print_mouse_packet(mp);
 
-            if(!mp->left_button) { draw_mouse(BG_COLOR); }
+            // if(!mp->left_button) { draw_mouse(BG_COLOR); }
             update_mouse_position(mp);
-            draw_mouse(C_COLOR);
-            if(mp->right_button) {  fill_screen(BG_COLOR); }
+            // draw_mouse(C_COLOR);
+            // if(mp->right_button) {  fill_screen(BG_COLOR); }
 
             mouse_cycle = 1;
             break;

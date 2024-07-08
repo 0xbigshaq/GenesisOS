@@ -13,6 +13,7 @@
 #include "drivers/gfx/framebuffer.h"
 #include "drivers/mouse.h"
 #include "drivers/keyboard.h"
+#include "kernel/gfx/gui.h"
 
 /* Bootstrap Page-Table used for initialization. 
  * Uses the `PTE_PS` bit in order to use 4MB Pages
@@ -45,6 +46,7 @@ void kmain()
     init_framebuffer();
     init_vconsole();
     uart_write("[+] Ready\n");
+    woot();
     run_init();
 
     while(1) {

@@ -11,7 +11,6 @@
 
 
 .section .multiboot2_header
-.text
 .align MULTIBOOT_HEADER_ALIGN
 multiboot2_header:
     .align MULTIBOOT_TAG_ALIGN
@@ -37,6 +36,7 @@ multiboot2_header:
       __u32 8                                 # Size of the tag (including this header)
 header_end:
 
+.section .text
 .globl _start
 _start = (entry)
 

@@ -4,14 +4,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 set(CMAKE_ASM_COMPILER /usr/bin/gcc)
 
 # set the compiler
-set(CMAKE_C_COMPILER clang-18)
+set(CMAKE_C_COMPILER "/usr/bin/clang-18")
 set(CMAKE_ASM_NASM_OBJECT_FORMAT elf32)
 
 # set compiler flags
-set(CMAKE_C_FLAGS "-ffreestanding -fno-pic -static -fno-builtin \
-                   -fno-strict-aliasing -O2 -Wall -ggdb -m32 \
+set(CMAKE_C_FLAGS "-ffreestanding -fno-pic -static \
+                   -fno-strict-aliasing -O0 -Wall -ggdb -m32 \
                    -Werror -Wno-pragma-pack -fno-omit-frame-pointer -fno-stack-protector \
-                   -mno-80387 -Wno-div-by-zero -Wno-int-conversion")
+                   -Wno-int-conversion")
 
 set(CMAKE_ASM_FLAGS "-m32")
 
@@ -30,7 +30,18 @@ add_custom_target(dispatcher
 
 
 # Find all source files
-file(GLOB KERNEL_SRCS           ${KERNEL_SRC_DIR}/*.c)
+file(GLOB KERNEL_SRCS  
+            ${KERNEL_SRC_DIR}/*.c
+            ${KERNEL_SRC_DIR}/gfx/*.c)
+
+add_definitions(-DNK_IMPLEMENTATION
+                )
+
+set_property(SOURCE ${KERNEL_SRC_DIR}/gfx/gui.c 
+            APPEND_STRING
+            PROPERTY COMPILE_FLAGS 
+            "-Wno-unused-function -fno-stack-protector -Wno-incompatible-pointer-types-discards-qualifiers \
+            -Wno-unused-value")
 
 file(GLOB KERNEL_ASSEMBLIES     ${KERNEL_SRC_DIR}/trap_entry.S 
                                 ${KERNEL_SRC_DIR}/trap_dispatcher.S
@@ -75,3 +86,25 @@ add_custom_target(iso
     COMMAND grub-mkrescue /usr/lib/grub/i386-pc -o ${CMAKE_BINARY_DIR}/kernel.iso ${CMAKE_BINARY_DIR}/iso/targets/x86
     DEPENDS kernel.elf userland
 )
+
+# # Include the ExternalProject module
+# include(ExternalProject)
+
+# # Define the external project
+# ExternalProject_Add(openlibm
+#     SOURCE_DIR ${CMAKE_SOURCE_DIR}/genesis/kernel/openlibm
+#     BINARY_DIR ${CMAKE_BINARY_DIR}/openlibm_build
+#     CMAKE_ARGS  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
+#                 -DBUILD_SHARED_LIBS=OFF
+#     BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/openlibm_build/libopenlibm.a
+#     INSTALL_COMMAND ""
+# )
+
+# # Specify the path to the generated library
+# set(OPENLIBM_LIB ${CMAKE_BINARY_DIR}/openlibm_build/libopenlibm.a)
+
+# # Ensure that the external project is built before linking
+# add_dependencies(kernel.elf openlibm)
+
+# # Link against the external library
+# target_link_libraries(kernel.elf ${OPENLIBM_LIB})

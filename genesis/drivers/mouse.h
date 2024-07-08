@@ -44,6 +44,6 @@ uint8_t mouse_read_byte(void);
 void handle_mouse_irq();
 void init_mouse(void);
 void draw_mouse(uint32_t color);
-
+mouse_ctx_t* get_mouse_ctx(void);
 
 #endif // MOUSE_DRIVER_H
