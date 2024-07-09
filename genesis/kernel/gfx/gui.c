@@ -1,23 +1,9 @@
 #include "drivers/console.h"
 #include <assert.h>
-#ifndef NK_IMPLEMENTATION
-#define NK_IMPLEMENTATION
-#endif
 #include "kernel/kmalloc.h"
-#include "kernel/gfx/oof.h"
-
-
-
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#define NK_INCLUDE_FIXED_TYPES
-#define NK_RAWFB_IMPLEMENTATION
-#define NK_INCLUDE_FONT_BAKING
-#define NK_INCLUDE_DEFAULT_FONT
-#define NK_INCLUDE_SOFTWARE_FONT
-#define NK_ASSERT
-#include "kernel/gfx/nuklear.h"
+#include "kernel/gfx/nuklear/nuklear.h"
+#include "kernel/gfx/nuklear/nuklear_internal.h"
 #include "kernel/gfx/nuklear_rawfb.h"
-#include "kernel/mb.h"
 
 #include "drivers/mouse.h"
 #include "drivers/gfx/framebuffer.h"

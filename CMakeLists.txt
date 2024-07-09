@@ -35,7 +35,13 @@ file(GLOB KERNEL_SRCS
             ${KERNEL_SRC_DIR}/gfx/*.c)
 
 add_definitions(-DNK_IMPLEMENTATION
-                )
+                -DNK_INCLUDE_DEFAULT_ALLOCATOR
+                -DNK_INCLUDE_FIXED_TYPES
+                -DNK_RAWFB_IMPLEMENTATION
+                -DNK_INCLUDE_FONT_BAKING
+                -DNK_INCLUDE_DEFAULT_FONT
+                -DNK_INCLUDE_SOFTWARE_FONT
+                -DNK_IMPLEMENTATION)
 
 set_property(SOURCE ${KERNEL_SRC_DIR}/gfx/gui.c 
             APPEND_STRING
@@ -87,24 +93,14 @@ add_custom_target(iso
     DEPENDS kernel.elf userland
 )
 
-# # Include the ExternalProject module
-# include(ExternalProject)
+include(ExternalProject)
+ExternalProject_Add(libnuklear
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/genesis/kernel/gfx/nuklear
+    BINARY_DIR ${CMAKE_BINARY_DIR}/nuklear_build
+    CMAKE_ARGS  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
+                -DBUILD_SHARED_LIBS=OFF
+    BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/nuklear_build/libnuklear.a
+    INSTALL_COMMAND ""
+)
 
-# # Define the external project
-# ExternalProject_Add(openlibm
-#     SOURCE_DIR ${CMAKE_SOURCE_DIR}/genesis/kernel/openlibm
-#     BINARY_DIR ${CMAKE_BINARY_DIR}/openlibm_build
-#     CMAKE_ARGS  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
-#                 -DBUILD_SHARED_LIBS=OFF
-#     BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/openlibm_build/libopenlibm.a
-#     INSTALL_COMMAND ""
-# )
-
-# # Specify the path to the generated library
-# set(OPENLIBM_LIB ${CMAKE_BINARY_DIR}/openlibm_build/libopenlibm.a)
-
-# # Ensure that the external project is built before linking
-# add_dependencies(kernel.elf openlibm)
-
-# # Link against the external library
-# target_link_libraries(kernel.elf ${OPENLIBM_LIB})
+target_link_libraries(kernel.elf ${CMAKE_BINARY_DIR}/nuklear_build/libnuklear.a)

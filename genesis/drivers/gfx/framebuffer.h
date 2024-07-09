@@ -20,4 +20,5 @@ extern int gfx_enabled;
 #define SCREEN_WIDTH  1024
 #define SCREEN_HEIGHT 768
 
+
 #endif // GFX_H

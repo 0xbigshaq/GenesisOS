@@ -31,7 +31,7 @@
 
 #ifndef NK_RAWFB_H_
 #define NK_RAWFB_H_
-
+#include "kernel/gfx/oof.h"
 struct rawfb_context;
 
 struct rawfb_pl {
