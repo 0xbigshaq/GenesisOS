@@ -5,8 +5,8 @@ set -x
 rm -rf build/
 cmake -GNinja -S . -B ./build/
 
-ninja -C build/ -v iso
-# ninja -C build/ iso
+# ninja -C build/ -v iso
+ninja -C build/ iso
 
 dd if=/dev/zero of=build/disk.img bs=1M count=10
 mkfs.vfat -F 32 build/disk.img

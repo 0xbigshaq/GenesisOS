@@ -1,7 +1,7 @@
+#include "kernel/gfx/gfx_math.h"
 #include <stddef.h>
 #include <math.h>
 
-// qsort implementation
 void swap(void* a, void* b, size_t size) {
     unsigned char* p = a, * q = b, tmp;
     for (size_t i = 0; i < size; i++) {

@@ -1,21 +1,11 @@
 #include "drivers/console.h"
-#include <assert.h>
+#include "kernel/assert.h"
 #include "kernel/kmalloc.h"
-#include "kernel/gfx/nuklear/nuklear.h"
-#include "kernel/gfx/nuklear/nuklear_internal.h"
-#include "kernel/gfx/nuklear_rawfb.h"
-
 #include "drivers/mouse.h"
 #include "drivers/gfx/framebuffer.h"
 
-// struct nk_user_font font;
 struct nk_context ctx;
 
-
-void __assert_fail(const char* assertion, const char* file, unsigned int line, const char* function) {
-    kprintf("Assertion failed: %s, function %s, file %s, line %d.\n", assertion, function, file, line);
-    while (1) {}  // Halt the system
-}
 
 #define FRAMEBUFFER_ADDR 0xfd000000
 #define FRAMEBUFFER_WIDTH 1024
@@ -67,7 +57,7 @@ void woot() {
     // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.active, nk_style_item_color(nk_rgb(255,0,0)));
 
     while(1) {
-    if (nk_begin(nk_ctx, "Genesis OS", nk_rect(620, 350, 200, 200), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_MOVABLE|NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_CLOSABLE))
+    if (nk_begin(nk_ctx, "Genesis OS", nk_rect(512-100, 384-100, 200, 200), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_MOVABLE|NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_CLOSABLE))
     {
             // kprintf("nk_begin\n");
             nk_layout_row_static(nk_ctx, 20, 175, 1);
@@ -90,5 +80,4 @@ void woot() {
     nk_rawfb_render(rawfb, nk_black, 1);
     graphics_swapbuffers();
     }
-
 }

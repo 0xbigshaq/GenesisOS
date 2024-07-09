@@ -354,12 +354,15 @@ NK_LIB void nk_property(struct nk_context *ctx, const char *name, struct nk_prop
 
 /* Allow consumer to define own STBTT_malloc/STBTT_free, and use the font atlas' allocator otherwise */
 #ifndef STBTT_malloc
+
+__attribute__((unused)) 
 static void*
 nk_stbtt_malloc(nk_size size, void *user_data) {
     struct nk_allocator *alloc = (struct nk_allocator *) user_data;
     return alloc->alloc(alloc->userdata, 0, size);
 }
 
+__attribute__((unused)) 
 static void
 nk_stbtt_free(void *ptr, void *user_data) {
     struct nk_allocator *alloc = (struct nk_allocator *) user_data;
