@@ -20,6 +20,9 @@
 #ifdef NK_INCLUDE_STANDARD_IO
 #include <stdio.h> /* fopen, fclose,... */
 #endif
+#ifdef NK_INCLUDE_STANDARD_FS
+#include "drivers/fat32.h" // IWYU pragma: keep
+#endif
 #ifdef NK_INCLUDE_STANDARD_VARARGS
 #include <stdarg.h> /* valist, va_start, va_end, ... */
 #endif
@@ -143,7 +146,7 @@ NK_LIB struct nk_vec2 nk_text_calculate_text_bounds(const struct nk_user_font *f
 #ifdef NK_INCLUDE_STANDARD_VARARGS
 NK_LIB int nk_strfmt(char *buf, int buf_size, const char *fmt, va_list args);
 #endif
-#ifdef NK_INCLUDE_STANDARD_IO
+#ifdef NK_INCLUDE_STANDARD_FS
 NK_LIB char *nk_file_load(const char* path, nk_size* siz, const struct nk_allocator *alloc);
 #endif
 

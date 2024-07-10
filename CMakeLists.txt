@@ -36,6 +36,7 @@ file(GLOB KERNEL_SRCS
 
 add_definitions(-DNK_IMPLEMENTATION
                 -DNK_INCLUDE_DEFAULT_ALLOCATOR
+                -DNK_INCLUDE_STANDARD_FS
                 -DNK_INCLUDE_FIXED_TYPES
                 -DNK_RAWFB_IMPLEMENTATION
                 -DNK_INCLUDE_FONT_BAKING
@@ -99,6 +100,7 @@ ExternalProject_Add(libnuklear
     BINARY_DIR ${CMAKE_BINARY_DIR}/nuklear_build
     CMAKE_ARGS  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
                 -DBUILD_SHARED_LIBS=OFF
+                -DCMAKE_C_FLAGS=-I${CMAKE_SOURCE_DIR}/genesis
     BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/nuklear_build/libnuklear.a
     INSTALL_COMMAND ""
 )

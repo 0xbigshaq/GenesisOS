@@ -1042,7 +1042,7 @@ nk_font_atlas_add_from_memory(struct nk_font_atlas *atlas, void *memory,
     cfg.ttf_data_owned_by_atlas = 0;
     return nk_font_atlas_add(atlas, &cfg);
 }
-#ifdef NK_INCLUDE_STANDARD_IO
+#ifdef NK_INCLUDE_STANDARD_FS
 NK_API struct nk_font*
 nk_font_atlas_add_from_file(struct nk_font_atlas *atlas, const char *file_path,
     float height, const struct nk_font_config *config)

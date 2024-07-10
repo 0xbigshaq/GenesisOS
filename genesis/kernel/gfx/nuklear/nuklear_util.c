@@ -1,3 +1,4 @@
+#include "drivers/fat32.h"
 #include "nuklear.h"
 #include "nuklear_internal.h"
 
@@ -982,7 +983,7 @@ nk_murmur_hash(const void * key, int len, nk_hash seed)
     #undef NK_ROTL
     return h1;
 }
-#ifdef NK_INCLUDE_STANDARD_IO
+#ifdef NK_INCLUDE_STANDARD_FS
 NK_LIB char*
 nk_file_load(const char* path, nk_size* siz, const struct nk_allocator *alloc)
 {
@@ -996,16 +997,15 @@ nk_file_load(const char* path, nk_size* siz, const struct nk_allocator *alloc)
     if (!path || !siz || !alloc)
         return 0;
 
+    FILINFO inf;
+    ret = f_stat(path, &inf);
+    if (ret != FR_OK) return 0;
     fd = fopen(path, "rb");
-    if (!fd) return 0;
-    fseek(fd, 0, SEEK_END);
-    ret = ftell(fd);
     if (ret < 0) {
         fclose(fd);
         return 0;
     }
-    *siz = (nk_size)ret;
-    fseek(fd, 0, SEEK_SET);
+    *siz = (nk_size)inf.fsize;
     buf = (char*)alloc->alloc(alloc->userdata,0, *siz);
     NK_ASSERT(buf);
     if (!buf) {

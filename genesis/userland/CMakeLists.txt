@@ -11,7 +11,7 @@ set(CMAKE_C_FLAGS "-fno-pic -static -Wall -ggdb -m32 -nostdlib -masm=intel \
 
 
 # Include directories
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../.. ${CMAKE_CURRENT_SOURCE_DIR}/libs /usr/include /usr/include/linux/ /usr/include/x86_64-linux-gnu)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../.. ${CMAKE_CURRENT_SOURCE_DIR}/libs /usr/include)
 
 # Source files
 file(GLOB BINS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.c)

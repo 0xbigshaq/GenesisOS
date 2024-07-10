@@ -86,3 +86,74 @@ DRESULT handle_fat32_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
 
     return rc;
 }
+
+FILE *fopen(const char *path, const char *mode) {
+    FRESULT rc;
+    FILE *fp = malloc(sizeof(FILE));
+    // FIXME: check if null
+
+    rc = f_open(fp, path, FA_READ);
+    if(rc != FR_OK) goto fs_error;
+    kprintf("[*] File `%s` opened\n", path);
+
+    return fp;
+
+    fs_error:
+        kprintf("[!] FAT FS Error: %d\n", rc);
+        free(fp);
+        PANIC("Cannot open file")
+
+    return -1;
+}
+
+size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    FRESULT rc;
+    FIL *fp = stream;;
+    UINT br;
+    
+    rc = f_read(fp, ptr, size * nmemb, &br);
+    if(rc < FR_OK) goto fs_error;
+    kprintf("[*] %d bytes read\n", br);
+
+    return br;
+
+    fs_error:
+        kprintf("[!] FAT FS Error: %d\n", rc);
+        PANIC("Cannot read file")
+
+    return -1;
+}
+
+int fclose(FILE *stream) {
+    FRESULT rc;
+    FIL *fp = stream;
+
+    rc = f_close(fp);
+    if(rc != FR_OK) goto fs_error;
+    kprintf("[*] File closed\n");
+
+    return 0;
+
+    fs_error:
+        kprintf("[!] FAT FS Error: %d\n", rc);
+        PANIC("Cannot close file")
+
+    return -1;
+}
+
+size_t ftell(FILE *stream) {
+    size_t pos;
+    FIL *fp = stream;
+
+    pos = f_tell(fp);
+    if(pos < 0) goto fs_error;
+    kprintf("[*] File position: %d\n", pos);
+
+    return pos;
+
+    fs_error:
+        kprintf("[!] FAT FS Error: %d\n", pos);
+        PANIC("Cannot get file position")
+
+    return -1;
+}

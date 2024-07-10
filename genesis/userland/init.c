@@ -1,5 +1,5 @@
 #include "userland/libs/std.h"
-#include <fcntl.h>
+// #include <fcntl.h>
 
 int main(int argc, char *argv[]) {
     char banner[] = "Welcome to init!\n";

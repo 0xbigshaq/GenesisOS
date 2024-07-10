@@ -1,5 +1,6 @@
 #include "kernel/types.h"
 #include "kernel/x86.h"
+#include <stddef.h>
 
 void* memset2(void *dst, int c, uint n)
 {

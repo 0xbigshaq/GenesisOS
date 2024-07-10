@@ -1,3 +1,4 @@
+#include "kernel/gfx/nuklear/nuklear.h"
 #include "kernel/mb.h"
 #include "drivers/gfx/framebuffer.h"
 #include "kernel/gfx/gfx_math.h"

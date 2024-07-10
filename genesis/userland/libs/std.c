@@ -1,7 +1,8 @@
 #include "userland/libs/std.h"
 #include "kernel/syscall.h"
-#include <stdint.h>
-#include <unistd.h>
+// #include <stdint.h>
+// #include <unistd.h>
+#include <stddef.h>
 
 int write(int fd, char *buf, uint32_t count) {
     int sysno = SYS_write;

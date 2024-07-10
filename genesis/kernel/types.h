@@ -16,5 +16,4 @@ typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 
 #define OK 0
-#define NULL 0 
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

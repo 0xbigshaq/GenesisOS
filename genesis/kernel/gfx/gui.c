@@ -30,6 +30,48 @@ void graphics_swapbuffers(void)
         *buffer = *back_buffer;
 }
 
+
+enum theme {THEME_BLACK, THEME_WHITE, THEME_RED, THEME_BLUE, THEME_DARK};
+
+static void
+set_style(struct nk_context *ctx, enum theme theme)
+{
+    struct nk_color table[NK_COLOR_COUNT];
+    if (theme == THEME_WHITE) {
+        table[NK_COLOR_TEXT] = nk_rgba(20, 20, 20, 255);
+        table[NK_COLOR_WINDOW] = nk_rgba(185, 185, 185, 255);
+        table[NK_COLOR_HEADER] = nk_rgba(150, 150, 150, 255);
+        table[NK_COLOR_BORDER] = nk_rgba(0, 0, 0, 255);
+        table[NK_COLOR_BUTTON] = nk_rgba(210, 210, 210, 255);
+        table[NK_COLOR_BUTTON_HOVER] = nk_rgba(180, 180, 180, 255);
+        table[NK_COLOR_BUTTON_ACTIVE] = nk_rgba(160, 160, 160, 255);
+        table[NK_COLOR_TOGGLE] = nk_rgba(150, 150, 150, 255);
+        table[NK_COLOR_TOGGLE_HOVER] = nk_rgba(120, 120, 120, 255);
+        table[NK_COLOR_TOGGLE_CURSOR] = nk_rgba(175, 175, 175, 255);
+        table[NK_COLOR_SELECT] = nk_rgba(190, 190, 190, 255);
+        table[NK_COLOR_SELECT_ACTIVE] = nk_rgba(175, 175, 175, 255);
+        table[NK_COLOR_SLIDER] = nk_rgba(190, 190, 190, 255);
+        table[NK_COLOR_SLIDER_CURSOR] = nk_rgba(80, 80, 80, 255);
+        table[NK_COLOR_SLIDER_CURSOR_HOVER] = nk_rgba(70, 70, 70, 255);
+        table[NK_COLOR_SLIDER_CURSOR_ACTIVE] = nk_rgba(60, 60, 60, 255);
+        table[NK_COLOR_PROPERTY] = nk_rgba(175, 175, 175, 255);
+        table[NK_COLOR_EDIT] = nk_rgba(150, 150, 150, 255);
+        table[NK_COLOR_EDIT_CURSOR] = nk_rgba(0, 0, 0, 255);
+        table[NK_COLOR_COMBO] = nk_rgba(175, 175, 175, 255);
+        table[NK_COLOR_CHART] = nk_rgba(160, 160, 160, 255);
+        table[NK_COLOR_CHART_COLOR] = nk_rgba(45, 45, 45, 255);
+        table[NK_COLOR_CHART_COLOR_HIGHLIGHT] = nk_rgba( 255, 0, 0, 255);
+        table[NK_COLOR_SCROLLBAR] = nk_rgba(180, 180, 180, 255);
+        table[NK_COLOR_SCROLLBAR_CURSOR] = nk_rgba(140, 140, 140, 255);
+        table[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(150, 150, 150, 255);
+        table[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(160, 160, 160, 255);
+        table[NK_COLOR_TAB_HEADER] = nk_rgba(180, 180, 180, 255);
+        nk_style_from_table(ctx, table);
+    } else {
+        nk_style_default(ctx);
+    }
+}
+
 void woot() {
     graphics_back_buffer = malloc(FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT * sizeof(uint32_t));
     // kprintf("woot\n");
@@ -55,6 +97,21 @@ void woot() {
     // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.normal, nk_style_item_color(nk_rgb(255,0,0))); 
     // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.hover, nk_style_item_color(nk_rgb(200,0,0))); 
     // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.active, nk_style_item_color(nk_rgb(255,0,0)));
+    set_style(nk_ctx, THEME_WHITE);
+    // nk_style_push_style_item(nk_ctx, &nk_ctx->style.window.header, nk_style_item_color(nk_rgb(255,0,0)));
+    nk_style_push_vec2(nk_ctx, &nk_ctx->style.window.header.padding, nk_vec2(0,0));
+
+
+    // struct nk_font_atlas atlas;
+    // nk_font_atlas_init_default(&atlas);
+    // nk_font_atlas_begin(&atlas);
+    // struct nk_font_config cfg = nk_font_config(15);
+    // cfg.merge_mode = nk_false; // or `nk_true`
+    // cfg.range = nk_font_korean_glyph_ranges();
+    // cfg.coord_type = NK_COORD_PIXEL;
+    // struct nk_font *font = nk_font_atlas_add_from_file(&atlas, "opensa.ttf", 15, &cfg);
+    // nk_font_atlas_end(&atlas, nk_handle_id(0), 0);
+
 
     while(1) {
     if (nk_begin(nk_ctx, "Genesis OS", nk_rect(512-100, 384-100, 200, 200), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_MOVABLE|NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_CLOSABLE))

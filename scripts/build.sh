@@ -37,6 +37,7 @@ sudo cp scripts/res/banner.txt /mnt/disk/lol.txt
 # rendering testing
 sudo cp scripts/res/out.sfn2 /mnt/disk/font.sfn
 sudo cp scripts/res/logo.bmp /mnt/disk/logo.bmp
+sudo cp scripts/res/opensa.ttf /mnt/disk/opensa.ttf
 
 sudo umount /mnt/disk/
 
