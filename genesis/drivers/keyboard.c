@@ -2,6 +2,7 @@
 #include "drivers/console.h"
 #include "kernel/x86.h"
 #include "kernel/pic.h"
+#include "kernel/string.h"
 #include <stdint.h>
 
 const char scancode_to_char[] = {
@@ -17,9 +18,16 @@ const char scancode_to_char[] = {
 uint8_t incoming_char = 0;
 volatile uint8_t pending_char = 0;
 
+keyboard_ctx_t k_ctx;
+
+keyboard_ctx_t *get_keyboard_ctx() {
+    return &k_ctx;
+}
+
 void init_keyboard() {
     // Enable the keyboard by sending the appropriate command to the PS/2 controller
     outb(PS2_CMD_PORT, PS2_ENABLE_PORT_1);
+    memset2(&k_ctx, 0, sizeof(keyboard_ctx_t));
     enable_keyboard_interrupts();
 }
 
@@ -120,12 +128,21 @@ void keyboard_debug(uint8_t scancode) {
 
 void handle_keyboard_irq() {
     KeyCode scancode = inb(PS2_DATA_PORT);
-    // keyboard_debug(scancode);
+    keyboard_debug(scancode);
+    kprintf("\n");
+    k_ctx.incoming_scancode = scancode;
+    k_ctx.incoming_char = scancode_to_char[scancode];
+    // kprintf("[!] scancoe: %d\n", scancode);
 
-    if(scancode > 0 && scancode < 0x80) {
-        incoming_char = scancode_to_char[scancode];
-        pending_char = 1;
-    } else if(scancode >= 0x80) {
-        // handle_key_release(scancode);
+    if(k_ctx.incoming_char >= ' ' && k_ctx.incoming_char <= '~') {
+        k_ctx.pending_buf[k_ctx.pos++] = k_ctx.incoming_char;
+    } else if(k_ctx.incoming_scancode == KEY_BACKSPACE_PRESSED) {
+        if(k_ctx.pos > 0) {
+            k_ctx.pos--;
+            k_ctx.pending_buf[k_ctx.pos] = 0;
+        }
+    } else {
+        k_ctx.incoming_char = 0;
     }
+    k_ctx.pending = 1;
 }

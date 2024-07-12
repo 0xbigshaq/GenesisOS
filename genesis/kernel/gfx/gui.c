@@ -1,7 +1,10 @@
 #include "drivers/console.h"
 #include "kernel/assert.h"
+#include "kernel/gfx/nuklear/nuklear.h"
 #include "kernel/kmalloc.h"
+#include "kernel/string.h"
 #include "drivers/mouse.h"
+#include "drivers/keyboard.h"
 #include "drivers/gfx/framebuffer.h"
 
 struct nk_context ctx;
@@ -77,6 +80,7 @@ void woot() {
     // kprintf("woot\n");
     struct rawfb_pl pl;
     mouse_ctx_t *m_ctx;
+    keyboard_ctx_t *k_ctx;
     pl.bytesPerPixel = 4;
     pl.ashift = 24;
     pl.rshift = 16;
@@ -97,7 +101,7 @@ void woot() {
     // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.normal, nk_style_item_color(nk_rgb(255,0,0))); 
     // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.hover, nk_style_item_color(nk_rgb(200,0,0))); 
     // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.active, nk_style_item_color(nk_rgb(255,0,0)));
-    set_style(nk_ctx, THEME_WHITE);
+    // set_style(nk_ctx, THEME_WHITE);
     // nk_style_push_style_item(nk_ctx, &nk_ctx->style.window.header, nk_style_item_color(nk_rgb(255,0,0)));
     nk_style_push_vec2(nk_ctx, &nk_ctx->style.window.header.padding, nk_vec2(0,0));
 
@@ -112,24 +116,59 @@ void woot() {
     // struct nk_font *font = nk_font_atlas_add_from_file(&atlas, "opensa.ttf", 15, &cfg);
     // nk_font_atlas_end(&atlas, nk_handle_id(0), 0);
 
+    char input[256];
+    char output[1024];
+    memset(input, 0, sizeof(input));
+    memset(output, 0, sizeof(output));
 
     while(1) {
-    if (nk_begin(nk_ctx, "Genesis OS", nk_rect(512-100, 384-100, 200, 200), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_MOVABLE|NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_CLOSABLE))
-    {
-            // kprintf("nk_begin\n");
-            nk_layout_row_static(nk_ctx, 20, 175, 1);
-            nk_label(nk_ctx, "GUI Testing", NK_TEXT_ALIGN_CENTERED);
-            nk_label(nk_ctx, "whattttt", NK_TEXT_ALIGN_CENTERED);
-            nk_button_label(nk_ctx, "Continue btn");
-    }
-    // nk_end(nk_ctx);
+        /* GUI */
+        if (nk_begin(nk_ctx, "Terminal", nk_rect(50, 50, 700, 500),
+            NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
+            NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
+
+            nk_layout_row_dynamic(nk_ctx, 400, 1);
+            nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_BOX, output, sizeof(output), nk_filter_default);
+
+            nk_layout_row_dynamic(nk_ctx, 30, 2);
+            nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, input, sizeof(input), nk_filter_default);
+            if (nk_button_label(nk_ctx, "Submit")) {
+                strcat(output, input);
+                strcat(output, "\n");
+                memset(input, 0, sizeof(input));
+            }
+        }
 
     m_ctx = get_mouse_ctx();
+    k_ctx = get_keyboard_ctx();
     nk_input_begin(nk_ctx);
     nk_input_motion(nk_ctx, m_ctx->mouse_x, m_ctx->mouse_y);
     nk_input_button(nk_ctx, NK_BUTTON_LEFT, m_ctx->mouse_x, m_ctx->mouse_y, m_ctx->packet.left_button);
     nk_input_button(nk_ctx, NK_BUTTON_MIDDLE, m_ctx->mouse_x, m_ctx->mouse_y, m_ctx->packet.middle_button);
     nk_input_button(nk_ctx, NK_BUTTON_RIGHT, m_ctx->mouse_x, m_ctx->mouse_y, m_ctx->packet.right_button);
+
+    if(k_ctx->pending) {
+        switch (k_ctx->incoming_scancode)
+		{
+            case KEY_ENTER_PRESSED: nk_input_key(nk_ctx, NK_KEY_ENTER, true); break;
+            case KEY_BACKSPACE_PRESSED: nk_input_key(nk_ctx, NK_KEY_BACKSPACE, true); break;
+            case KEY_LEFT_PRESSED: nk_input_key(nk_ctx, NK_KEY_LEFT, true); break;
+            case KEY_RIGHT_PRESSED: nk_input_key(nk_ctx, NK_KEY_RIGHT, true); break;
+            case KEY_UP_PRESSED: nk_input_key(nk_ctx, NK_KEY_UP, true); break;
+            case KEY_DOWN_PRESSED: nk_input_key(nk_ctx, NK_KEY_DOWN, true); break;
+            case KEY_TAB_PRESSED: nk_input_key(nk_ctx, NK_KEY_TAB, true); break;
+        }
+        if(k_ctx->pos) {
+            for(int i = 0; i < k_ctx->pos; i++)
+                nk_input_char(nk_ctx, k_ctx->pending_buf[i]);
+        
+        k_ctx->pos = 0;
+        memset(k_ctx->pending_buf, 0, sizeof(k_ctx->pending_buf));
+        }
+        k_ctx->incoming_char = 0; 
+        k_ctx->incoming_scancode = 0; // clear scancode
+        k_ctx->pending = 0; // clear flag
+    }
     nk_input_end(nk_ctx);
     
     nk_end(nk_ctx);

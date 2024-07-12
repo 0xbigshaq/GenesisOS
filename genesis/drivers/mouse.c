@@ -98,7 +98,7 @@ void handle_mouse_irq() {
             packet[1] = mouse_byte[1];
             packet[2] = mouse_byte[2];
             mp = parse_mouse_packet(packet);
-            print_mouse_packet(mp);
+            // print_mouse_packet(mp);
 
             // if(!mp->left_button) { draw_mouse(BG_COLOR); }
             update_mouse_position(mp);

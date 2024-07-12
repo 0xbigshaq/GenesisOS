@@ -98,3 +98,18 @@ char* strchr(const char* str, int c) {
     // Character not found, return NULL
     return NULL;
 }
+
+char *strcat(char *destination, const char *source)
+{
+    // Get the length of the destination string
+    size_t dest_len = strlen(destination);
+    // Iterate over each character in the source string
+    for (size_t i = 0; source[i] != '\0'; i++) {
+        // Append the character to the destination string
+        destination[dest_len + i] = source[i];
+    }
+    // Append the null terminator to the destination string
+    destination[dest_len + strlen(source)] = '\0';
+    // Return the destination string
+    return destination;
+}

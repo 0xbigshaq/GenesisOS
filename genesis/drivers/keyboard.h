@@ -81,17 +81,22 @@ typedef enum {
     KEY_SCROLLLOCK_PRESSED = 0x46,
     KEY_KEYPAD_7_PRESSED = 0x47,
     KEY_KEYPAD_8_PRESSED = 0x48,
+    KEY_UP_PRESSED = 0x48,
     KEY_KEYPAD_9_PRESSED = 0x49,
     KEY_KEYPAD_MINUS_PRESSED = 0x4A,
     KEY_KEYPAD_4_PRESSED = 0x4B,
+    KEY_LEFT_PRESSED = 0x4B,
     KEY_KEYPAD_5_PRESSED = 0x4C,
     KEY_KEYPAD_6_PRESSED = 0x4D,
+    KEY_RIGHT_PRESSED = 0x4D,
     KEY_KEYPAD_PLUS_PRESSED = 0x4E,
     KEY_KEYPAD_1_PRESSED = 0x4F,
     KEY_KEYPAD_2_PRESSED = 0x50,
+    KEY_DOWN_PRESSED = 0x50,
     KEY_KEYPAD_3_PRESSED = 0x51,
     KEY_KEYPAD_0_PRESSED = 0x52,
     KEY_KEYPAD_DOT_PRESSED = 0x53,
+    KEY_DELETE_PRESSED = 0x53,
     KEY_F11_PRESSED = 0x57,
     KEY_F12_PRESSED = 0x58,
     KEY_ESCAPE_RELEASED = 0x81,
@@ -184,9 +189,19 @@ typedef enum {
 extern uint8_t incoming_char;
 extern volatile uint8_t pending_char;
 
+struct keyboard_ctx {
+    uint8_t incoming_char;
+    uint8_t pending_buf[256];
+    uint8_t pos;
+    uint8_t incoming_scancode;
+    volatile uint8_t pending;
+};
+typedef struct keyboard_ctx keyboard_ctx_t;
+
 void init_keyboard();
 void enable_keyboard_interrupts();
 void handle_keyboard_irq();
+keyboard_ctx_t *get_keyboard_ctx();
 
 
 #endif // KEYBOARD_DRIVER_H
