@@ -25,7 +25,7 @@ set(DRIVERS_SRC_DIR ${CMAKE_SOURCE_DIR}/genesis/drivers)
 
 # Custom target to generate trap_dispatcher.S
 add_custom_target(dispatcher
-    COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/gen_vectors.py > ${KERNEL_SRC_DIR}/trap_dispatcher.S
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/meta/gen_vectors.py > ${KERNEL_SRC_DIR}/trap_dispatcher.S
     COMMENT "Generating trap_dispatcher.S"
 )
 
@@ -99,10 +99,10 @@ add_custom_target(fsdisk
 
     # Copying files to disk image
     COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_BINARY_DIR}/genesis/userland/init.elf ::init
-    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/scripts/res/banner.txt ::lol.txt
-    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/scripts/res/out.sfn2 ::font.sfn
-    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/scripts/res/logo.bmp ::logo.bmp
-    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/scripts/res/opensa.ttf ::opensa.ttf
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/meta/res/banner.txt ::lol.txt
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/meta/res/out.sfn2 ::font.sfn
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/meta/res/logo.bmp ::logo.bmp
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/meta/res/opensa.ttf ::opensa.ttf
 
     DEPENDS userland)
 
