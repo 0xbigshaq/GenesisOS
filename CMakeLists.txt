@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.28.0)
 project(GenesisOS VERSION 0.1.0 LANGUAGES C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+set( CMAKE_MESSAGE_LOG_LEVEL "STATUS" )
 set(CMAKE_ASM_COMPILER /usr/bin/gcc)
 
 # set the compiler
@@ -67,6 +68,8 @@ set_property(SOURCE ${KERNEL_SRC_DIR}/kmalloc.c
 add_executable(kernel.elf ${KERNEL_SRCS} ${KERNEL_ASSEMBLIES} ${DRIVERS_SRCS})
 add_dependencies(kernel.elf dispatcher)
 add_custom_target(kernel
+    COMMENT "GenesisOS: Building kernel.elf"
+    COMMAND echo "[+] kernel.elf built successfully"
     DEPENDS kernel.elf)
 
 add_subdirectory(genesis/kernel/allocator)
@@ -86,13 +89,33 @@ set_target_properties(kernel.elf PROPERTIES
 # Include userland directory
 add_subdirectory(genesis/userland)
 
+
+add_custom_target(fsdisk
+    COMMENT "Filesystem: Generating FAT32 disk image"
+    COMMAND dd if=/dev/zero of=${CMAKE_BINARY_DIR}/disk.img bs=1M count=33
+
+    # Creating FAT32 partition"
+    COMMAND mformat -F -i ${CMAKE_BINARY_DIR}/disk.img ::
+
+    # Copying files to disk image
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_BINARY_DIR}/genesis/userland/init.elf ::init
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/scripts/res/banner.txt ::lol.txt
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/scripts/res/out.sfn2 ::font.sfn
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/scripts/res/logo.bmp ::logo.bmp
+    COMMAND mcopy -i ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_SOURCE_DIR}/scripts/res/opensa.ttf ::opensa.ttf
+
+    DEPENDS userland)
+
+
 # Custom target for ISO creation
 add_custom_target(iso
+    COMMENT "ISO: Generating ISO w/ grub-mkrescue"
     COMMAND cp -r ${CMAKE_SOURCE_DIR}/iso ${CMAKE_BINARY_DIR}/iso
     COMMAND cp ${CMAKE_BINARY_DIR}/kernel.elf ${CMAKE_BINARY_DIR}/iso/targets/x86/boot/kernel.bin
-    COMMAND grub-mkrescue /usr/lib/grub/i386-pc -o ${CMAKE_BINARY_DIR}/kernel.iso ${CMAKE_BINARY_DIR}/iso/targets/x86
-    DEPENDS kernel.elf userland
+    COMMAND grub-mkrescue /usr/lib/grub/i386-pc -o ${CMAKE_BINARY_DIR}/kernel.iso ${CMAKE_BINARY_DIR}/iso/targets/x86 > /dev/null 2>&1
+    DEPENDS kernel userland fsdisk
 )
+
 
 include(ExternalProject)
 ExternalProject_Add(libnuklear
@@ -103,6 +126,8 @@ ExternalProject_Add(libnuklear
                 -DCMAKE_C_FLAGS=-I${CMAKE_SOURCE_DIR}/genesis
     BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/nuklear_build/libnuklear.a
     INSTALL_COMMAND ""
+    LOG_BUILD ON
+    LOG_CONFIGURE ON
 )
 
 target_link_libraries(kernel.elf ${CMAKE_BINARY_DIR}/nuklear_build/libnuklear.a)
