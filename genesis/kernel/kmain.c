@@ -46,7 +46,7 @@ void kmain()
     init_framebuffer();
     init_vconsole();
     uart_write("[+] Ready\n");
-    woot();
+    render_gui();
     run_init();
 
     while(1) {

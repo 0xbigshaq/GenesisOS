@@ -36,6 +36,10 @@ void fill_square(uint32_t x_pos, uint32_t y_pos, uint32_t square_size, uint32_t 
     }
 }
 
+fb_info_t* get_framebuffer_info(void) {
+    return &fb_info.common;
+}
+
 // for testing purposes hehe
 void render_colors(void) {
     ENSURE_GFX()
