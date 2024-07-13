@@ -6,6 +6,8 @@
 #include "drivers/mouse.h"
 #include "drivers/keyboard.h"
 #include "drivers/gfx/framebuffer.h"
+#include "kernel/mb.h"
+#include "drivers/gfx/bmp.h"
 
 struct nk_context ctx;
 
@@ -76,8 +78,13 @@ set_style(struct nk_context *ctx, enum theme theme)
 }
 
 void woot() {
+    BMPFileHeader fileHeader;
+    BMPInfoHeader infoHeader;
+             
+    unsigned char* pixelData = read_bmp("0:logo.bmp", &fileHeader, &infoHeader);
+
+
     graphics_back_buffer = malloc(FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT * sizeof(uint32_t));
-    // kprintf("woot\n");
     struct rawfb_pl pl;
     mouse_ctx_t *m_ctx;
     keyboard_ctx_t *k_ctx;
@@ -94,27 +101,7 @@ void woot() {
     rawfb = nk_rawfb_init(graphics_back_buffer, tex_scratch, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, FRAMEBUFFER_PITCH, pl);
 	nk_ctx = &rawfb->ctx;
 
-    // nk_style_push_color(nk_ctx, &nk_ctx->style.window.background, nk_rgb(255,255,255));
-    // nk_style_push_style_item(nk_ctx, &nk_ctx->style.window.fixed_background, nk_style_item_color(nk_rgb(255,255,255)));
-    // nk_style_push_style_item(nk_ctx, &nk_ctx->style.cursors[], nk_style_item_color(nk_rgb(100,100,100)));
-
-    // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.normal, nk_style_item_color(nk_rgb(255,0,0))); 
-    // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.hover, nk_style_item_color(nk_rgb(200,0,0))); 
-    // nk_style_push_style_item(nk_ctx, &nk_ctx->style.button.active, nk_style_item_color(nk_rgb(255,0,0)));
-    // set_style(nk_ctx, THEME_WHITE);
-    // nk_style_push_style_item(nk_ctx, &nk_ctx->style.window.header, nk_style_item_color(nk_rgb(255,0,0)));
     nk_style_push_vec2(nk_ctx, &nk_ctx->style.window.header.padding, nk_vec2(0,0));
-
-
-    // struct nk_font_atlas atlas;
-    // nk_font_atlas_init_default(&atlas);
-    // nk_font_atlas_begin(&atlas);
-    // struct nk_font_config cfg = nk_font_config(15);
-    // cfg.merge_mode = nk_false; // or `nk_true`
-    // cfg.range = nk_font_korean_glyph_ranges();
-    // cfg.coord_type = NK_COORD_PIXEL;
-    // struct nk_font *font = nk_font_atlas_add_from_file(&atlas, "opensa.ttf", 15, &cfg);
-    // nk_font_atlas_end(&atlas, nk_handle_id(0), 0);
 
     char input[256];
     char output[1024];
@@ -122,21 +109,16 @@ void woot() {
     memset(output, 0, sizeof(output));
 
     while(1) {
-        /* GUI */
-        if (nk_begin(nk_ctx, "Terminal", nk_rect(50, 50, 700, 500),
+        if (pixelData) {
+            render_bmp_to_framebuffer(pixelData, &infoHeader, graphics_back_buffer, fb_info.common.framebuffer_width, fb_info.common.framebuffer_height);
+        }
+        
+        if (nk_begin(nk_ctx, "Terminal", nk_rect(140, 140, 700, 500),
             NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
             NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
 
-            nk_layout_row_dynamic(nk_ctx, 400, 1);
+            nk_layout_row_dynamic(nk_ctx, 450, 1);
             nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_BOX, output, sizeof(output), nk_filter_default);
-
-            nk_layout_row_dynamic(nk_ctx, 30, 2);
-            nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, input, sizeof(input), nk_filter_default);
-            if (nk_button_label(nk_ctx, "Submit")) {
-                strcat(output, input);
-                strcat(output, "\n");
-                memset(input, 0, sizeof(input));
-            }
         }
 
     m_ctx = get_mouse_ctx();
@@ -150,30 +132,27 @@ void woot() {
     if(k_ctx->pending) {
         switch (k_ctx->incoming_scancode)
 		{
-            case KEY_ENTER_PRESSED: nk_input_key(nk_ctx, NK_KEY_ENTER, true); break;
+            // case KEY_ENTER_PRESSED: nk_input_key(nk_ctx, NK_KEY_ENTER, true); break;
             case KEY_BACKSPACE_PRESSED: nk_input_key(nk_ctx, NK_KEY_BACKSPACE, true); break;
             case KEY_LEFT_PRESSED: nk_input_key(nk_ctx, NK_KEY_LEFT, true); break;
             case KEY_RIGHT_PRESSED: nk_input_key(nk_ctx, NK_KEY_RIGHT, true); break;
-            case KEY_UP_PRESSED: nk_input_key(nk_ctx, NK_KEY_UP, true); break;
-            case KEY_DOWN_PRESSED: nk_input_key(nk_ctx, NK_KEY_DOWN, true); break;
+            // case KEY_UP_PRESSED: nk_input_key(nk_ctx, NK_KEY_UP, true); break;
+            // case KEY_DOWN_PRESSED: nk_input_key(nk_ctx, NK_KEY_DOWN, true); break;
             case KEY_TAB_PRESSED: nk_input_key(nk_ctx, NK_KEY_TAB, true); break;
         }
+
+        // flush to console window 
         if(k_ctx->pos) {
             for(int i = 0; i < k_ctx->pos; i++)
                 nk_input_char(nk_ctx, k_ctx->pending_buf[i]);
-        
-        k_ctx->pos = 0;
-        memset(k_ctx->pending_buf, 0, sizeof(k_ctx->pending_buf));
         }
-        k_ctx->incoming_char = 0; 
-        k_ctx->incoming_scancode = 0; // clear scancode
-        k_ctx->pending = 0; // clear flag
+        keyboard_clear_pending_buf();
     }
     nk_input_end(nk_ctx);
     
     nk_end(nk_ctx);
 
-    nk_rawfb_render(rawfb, nk_black, 1);
+    nk_rawfb_render(rawfb, nk_black, 0);
     graphics_swapbuffers();
     }
 }

@@ -204,6 +204,7 @@ void init_keyboard();
 void enable_keyboard_interrupts();
 void handle_keyboard_irq();
 keyboard_ctx_t *get_keyboard_ctx();
+int keyboard_clear_pending_buf(void);
 
 
 #endif // KEYBOARD_DRIVER_H

@@ -221,7 +221,7 @@ void handle_keyboard_irq() {
                 k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '}' : ']';
                 break;
             case KEY_ENTER_PRESSED:
-                // k_ctx.pending_buf[k_ctx.pos++] = '\n';
+                k_ctx.pending_buf[k_ctx.pos++] = '\n';
                 break;
             case KEY_A_PRESSED:
                 k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'A' : 'a';
@@ -301,4 +301,15 @@ void handle_keyboard_irq() {
         }
     }
     k_ctx.pending = 1;
+}
+
+int keyboard_clear_pending_buf() {
+    int len = k_ctx.pos;
+    
+    k_ctx.pos = 0;
+    k_ctx.incoming_char = 0;
+    k_ctx.incoming_scancode = 0;
+    k_ctx.pending = 0;
+    memset2(k_ctx.pending_buf, 0, sizeof(k_ctx.pending_buf));
+    return len;
 }
