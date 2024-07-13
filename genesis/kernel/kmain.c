@@ -45,8 +45,11 @@ void kmain()
     load_init();
     init_framebuffer();
     init_vconsole();
+    gui_init();
     uart_write("[+] Ready\n");
-    render_gui();
+    while(1) {
+      render_gui();
+    }
     run_init();
 
     while(1) {

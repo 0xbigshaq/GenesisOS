@@ -13,39 +13,29 @@
 ssfn_font_t *ssfn_src;  // Font info, for SSFN
 ssfn_buf_t ssfn_dst;    // Framebuffer context
 uint8_t *vera_sfn_data; // Font data, lays in kernel heap
+vconsole_ctx_t vconsole_ctx;
+
+vconsole_ctx_t* vconsole_get_ctx() {
+  return &vconsole_ctx;
+}
 
 void init_vconsole() {
+  vconsole_ctx_t *ctx = vconsole_get_ctx();
   devices[DEV_CONSOLE].write = &video_console_write;
   devices[DEV_CONSOLE].read = &video_console_read;
+  ctx->buf = malloc(1024);
+  ctx->pos = 0;
+  ctx->cap = 1024;
   splash_screen();
 }
 
 int video_console_write(uint8_t *buf, uint32_t count) {
-  int off = 0;
-  for(; off < count; off++) {
-    if (ssfn_dst.y + ssfn_src->height >= ssfn_dst.h) {
-      // Scroll the screen up
-      for (int i = 0; i < ssfn_dst.h - ssfn_src->height; i++) {
-        memcpy(&ssfn_dst.ptr[i * ssfn_dst.p], &ssfn_dst.ptr[(i + ssfn_src->height) * ssfn_dst.p], ssfn_dst.p);
-      }
-
-      // Clear the last line
-      for(int i = 0; i <= ssfn_src->height; i++) {
-        uint32_t line_size = ssfn_dst.p;
-        uint32_t *last_line = (uint32_t *)&ssfn_dst.ptr[line_size * (ssfn_dst.h-1-i)];
-        memset2(last_line, 0, line_size);
-      }
-      ssfn_dst.y -= ssfn_src->height;
-    }
-
-    if(buf[off] == '\n') {
-      ssfn_dst.x = 0;
-      ssfn_dst.y += ssfn_src->height;
-      continue;
-    }
-    ssfn_putc(buf[off]);
+  vconsole_ctx_t *ctx = vconsole_get_ctx();
+  for(uint32_t i = 0; i < count; i++) {
+    ctx->buf[ctx->pos++] = buf[i];
   }
-  return off;
+  // FIXME: add a check if we are at the end of the buffer & realloc
+  return count;
 }
 
 int video_console_read(uint8_t *buf, uint32_t count) {
@@ -55,7 +45,6 @@ int video_console_read(uint8_t *buf, uint32_t count) {
     sti(); // Enable interrupts, make it non-blocking I/O
     c = video_console_getc();
     cli();
-    video_console_write(&c, 1);
     if (c == '\n' || c == '\r') {
         break;
     }
@@ -67,10 +56,9 @@ int video_console_read(uint8_t *buf, uint32_t count) {
 }
 
 uint8_t video_console_getc() {
-  while(pending_char == 0);
-
-  pending_char = 0; // clear the flag
-  return incoming_char;
+  keyboard_ctx_t *ctx = get_keyboard_ctx();
+  while(ctx->incoming_char == 0);
+  return ctx->incoming_char;
 }
 
 void splash_screen() {

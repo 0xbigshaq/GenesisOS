@@ -31,6 +31,8 @@ extern int gfx_enabled;
 #include "kernel/gfx/nuklear/nuklear_internal.h"
 
 struct rawfb_context;
+typedef struct rawfb_context rawfb_ctx_t;
+typedef struct nk_context nk_ctx_t;
 
 struct rawfb_pl {
     unsigned char bytesPerPixel;
