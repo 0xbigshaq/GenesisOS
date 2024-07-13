@@ -195,6 +195,8 @@ struct keyboard_ctx {
     uint8_t pos;
     uint8_t incoming_scancode;
     volatile uint8_t pending;
+    uint8_t shift;
+    uint8_t capslock;
 };
 typedef struct keyboard_ctx keyboard_ctx_t;
 

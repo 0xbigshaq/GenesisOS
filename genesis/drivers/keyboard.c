@@ -131,18 +131,174 @@ void handle_keyboard_irq() {
     keyboard_debug(scancode);
     kprintf("\n");
     k_ctx.incoming_scancode = scancode;
-    k_ctx.incoming_char = scancode_to_char[scancode];
     // kprintf("[!] scancoe: %d\n", scancode);
+    if(k_ctx.incoming_scancode == KEY_LEFT_SHIFT_PRESSED || k_ctx.incoming_scancode == KEY_RIGHT_SHIFT_PRESSED) {
+        k_ctx.shift = 1;
+    } else if(k_ctx.incoming_scancode == KEY_LEFT_SHIFT_RELEASED || k_ctx.incoming_scancode == KEY_RIGHT_SHIFT_RELEASED) {
+        k_ctx.shift = 0;
+    }
+    else if(k_ctx.incoming_scancode == KEY_CAPSLOCK_PRESSED) {
+        k_ctx.capslock = !k_ctx.capslock;
+    }
+    else {
+        switch(k_ctx.incoming_scancode) {
+            case KEY_1_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '!' : '1';
+                break;
+            case KEY_2_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '@' : '2';
+                break;
+            case KEY_3_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '#' : '3';
+                break;
+            case KEY_4_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '$' : '4';
+                break;
+            case KEY_5_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '%' : '5';
+                break;
+            case KEY_6_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '^' : '6';
+                break;
+            case KEY_7_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '&' : '7';
+                break;
+            case KEY_8_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '*' : '8';
+                break;
+            case KEY_9_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '(' : '9';
+                break;
+            case KEY_0_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? ')' : '0';
+                break;
+            case KEY_MINUS_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '_' : '-';
+                break;
+            case KEY_EQUAL_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '+' : '=';
+                break;
+            case KEY_BACKSPACE_PRESSED:
+                if(k_ctx.pos > 0) { k_ctx.pos--; } k_ctx.pending_buf[k_ctx.pos] = '\0';
+                break;
+            case KEY_TAB_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = '\t';
+                break;
+            case KEY_Q_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'Q' : 'q';
+                break;
+            case KEY_W_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'W' : 'w';
+                break;
+            case KEY_E_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'E' : 'e';
+                break;
+            case KEY_R_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'R' : 'r';
+                break;
+            case KEY_T_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'T' : 't';
+                break;
+            case KEY_Y_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'Y' : 'y';
+                break;
+            case KEY_U_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'U' : 'u';
+                break;
+            case KEY_I_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'I' : 'i';
+                break;
+            case KEY_O_PRESSED: 
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'O' : 'o';
+                break;
+            case KEY_P_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'P' : 'p';
+                break;
+            case KEY_LEFT_BRACKET_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '{' : '[';
+                break;
+            case KEY_RIGHT_BRACKET_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '}' : ']';
+                break;
+            case KEY_ENTER_PRESSED:
+                // k_ctx.pending_buf[k_ctx.pos++] = '\n';
+                break;
+            case KEY_A_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'A' : 'a';
+                break;
+            case KEY_S_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'S' : 's';
+                break;
+            case KEY_D_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'D' : 'd';
+                break;
+            case KEY_F_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'F' : 'f';
+                break;
+            case KEY_G_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'G' : 'g';
+                break;
+            case KEY_H_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'H' : 'h';
+                break;
+            case KEY_J_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'J' : 'j';
+                break;
+            case KEY_K_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'K' : 'k';
+                break;
+            case KEY_L_PRESSED: 
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'L' : 'l';
+                break;
+            case KEY_SEMICOLON_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? ':' : ';';
+                break;
+            case KEY_SINGLE_QUOTE_PRESSED:  
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '"' : '\'';
+                break;
+            case KEY_BACKTICK_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '~' : '`';
+                break;
+            case KEY_BACKSLASH_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '|' : '\\';
+                break;
+            case KEY_Z_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'Z' : 'z';
+                break;
+            case KEY_X_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'X' : 'x';
+                break;
+            case KEY_C_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'C' : 'c';
+                break;
+            case KEY_V_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'V' : 'v';
+                break;
+            case KEY_B_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'B' : 'b';
+                break;
+            case KEY_N_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'N' : 'n';
+                break;
+            case KEY_M_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? 'M' : 'm';
+                break;
+            case KEY_COMMA_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '<' : ',';
+                break;
+            case KEY_DOT_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '>' : '.';
+                break;
+            case KEY_SLASH_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = k_ctx.shift ? '?' : '/';
+                break;
+            case KEY_SPACE_PRESSED:
+                k_ctx.pending_buf[k_ctx.pos++] = ' ';
+                break;
+            default:
+                break;
 
-    if(k_ctx.incoming_char >= ' ' && k_ctx.incoming_char <= '~') {
-        k_ctx.pending_buf[k_ctx.pos++] = k_ctx.incoming_char;
-    } else if(k_ctx.incoming_scancode == KEY_BACKSPACE_PRESSED) {
-        if(k_ctx.pos > 0) {
-            k_ctx.pos--;
-            k_ctx.pending_buf[k_ctx.pos] = 0;
         }
-    } else {
-        k_ctx.incoming_char = 0;
     }
     k_ctx.pending = 1;
 }
