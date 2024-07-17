@@ -9,3 +9,4 @@ char*           strncpy(char*, const char*, int);
 void*           memcpy(void *dst, const void *src, uint n);
 char*           strchr(const char* str, int c);
 char*           strcat(char *destination, const char *source);
+char*           strrchr(char *s, int c);

@@ -113,3 +113,14 @@ char *strcat(char *destination, const char *source)
     // Return the destination string
     return destination;
 }
+
+char *strrchr(char *s, int c) {
+    char *last = NULL;
+    while (*s) {
+        if (*s == c) {
+            last = s;
+        }
+        s++;
+    }
+    return last;
+}
