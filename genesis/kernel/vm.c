@@ -31,6 +31,8 @@ vmmap kern_vmmap[] = {
  * 00000000fe000000-0000000100000000 0000000002000000 -rw   <---- Devices/MMIO Regions
 */
 
+pte* kernel_pgtbl = NULL;
+
 void init_kernelvm(void) {
 
     pte* pml2 = kmalloc();
@@ -45,12 +47,13 @@ void init_kernelvm(void) {
     // load new pgtable to cr3 
     lcr3(virt_to_phys(pml2));
     init_segmentation();
+    kernel_pgtbl = pml2;
 }
 
 void gen_ptes(pte *pgdir, uint vaddr, uint size, uint paddr, int perms) {
     uint cur_entry  = PAGE_ROUNDUP(vaddr);
     uint last_entry = PAGE_ROUNDDOWN(vaddr + size - 1);
-    // kprintf("cur_entry = 0x%x , last_entry = 0x%x\n", cur_entry, last_entry);
+    // dmsg("cur_entry = 0x%x , last_entry = 0x%x\n", cur_entry, last_entry);
 
     while(1) {
         pte* pml1 = pte_resolve(pgdir, (void*)cur_entry, perms, 1);
@@ -151,6 +154,10 @@ void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint 
     return ;
 }
 
+void switch_kernel_vm() {
+    lcr3(virt_to_phys(kernel_pgtbl));
+
+}
 void switch_user_vm(task_t *p) {
     cpu_t* c = cur_cpu();
     uint ts_addr = (uint)&c->ts;

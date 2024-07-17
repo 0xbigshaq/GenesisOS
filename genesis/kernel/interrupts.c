@@ -1,4 +1,5 @@
 #include "kernel/interrupts.h"
+#include "kernel/vm.h"
 #include "kernel/x86.h"
 #include "kernel/mmu.h"
 #include "kernel/pic.h"
@@ -61,16 +62,18 @@ void handle_trap(trap_ctx_t* ctx)
     if(ctx->vector_idx == IRQ_TIMER) {
         // kprintf("[*] IRQ_TIMER triggered\n");
         if(cur_proc() && cur_proc()->state == RUNNING) {
+            dmsg("calling yield, kernel_pgtbl = 0x%x", kernel_pgtbl);
             yield();
         }
     }
+
 
     if(ctx->vector_idx == IRQ_PS2_MOUSE) {
         handle_mouse_irq();
     }
 
     if(ctx->vector_idx == IRQ_KEYBOARD) {
-        handle_keyboard_irq();
+        keyboard_handle_irq();
     }
 
     pic_ack(ctx->vector_idx);

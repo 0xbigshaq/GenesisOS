@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define VCONSOLE_INITIAL_CAP 1024
+
 struct vconsole_ctx {
     uint8_t *buf;
     uint32_t pos;
@@ -11,12 +13,12 @@ struct vconsole_ctx {
 
 typedef struct vconsole_ctx vconsole_ctx_t;
 
-void init_vconsole();
-int video_console_write(uint8_t *buf, uint32_t count);
-int video_console_read(uint8_t *buf, uint32_t count);
-uint8_t video_console_getc();
-void splash_screen();
+void vconsole_init();
+int vconsole_write(uint8_t *buf, uint32_t count);
+int vconsole_read(uint8_t *buf, uint32_t count);
+uint8_t vconsole_wait_ch();
 vconsole_ctx_t* vconsole_get_ctx();
+void splash_screen();
 
 #define FONT_PATH "0:font.sfn"
 #define LOGO_PATH "0:logo.bmp"

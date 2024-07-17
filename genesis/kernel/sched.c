@@ -2,21 +2,25 @@
 #include "kernel/interrupts.h"
 #include "kernel/proc.h"
 #include "kernel/types.h" // IWYU pragma: keep
-
+#include "kernel/gfx/gui.h"
+#include "kernel/vm.h"
+#include "kernel/x86.h"
 
 void scheduler(void) {
     task_t *p = NULL;
+
      for(;;) {
+        sti();
+        render_gui();
         for(int i = 0; i < N_PROCS; i++) {
             p = &proc_tbl[i];
             if(p->state != RUNNABLE)
                 continue;
 
             p->state = RUNNING;
-            // TODO: switch to user page tbl (setup tss, iomb, and load cr3)
+            switch_user_vm(p);
             ctx_switch(&(cur_cpu()->scheduler), p->ctx);
-            // TODO: switch to kernel page tbl(load cr3)
-
+            switch_kernel_vm();
         }
     }
 }
@@ -29,6 +33,7 @@ void sched(void) {
 
 
 void yield(void) {
+    cur_proc()->state = RUNNABLE;
     sched();
 }
 

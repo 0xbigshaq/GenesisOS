@@ -19,5 +19,8 @@ void init_segmentation() __attribute__((noinline));
 void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint dpl, uint flags);
 
 void switch_user_vm(task_t *p);
+void switch_kernel_vm();
 pte* map_kernel_vm(void);
 void init_userland_vm(pte *pgdir, char *init, uint sz);
+
+extern pte* kernel_pgtbl;

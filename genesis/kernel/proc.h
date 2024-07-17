@@ -9,7 +9,7 @@
 #define N_CPUS  1
 #define NOFILE  16 
 
-enum proc_state { UNUSED, FRESH, RUNNABLE, RUNNING };
+enum proc_state { UNUSED, FRESH, RUNNABLE, RUNNING, HANG };
 
 typedef struct task {
     trap_ctx_t *trapframe;
@@ -17,6 +17,7 @@ typedef struct task {
     pte *pgdir;
     char *kstack;
     enum proc_state state;
+    uint32_t channel;
     uint32_t pid;
     file_t ofile[NOFILE];
 } task_t;
@@ -41,3 +42,5 @@ task_t* cur_proc(void);
 cpu_t* cur_cpu(void);
 extern void trap_ret(void); // part of trap_entry.S
 int alloc_fd(task_t *proc);
+void sleep(uint32_t channel);
+void wakeup(uint32_t channel);

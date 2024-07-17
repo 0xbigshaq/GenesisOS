@@ -37,19 +37,16 @@ void kmain()
     uart_write("[*] *OS booting...\n");
 
     init_mouse();
-    init_keyboard();
+    keyboard_init();
     init_pic();
     setup_idt();
 
     mount_fs();
     load_init();
     init_framebuffer();
-    init_vconsole();
+    vconsole_init();
     gui_init();
     uart_write("[+] Ready\n");
-    while(1) {
-      render_gui();
-    }
     run_init();
 
     while(1) {

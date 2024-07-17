@@ -186,25 +186,23 @@ typedef enum {
     KEY_F12_RELEASED = 0xD8
 } KeyCode;
 
-extern uint8_t incoming_char;
-extern volatile uint8_t pending_char;
-
 struct keyboard_ctx {
-    uint8_t incoming_char;
     uint8_t pending_buf[256];
-    uint8_t pos;
+    int recvd;
+    int consumed;
     uint8_t incoming_scancode;
-    volatile uint8_t pending;
-    uint8_t shift;
+    volatile uint8_t pending_char;
+    volatile uint8_t shift;
     uint8_t capslock;
 };
 typedef struct keyboard_ctx keyboard_ctx_t;
 
-void init_keyboard();
-void enable_keyboard_interrupts();
-void handle_keyboard_irq();
-keyboard_ctx_t *get_keyboard_ctx();
+void keyboard_init();
+void keyboard_enable_interrupts();
+void keyboard_handle_irq();
+keyboard_ctx_t *keyboard_get_ctx();
 int keyboard_clear_pending_buf(void);
+int keyboard_flush_pending_buf(uint32_t count, uint8_t *out);
 
 
 #endif // KEYBOARD_DRIVER_H

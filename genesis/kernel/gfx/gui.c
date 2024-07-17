@@ -22,7 +22,7 @@ void gui_init() {
     fb_info_t *fb_info = get_framebuffer_info();
     struct rawfb_pl pl;
 
-    ctx->k_ctx = get_keyboard_ctx();
+    ctx->k_ctx = keyboard_get_ctx();
     ctx->v_ctx = vconsole_get_ctx();
     ctx->m_ctx = get_mouse_ctx();
 
@@ -63,30 +63,46 @@ void gui_swapbuffers(void) {
     memmove(ctx->fb.addr, back_buffer, ctx->fb.total * ctx->fb.bpp_bytes);
 }
 
-
-
 void render_gui() {
-    gui_ctx_t *ctx = get_gui_ctx();
+    gui_ctx_t *gui = get_gui_ctx();
 
-    struct nk_context *nk_ctx = &ctx->rawfb->ctx;;
-    keyboard_ctx_t *k_ctx     = ctx->k_ctx;
-    vconsole_ctx_t *v_ctx     = ctx->v_ctx;
-    mouse_ctx_t    *m_ctx     = ctx->m_ctx;
+    struct nk_context *nk_ctx = &gui->rawfb->ctx;
+    vconsole_ctx_t *v_ctx     = gui->v_ctx;
+    mouse_ctx_t    *m_ctx     = gui->m_ctx;
 
-    if (ctx->bg.pixeldata) {
-        render_bmp_to_framebuffer(ctx->bg.pixeldata, 
-                                &ctx->bg.infoHeader,
-                                ctx->graphics_back_buffer,
-                                ctx->fb.width,
-                                ctx->fb.height);
-    }
+    int line_count = 0;
+
+    // for now we will not render the wallpaper, the 'slow-ness' of 
+    // the renderer loop hinders bug/issue #14 and make the system crash.
+    // This will be un-commented once the issue is resolved.
+
+    // if (gui->bg.pixeldata) {
+    //     render_bmp_to_framebuffer(gui->bg.pixeldata, 
+    //                             &gui->bg.infoHeader,
+    //                             gui->graphics_back_buffer,
+    //                             gui->fb.width,
+    //                             gui->fb.height);
+    // }
     
     if (nk_begin(nk_ctx, "Terminal", nk_rect(140, 140, 700, 500),
         NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
         NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
-
         nk_layout_row_dynamic(nk_ctx, 450, 1);
-        nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_BOX, (char*)v_ctx->buf, v_ctx->cap, nk_filter_default);
+        nk_edit_string(nk_ctx, NK_EDIT_BOX, (char*)v_ctx->buf, (int*)&v_ctx->pos, v_ctx->cap, nk_filter_default);
+
+        // Calculate the number of lines in the buffer
+        for (int i = 0; i < v_ctx->pos; i++) {
+            if (v_ctx->buf[i] == '\n') {
+                line_count++;
+            }
+        }
+
+        // Auto-scroll the buffer if it overflows the window
+        // FIXME: This is not fully automatic, to start the auto-scroll, the user
+        // needs to press the scroll bar one time.
+        if (line_count * nk_ctx->style.font->height > 450) {
+            nk_ctx->current->edit.scrollbar.y = line_count * nk_ctx->style.font->height;
+        }
     }
 
     nk_input_begin(nk_ctx);
@@ -95,26 +111,10 @@ void render_gui() {
     nk_input_button(nk_ctx, NK_BUTTON_MIDDLE, m_ctx->mouse_x, m_ctx->mouse_y, m_ctx->packet.middle_button);
     nk_input_button(nk_ctx, NK_BUTTON_RIGHT, m_ctx->mouse_x, m_ctx->mouse_y, m_ctx->packet.right_button);
 
-    // flush pending keystrokes to console window 
-    if(k_ctx->pending) {
-        switch (k_ctx->incoming_scancode)
-        {
-            case KEY_BACKSPACE_PRESSED: nk_input_key(nk_ctx, NK_KEY_BACKSPACE, true); break;
-            case KEY_LEFT_PRESSED: nk_input_key(nk_ctx, NK_KEY_LEFT, true); break;
-            case KEY_RIGHT_PRESSED: nk_input_key(nk_ctx, NK_KEY_RIGHT, true); break;
-            case KEY_TAB_PRESSED: nk_input_key(nk_ctx, NK_KEY_TAB, true); break;
-        }
-
-        if(k_ctx->pos) {
-            for(int i = 0; i < k_ctx->pos; i++)
-                nk_input_char(nk_ctx, k_ctx->pending_buf[i]);
-        }
-        keyboard_clear_pending_buf();
-    }
     nk_input_end(nk_ctx);
     // end of window
     nk_end(nk_ctx);
 
-    nk_rawfb_render(ctx->rawfb, nk_black, 0);
+    nk_rawfb_render(gui->rawfb, nk_black, 0);
     gui_swapbuffers();
 }

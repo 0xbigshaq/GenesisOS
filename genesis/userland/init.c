@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[]) {
     char banner[] = "Welcome to init!\n";
-    char prompt[] = "[root@os]~# ";
+    char prompt[] = "\n[root@os]~# ";
     char resp[] = "\nYou typed: ";
     char input[0x20];
     int count;

@@ -9,6 +9,7 @@
 #include "drivers/console.h"
 #include "drivers/vconsole.h"
 #include "drivers/gfx/bmp.h"
+#include "kernel/proc.h"
 
 ssfn_font_t *ssfn_src;  // Font info, for SSFN
 ssfn_buf_t ssfn_dst;    // Framebuffer context
@@ -19,46 +20,65 @@ vconsole_ctx_t* vconsole_get_ctx() {
   return &vconsole_ctx;
 }
 
-void init_vconsole() {
-  vconsole_ctx_t *ctx = vconsole_get_ctx();
-  devices[DEV_CONSOLE].write = &video_console_write;
-  devices[DEV_CONSOLE].read = &video_console_read;
-  ctx->buf = malloc(1024);
-  ctx->pos = 0;
-  ctx->cap = 1024;
+void vconsole_init() {
+  vconsole_ctx_t *v = vconsole_get_ctx();
+  devices[DEV_CONSOLE].write = &vconsole_write;
+  devices[DEV_CONSOLE].read = &vconsole_read;
+  v->buf = malloc(VCONSOLE_INITIAL_CAP);
+  v->pos = 0;
+  v->cap = VCONSOLE_INITIAL_CAP;
   splash_screen();
 }
 
-int video_console_write(uint8_t *buf, uint32_t count) {
-  vconsole_ctx_t *ctx = vconsole_get_ctx();
-  for(uint32_t i = 0; i < count; i++) {
-    ctx->buf[ctx->pos++] = buf[i];
+int vconsole_write(uint8_t *buf, uint32_t count) {
+  vconsole_ctx_t *v = vconsole_get_ctx();
+  // dmsg("buf[0] = 0x%x, count=%d, v->pos=%d, v->cap=%d", buf[0], count, v->pos, v->cap);
+
+  if(v->pos >= v->cap) {
+    dmsg("Reallocating buffer");
+    v->buf = realloc(v->buf, v->cap * 2);
+    v->cap *= 2;
   }
-  // FIXME: add a check if we are at the end of the buffer & realloc
+
+  for(uint32_t i = 0; i < count; i++) {
+    v->buf[v->pos++] = buf[i];
+  }
   return count;
 }
 
-int video_console_read(uint8_t *buf, uint32_t count) {
-  uint8_t c;
+int vconsole_read(uint8_t *buf, uint32_t count) {
+  dmsg("entered.");
+  uint8_t c[16];
+  keyboard_ctx_t *k = keyboard_get_ctx();
   int i = 0;
-  for(; i < count; i++) {
-    sti(); // Enable interrupts, make it non-blocking I/O
-    c = video_console_getc();
-    cli();
-    if (c == '\n' || c == '\r') {
+  int recvd = 0;
+
+  for(; i < count;) {
+      vconsole_wait_ch();
+      recvd = keyboard_flush_pending_buf(2, c);
+      memcpy(&buf[i], &c[0], recvd);
+      i+=recvd;
+      vconsole_write(c, recvd);
+
+      if(k->incoming_scancode == KEY_ENTER_PRESSED) {
+        dmsg("woot wtf");
+        k->incoming_scancode = 0;
         break;
-    }
-    buf[i] = c;
+      }
   }
+
+  keyboard_clear_pending_buf();
   buf[i] = 0;
   return i;
-
 }
 
-uint8_t video_console_getc() {
-  keyboard_ctx_t *ctx = get_keyboard_ctx();
-  while(ctx->incoming_char == 0);
-  return ctx->incoming_char;
+uint8_t vconsole_wait_ch() {
+  keyboard_ctx_t *k = keyboard_get_ctx();
+  while(k->pending_char == 0) {
+    sleep(1); // channel 1 is for keyboard
+  }
+
+  return 1;
 }
 
 void splash_screen() {
@@ -75,9 +95,9 @@ void splash_screen() {
 
     rc = f_stat(FONT_PATH, &fno);
     if(rc != FR_OK) goto fatal_err;    
-    kprintf("[*] font.sfn was found, size: %d\n", fno.fsize);
+    dmsg("[*] font.sfn was found, size: %d", fno.fsize);
     vera_sfn_data = malloc(fno.fsize);
-    kprintf("[*] vera_sfn_data @ 0x%x\n", vera_sfn_data);
+    dmsg("[*] vera_sfn_data @ 0x%x", vera_sfn_data);
 
     rc = f_open(&font_fp, FONT_PATH, FA_READ);
     if(rc != FR_OK) goto fatal_err;
@@ -85,7 +105,7 @@ void splash_screen() {
     rc = f_read(&font_fp, vera_sfn_data, fno.fsize, &br);
     if(rc != FR_OK) goto fatal_err;
 
-    kprintf("[*] %d bytes read\n", br);
+    dmsg("[*] %d bytes read", br);
     f_close(&font_fp);
     
     /* the bitmap font to use */
@@ -127,7 +147,7 @@ void splash_screen() {
     return;
 
     fatal_err:
-        kprintf("[!] FAT FS Error: %d\n", rc);
-        kprintf("Cannot open font.sfn file");
+        dmsg("[!] FAT FS Error: %d\n", rc);
+        dmsg("Cannot open font.sfn file");
 
 }

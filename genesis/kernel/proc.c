@@ -130,3 +130,21 @@ int alloc_fd(task_t *proc) {
 
   return fd;
 }
+
+void sleep(uint32_t channel) {
+  task_t *p = cur_proc();
+  p->channel = channel;
+  p->state = HANG;
+  ctx_switch(&(cur_proc()->ctx), cur_cpu()->scheduler);
+}
+
+void wakeup(uint32_t channel) {
+  task_t *p;
+
+  for(p = proc_tbl; p < &proc_tbl[N_PROCS]; p++) {
+    if(p->state == HANG && p->channel == channel) {
+      p->channel = 0;
+      p->state = RUNNABLE;
+    }
+  }
+}
