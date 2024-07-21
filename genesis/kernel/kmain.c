@@ -48,7 +48,6 @@ void kmain()
     gui_init();
     uart_write("[+] Ready\n");
     run_init();
-
     while(1) {
       // spin
     }  

@@ -5,8 +5,15 @@
 /* Eflags register
  * Intel SDM Vol. 3, Section 2.3 - System Flags and Fields In The EFLAGS Register
 */
-#define FL_IF           (1UL << 9U)      // Interrupt Enable
-
+#define FL_IF           (1 << 9)      // Interrupt Enable
+#define FL_IOPL         ((1 << 12)|(1 << 13))
+#define FL_NT           (1 << 14)
+#define FL_RF           (1 << 16)
+#define FL_VM           (1 << 17)
+#define FL_AC           (1 << 18)
+#define FL_VIF          (1 << 19)
+#define FL_VIP          (1 << 20)
+#define FL_ID           (1 << 21)
 
 /* Control Register flags
  * Intel SDM Vol. 3, Section 2.5 - Control Registers
