@@ -131,26 +131,25 @@ void handle_trap(trap_ctx_t* ctx)
         print_crash(ctx);
     }
 
-    if(ctx->vector_idx == INT_SYSCALL) {
-        sys_dispatch();
-        return ;
-    }
-
-    if(ctx->vector_idx == IRQ_TIMER) {
-        // kprintf("[*] IRQ_TIMER triggered\n");
-        if(cur_proc() && cur_proc()->state == RUNNING) {
-            dmsg("calling yield, kernel_pgtbl = 0x%x", kernel_pgtbl);
-            yield();
-        }
-    }
-
-
-    if(ctx->vector_idx == IRQ_PS2_MOUSE) {
-        handle_mouse_irq();
-    }
-
-    if(ctx->vector_idx == IRQ_KEYBOARD) {
-        keyboard_handle_irq();
+    switch(ctx->vector_idx) {
+        case INT_SYSCALL:
+            sys_dispatch();
+            return;
+        case IRQ_TIMER:
+            // kprintf("[*] IRQ_TIMER triggered\n");
+            if(cur_proc() && cur_proc()->state == RUNNING) {
+                dmsg("calling yield, kernel_pgtbl = 0x%x", kernel_pgtbl);
+                yield();
+            }
+            break;
+        case IRQ_PS2_MOUSE:
+            handle_mouse_irq();
+            break;
+        case IRQ_KEYBOARD:
+            keyboard_handle_irq();
+            break;
+        default:
+            break;
     }
 
     pic_ack(ctx->vector_idx);
