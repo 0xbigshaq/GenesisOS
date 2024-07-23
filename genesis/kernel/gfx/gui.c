@@ -71,18 +71,14 @@ void render_gui() {
     mouse_ctx_t    *m_ctx     = gui->m_ctx;
 
     int line_count = 0;
-
-    // for now we will not render the wallpaper, the 'slow-ness' of 
-    // the renderer loop hinders bug/issue #14 and make the system crash.
-    // This will be un-commented once the issue is resolved.
-
-    // if (gui->bg.pixeldata) {
-    //     render_bmp_to_framebuffer(gui->bg.pixeldata, 
-    //                             &gui->bg.infoHeader,
-    //                             gui->graphics_back_buffer,
-    //                             gui->fb.width,
-    //                             gui->fb.height);
-    // }
+    
+    if (gui->bg.pixeldata) {
+        render_bmp_to_framebuffer(gui->bg.pixeldata, 
+                                &gui->bg.infoHeader,
+                                gui->graphics_back_buffer,
+                                gui->fb.width,
+                                gui->fb.height);
+    }
     
     if (nk_begin(nk_ctx, "Terminal", nk_rect(140, 140, 700, 500),
         NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
