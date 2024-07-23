@@ -136,7 +136,7 @@ void sleep(uint32_t channel) {
   p->channel = channel;
   p->state = HANG;
   // dmsg("sleeping on channel %d", channel);
-  ctx_switch(&(cur_proc()->ctx), cur_cpu()->scheduler);
+  sched();
   // dmsg("returned from %d", channel);
 }
 
