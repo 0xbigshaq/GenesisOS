@@ -9,7 +9,13 @@
 #define N_CPUS  1
 #define NOFILE  16 
 
-enum proc_state { UNUSED, FRESH, RUNNABLE, RUNNING, HANG };
+enum proc_state {
+  UNUSED, 
+  FRESH,
+  RUNNABLE,
+  RUNNING,
+  HANG,
+};
 
 typedef struct task {
     trap_ctx_t *trapframe;
@@ -20,6 +26,7 @@ typedef struct task {
     uint32_t channel;
     uint32_t pid;
     file_t ofile[NOFILE];
+    volatile uint in_yield;
 } task_t;
 
 extern task_t proc_tbl[N_PROCS];

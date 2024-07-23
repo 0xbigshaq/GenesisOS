@@ -33,6 +33,7 @@ void sched(void) {
 
 
 void yield(void) {
+    cur_proc()->in_yield = 1;
     cur_proc()->state = RUNNABLE;
     sched();
 }

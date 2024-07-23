@@ -162,9 +162,15 @@ void handle_trap(trap_ctx_t* ctx)
             return;
         case IRQ_TIMER:
             // kprintf("[*] IRQ_TIMER triggered\n");
-            if(cur_proc() && cur_proc()->state == RUNNING) {
+            if(
+                cur_proc()
+                && cur_proc()->state == RUNNING
+                && xchg(&(cur_proc()->in_yield), 1) != 0
+              )
+            {
                 dmsg("calling yield, kernel_pgtbl = 0x%x", kernel_pgtbl);
                 yield();
+                cur_proc()->in_yield = 0;
             }
             break;
         case IRQ_PS2_MOUSE:
