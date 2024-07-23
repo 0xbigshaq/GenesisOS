@@ -75,6 +75,11 @@ typedef struct cpu_context {
   uint32_t eip;
 } cpu_context_t;
 
+
+typedef struct irq_mutex {
+  int refcount;
+} irq_mutex_t;
+
 /*
  * defs & func prototypes
 */
@@ -92,3 +97,6 @@ extern uint vectors[256];     // For the ISR dispatcher
 void set_idt_entry(uint idx, void* isr, char flags);
 void setup_idt(void);
 void handle_trap(trap_ctx_t* ctx);
+void push_cli(void);
+void pop_cli(void);
+void reset_cli(void);

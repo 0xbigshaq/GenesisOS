@@ -292,7 +292,7 @@ void keyboard_handle_irq() {
     }
     if(before < k_ctx.recvd) {
         k_ctx.pending_char = 1;
-        dmsg("calling wakeup");
+        // pop_cli();
         wakeup(1); // channel 1 is for keyboard
     }
 }

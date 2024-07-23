@@ -10,8 +10,9 @@ void scheduler(void) {
     task_t *p = NULL;
 
      for(;;) {
-        sti();
+        push_cli();
         render_gui();
+        pop_cli();
         for(int i = 0; i < N_PROCS; i++) {
             p = &proc_tbl[i];
             if(p->state != RUNNABLE)
@@ -27,7 +28,6 @@ void scheduler(void) {
 
 
 void sched(void) {
-    cur_proc()->state = RUNNABLE;
     ctx_switch(&(cur_proc()->ctx), cur_cpu()->scheduler);
 }
 

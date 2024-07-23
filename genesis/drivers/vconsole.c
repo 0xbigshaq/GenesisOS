@@ -1,4 +1,5 @@
 #include "kernel/file.h"
+#include "kernel/interrupts.h"
 #include "kernel/x86.h"
 #include "kernel/kmalloc.h"
 #include "kernel/string.h"
@@ -36,8 +37,10 @@ int vconsole_write(uint8_t *buf, uint32_t count) {
 
   if(v->pos >= v->cap) {
     dmsg("Reallocating buffer");
+    push_cli();
     v->buf = realloc(v->buf, v->cap * 2);
     v->cap *= 2;
+    pop_cli();
   }
 
   for(uint32_t i = 0; i < count; i++) {

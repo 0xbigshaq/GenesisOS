@@ -13,7 +13,32 @@
 
 idt_entry_t idt[256];  // IDT Entries
 idt_reg_t idtr;        // This is loaded to the IDT Register
+irq_mutex_t int_state = {
+    .refcount = 0
+};
 
+void reset_cli(void) {
+    int_state.refcount = 0;
+}
+
+void push_cli(void) {
+    int_state.refcount++;
+    // dmsg("int_state.refcount = %d", int_state.refcount);
+    if(int_state.refcount == 1) {
+        // dmsg("Disabling interrupts");
+        cli();
+    }
+}
+
+void pop_cli(void) {
+    int_state.refcount--;
+    // dmsg("int_state.refcount = %d", int_state.refcount);
+    if(int_state.refcount <= 0) {
+        int_state.refcount = 0;
+        // dmsg("Enabling interrupts");
+        sti();
+    }
+}
 
 void set_idt_entry(uint idx, void* isr, char flags)
 {
@@ -146,7 +171,9 @@ void handle_trap(trap_ctx_t* ctx)
             handle_mouse_irq();
             break;
         case IRQ_KEYBOARD:
+            push_cli();
             keyboard_handle_irq();
+            pop_cli();
             break;
         default:
             break;
