@@ -7,6 +7,7 @@
 #include "kernel/pic.h"
 #include "kernel/proc.h"
 #include "kernel/mb.h"
+#include "kernel/sched.h"
 #include "drivers/vconsole.h"
 #include "drivers/uart.h"
 #include "drivers/fat32.h"
@@ -48,6 +49,8 @@ void kmain()
     gui_init();
     uart_write("[+] Ready\n");
     run_init();
+    scheduler(); // enter the scheudler loop
+
     while(1) {
       // spin
     }  

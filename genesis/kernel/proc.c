@@ -65,8 +65,6 @@ void run_init(void) {
 
     p->state = RUNNABLE;
     kprintf("[~] Jumping to userland, entry @ 0x%x\n---\n", elf_header->e_entry);
-    scheduler(); // enter the scheudler loop
-
 }
 
 task_t* alloc_task(void)
