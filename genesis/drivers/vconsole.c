@@ -50,7 +50,6 @@ int vconsole_write(uint8_t *buf, uint32_t count) {
 }
 
 int vconsole_read(uint8_t *buf, uint32_t count) {
-  dmsg("entered.");
   uint8_t c[16];
   keyboard_ctx_t *k = keyboard_get_ctx();
   int i = 0;
@@ -58,13 +57,12 @@ int vconsole_read(uint8_t *buf, uint32_t count) {
 
   for(; i < count;) {
       vconsole_wait_ch();
-      recvd = keyboard_flush_pending_buf(2, c);
+      recvd = keyboard_flush_pending_buf(1, c);
       memcpy(&buf[i], &c[0], recvd);
       i+=recvd;
       vconsole_write(c, recvd);
 
       if(k->incoming_scancode == KEY_ENTER_PRESSED) {
-        dmsg("woot wtf");
         k->incoming_scancode = 0;
         break;
       }

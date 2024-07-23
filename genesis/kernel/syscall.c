@@ -43,6 +43,7 @@ int sys_read(void) {
     uint32_t count = arg_word(2);
     task_t *proc = cur_proc();
     int rc = 0;
+    dmsg("fd=%d, count=%d", fd, count);
 
     if(fd >= NOFILE) {
         return -EBADF;
@@ -70,6 +71,7 @@ int sys_write(void) {
     task_t *proc = cur_proc();
     int rc = OK;
     UINT bytes_out;
+    dmsg("fd=%d, buf=0x%x, count=%d", fd, buf, count);
 
     if(fd >= NOFILE) {
         return -EBADF;

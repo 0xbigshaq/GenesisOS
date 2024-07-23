@@ -292,6 +292,7 @@ void keyboard_handle_irq() {
     }
     if(before < k_ctx.recvd) {
         k_ctx.pending_char = 1;
+        // dmsg("calling wakeup");
         // pop_cli();
         wakeup(1); // channel 1 is for keyboard
     }
@@ -323,7 +324,6 @@ int keyboard_flush_pending_buf(uint32_t count, uint8_t *out) {
 
 int keyboard_clear_pending_buf() {
     keyboard_ctx_t *k = keyboard_get_ctx();
-    dmsg("...");
     k->pending_char = 0;
     k->recvd = 0;
     k->consumed = 0;

@@ -5,7 +5,9 @@
 #include "kernel/vm.h"
 #include "kernel/sched.h"
 #include "kernel/string.h"
+#include "drivers/console.h"
 #include "drivers/fat32.h"
+
 #include <elf.h>
 #include <stdint.h>
 
@@ -133,7 +135,9 @@ void sleep(uint32_t channel) {
   task_t *p = cur_proc();
   p->channel = channel;
   p->state = HANG;
+  // dmsg("sleeping on channel %d", channel);
   ctx_switch(&(cur_proc()->ctx), cur_cpu()->scheduler);
+  // dmsg("returned from %d", channel);
 }
 
 void wakeup(uint32_t channel) {
