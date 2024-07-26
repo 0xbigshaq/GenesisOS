@@ -1,3 +1,7 @@
+/**
+ * @file fat32.h
+ * @brief FAT32 filesystem impl.
+ */
 #ifndef FAT32_H
 #define FAT32_H
 

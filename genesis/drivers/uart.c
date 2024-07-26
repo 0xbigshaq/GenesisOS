@@ -1,5 +1,10 @@
 #include "drivers/uart.h"
 
+/**
+ * @brief   Initialize the Serial device.
+ *          See [Programming the Serial Communications Port
+](https://wiki.osdev.org/Serial_Ports#Programming_the_Serial_Communications_Port)
+ */
 void init_uart()
 {
     // Set the baud rate
@@ -15,7 +20,9 @@ void init_uart()
     uart_write("[*] init uart\n");
 }
 
-
+/**
+ * @brief   Write a character to the Serial.
+ */
 void uart_putchar(char c)
 {
     // Wait for the transmit buffer(THRE, located in the 5th bit) to be empty
@@ -23,6 +30,9 @@ void uart_putchar(char c)
     outb(UART_BASE_ADDR + UART_DATA_REG_OFFSET, c);
 }
 
+/**
+ * @brief   Read a character from the Serial.
+ */
 int uart_getchar(void)
 {
   while(!(inb(UART_BASE_ADDR+5) & 0x01))
@@ -30,7 +40,9 @@ int uart_getchar(void)
   return inb(UART_BASE_ADDR+0);
 }
 
-
+/**
+ * @brief   Write a Null-terminated string to the Serial.
+ */
 void uart_write(char* str)
 {
     for (int i = 0; str[i] != '\0'; i++)

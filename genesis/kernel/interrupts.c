@@ -17,10 +17,18 @@ irq_mutex_t int_state = {
     .refcount = 0
 };
 
+/**
+ * @brief Resets the interrupt counter state.
+ * @details Sets the reference count for the interrupt state to 0, effectively resetting it.
+ */
 void reset_cli(void) {
     int_state.refcount = 0;
 }
 
+/**
+ * @brief Increases the interrupt disable state reference count.
+ * @details If the reference count reaches 1, disables interrupts by calling `cli()`.
+ */
 void push_cli(void) {
     int_state.refcount++;
     // dmsg("int_state.refcount = %d", int_state.refcount);
@@ -30,6 +38,10 @@ void push_cli(void) {
     }
 }
 
+/**
+ * @brief Decreases the interrupt disable state reference count.
+ * @details If the reference count drops to 0, enables interrupts by calling `sti()`.
+ */
 void pop_cli(void) {
     int_state.refcount--;
     // dmsg("int_state.refcount = %d", int_state.refcount);
@@ -40,6 +52,12 @@ void pop_cli(void) {
     }
 }
 
+/**
+ * @brief Sets an entry in the Interrupt Descriptor Table (IDT).
+ * @param idx The index of the IDT entry.
+ * @param isr The interrupt service routine address.
+ * @param flags The flags for the IDT entry.
+ */
 void set_idt_entry(uint idx, void* isr, char flags)
 {
     idt_entry_t *desc = &idt[idx];
@@ -58,6 +76,10 @@ void set_idt_entry(uint idx, void* isr, char flags)
     desc->present   = 1;
 }
 
+/**
+ * @brief Sets up the Interrupt Descriptor Table (IDT).
+ * @details Initializes and loads the IDT with appropriate entries for the system, and enables interrupts.
+ */
 void setup_idt(void) {
     idtr.limit = sizeof(idt);
     idtr.base  = (uint)&idt[0];
@@ -72,6 +94,11 @@ void setup_idt(void) {
     sti();
 }
 
+/**
+ * @brief Dumps the state of the EFLAGS register.
+ * @param eflags The EFLAGS register value.
+ * @details Prints the status of various flags in the EFLAGS register.
+ */
 static void dump_eflags(uint32_t eflags) {
     if(eflags & FL_IF) { kprintf("IF "); }
     kprintf("IOPL=%d ",eflags & FL_IOPL);
@@ -84,6 +111,11 @@ static void dump_eflags(uint32_t eflags) {
     if(eflags & FL_ID) { kprintf("ID "); }
 }
 
+/**
+ * @brief Prints crash information for a CPU exception.
+ * @param ctx The trap context containing the CPU state at the time of the exception.
+ * @details Prints the reason for the exception and the CPU registers' state.
+ */
 static void print_crash(trap_ctx_t* ctx) {
     // impl
     char *reason;
@@ -150,6 +182,12 @@ static void print_crash(trap_ctx_t* ctx) {
     cli();
     while(1) { /* spin*/ }
 }
+
+/**
+ * @brief Handles a trap or interrupt.
+ * @param ctx The trap context containing the CPU state at the time of the trap or interrupt.
+ * @details Dispatches the appropriate handler based on the vector index in the trap context.
+ */
 void handle_trap(trap_ctx_t* ctx)
 {
     if(ctx->vector_idx >= 0 && ctx->vector_idx <= 21) {

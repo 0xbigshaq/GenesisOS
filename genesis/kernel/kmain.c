@@ -1,3 +1,7 @@
+/**
+ * @file kmain.c
+ * @brief GenesisOS main
+ */
 #include "kernel/types.h"
 #include "kernel/mmu.h"
 #include "kernel/memlayout.h"
@@ -27,6 +31,9 @@ pte entrypgdir[NPDENTRIES] = {
   [PDX(VIRTBASE)] = (0) | PTE_P | PTE_W | PTE_PS,
 };
 
+/**
+ * @brief Entry point of the kernel.
+ */
 void kmain()
 {
     parse_multiboot2_info(phys_to_virt(get_ebx()));
@@ -39,7 +46,7 @@ void kmain()
 
     init_mouse();
     keyboard_init();
-    init_pic();
+    pic_init();
     setup_idt();
 
     mount_fs();

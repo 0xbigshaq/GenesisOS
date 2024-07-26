@@ -1,4 +1,15 @@
-#pragma once
+/**
+ * @file mmu.h
+ * @brief Memory Management Unit.
+ * @details This component is used for memory translation, memory protection
+ * Most of the code is based on Intel SDM Vol. 3, and xv6:
+ * - <b>eflags register</b>: Intel SDM Vol. 3, Section 2.3 - System Flags and Fields In The EFLAGS Register
+ * - <b>Control Register flags</b>: Intel SDM Vol. 3, Section 2.5 - Control Registers
+ * - <b>Segment selectors / idx's</b>: Intel SDM Vol. 3, Section 3.4.2 - Segment Selectors
+ * - <b>Segment Descriptors</b>: Intel SDM Vol. 3, Section 3.4.5 - Segment Descriptors
+ */
+#ifndef _MMU_DEFINED
+#define _MMU_DEFINED
 // This file contains definitions for the
 // x86 memory management unit (MMU).
 
@@ -176,5 +187,7 @@ typedef struct task_state {
   ushort t;          // Trap on task switch
   ushort iomb;       // I/O map base address
 } task_state_t;
+
+#endif
 
 #endif

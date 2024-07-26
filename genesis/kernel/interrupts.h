@@ -1,24 +1,35 @@
-#pragma once
+/**
+ * @file interrupts.h
+ * @brief Interrupts/IRQs handling.
+ * @details Most of the definitions here is based on the Intel 'spec'/SDM Vol. 3, Section 6.X
+ */
+#ifndef __INTERRUPTS_H__
+#define __INTERRUPTS_H__
+
 #include "kernel/types.h"
-/* 
- * Intel SDM Vol. 3, Section 6.10 - "Interrupt Descriptor Table (IDT)"
- * Figure 6-2. IDT Gate Descriptors
+
+/**
+ * @brief Interrupt Descriptor Table (IDT)
+ * @details
+ *  - <i> Intel SDM Vol. 3, Section 6.10 - "Interrupt Descriptor Table (IDT)" </i>
+ *  - Figure 6-2. IDT Gate Descriptors
 */
 typedef struct idt_entry_ {
-    uint isr_lo   : 16; // lower bits of isr addr
-    uint seg_sel  : 16; // Segment selector (code seg)
-    uint reserved : 8;  // let intel be intel
-    uint gtype    : 4;  // Gate type(Interrupt, Trap, Task)
-    uint stype    : 1;  // Segment type(Gate=0, Code/Data=1)
-    uint dpl      : 2;  // Ring
-    uint present  : 1;  // Present flag
-    uint isr_hi   : 16; // higher bits of isr addr
+    uint isr_lo   : 16; //!< lower bits of isr addr
+    uint seg_sel  : 16; //!< Segment selector (code seg)
+    uint reserved : 8;  //!< let intel be intel
+    uint gtype    : 4;  //!< Gate type(Interrupt, Trap, Task)
+    uint stype    : 1;  //!< Segment type(Gate=0, Code/Data=1)
+    uint dpl      : 2;  //!< Ring
+    uint present  : 1;  //!< Present flag
+    uint isr_hi   : 16; //!< higher bits of isr addr
 } __attribute__((packed)) idt_entry_t;
 
-
-/* 
- * Intel SDM Vol. 3, Section 6.11 - "IDT Descriptors"
- * Figure 6-1. Relationship of the IDTR and IDT
+/**
+ * @brief IDT Descriptors structure
+ * @details
+ *  - <i> Intel SDM Vol. 3, Section 6.11 - "IDT Descriptors" </i>
+ *  - Figure 6-1. Relationship of the IDTR and IDT
 */
 typedef struct idt_reg {
     ushort limit : 16;
@@ -26,12 +37,16 @@ typedef struct idt_reg {
 } __attribute__((packed)) idt_reg_t;
 
 
+/**
+ * @brief Trap frame, as pushed by the processor.
+ * @details During an IRQ, the CPU pushes the registers to the stack in this layout.
+ */
 typedef struct trap_ctx_ {
   // registers as pushed by pusha
   uint32_t edi;
   uint32_t esi;
   uint32_t ebp;
-  uint32_t oesp;      // useless & ignored
+  uint32_t oesp;      // useless & ignored(?)
   uint32_t ebx;
   uint32_t edx;
   uint32_t ecx;
@@ -67,6 +82,9 @@ typedef struct trap_ctx_ {
   uint16_t padding6;
 } trap_ctx_t;
 
+/**
+ * @brief Regs saved by the CPU during context switch, as they are pushed by `pushal` instructions.
+ */
 typedef struct cpu_context {
   uint32_t edi;
   uint32_t esi;
@@ -76,6 +94,9 @@ typedef struct cpu_context {
 } cpu_context_t;
 
 
+/**
+ * @brief Experimental: used to track nested calls to `cli()`.
+ */
 typedef struct irq_mutex {
   int refcount;
 } irq_mutex_t;
@@ -100,3 +121,5 @@ void handle_trap(trap_ctx_t* ctx);
 void push_cli(void);
 void pop_cli(void);
 void reset_cli(void);
+
+#endif

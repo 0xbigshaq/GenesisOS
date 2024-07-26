@@ -1,18 +1,21 @@
+/**
+ * @file framebuffer.h
+ * @brief Framebuffer rendering backend.
+ */
 #ifndef GFX_H
 #define GFX_H
 #include "kernel/types.h"
 #include "kernel/mb.h"
 
-typedef struct multiboot_tag_framebuffer_common fb_info_t;
+typedef struct multiboot_tag_framebuffer_common fb_info_t;      //!< Framebuffer information structure(multiboot)
 
 void init_framebuffer(void);
 void fill_screen(uint32_t color);
 void fill_square(uint32_t x_pos, uint32_t y_pos, uint32_t square_size, uint32_t color);
 fb_info_t* get_framebuffer_info(void);
-
 void render_colors(void);
 
-extern int gfx_enabled;
+extern int gfx_enabled;     //!< This global is set to 1 during boot if graphics are enabled, 0 otherwise.
 
 #define ENSURE_GFX(val) if(!gfx_enabled) { return ##val; }
 
@@ -30,14 +33,14 @@ extern int gfx_enabled;
 #include "kernel/gfx/nuklear/nuklear.h"
 #include "kernel/gfx/nuklear/nuklear_internal.h"
 
-struct rawfb_context;
-typedef struct rawfb_context rawfb_ctx_t;
-typedef struct nk_context nk_ctx_t;
+struct rawfb_context;                       //!< Raw framebuffer context structure
+typedef struct rawfb_context rawfb_ctx_t;   //!< Raw framebuffer context type
+typedef struct nk_context nk_ctx_t;         //!< Nuklear context type
 
 struct rawfb_pl {
-    unsigned char bytesPerPixel;
-    unsigned char rshift, gshift, bshift, ashift;
-    unsigned char rloss, gloss, bloss, aloss;
+    unsigned char bytesPerPixel;                    // Bytes per pixel
+    unsigned char rshift, gshift, bshift, ashift;   // Shifts for RGBA
+    unsigned char rloss, gloss, bloss, aloss;       // Loss for RGBA
 };
 
 /* All functions are thread-safe */
@@ -51,16 +54,16 @@ NK_API void                  nk_rawfb_resize_fb(struct rawfb_context *rawfb, voi
 #include <assert.h>
 
 struct rawfb_image {
-    void *pixels;
-    int w, h, pitch;
-    struct rawfb_pl pl;
+    void *pixels;           //!< Pointer to image data
+    int w, h, pitch;        //!< Width, height, pitch
+    struct rawfb_pl pl;     //!< Pixel layout
 };
 struct rawfb_context {
-    struct nk_context ctx;
-    struct nk_rect scissors;
-    struct rawfb_image fb;
-    struct rawfb_image font_tex;
-    struct nk_font_atlas atlas;
+    struct nk_context ctx;          //!< Nuklear context
+    struct nk_rect scissors;        //!< Scissors rectangle
+    struct rawfb_image fb;          //!< Framebuffer image
+    struct rawfb_image font_tex;    //!< Font texture image
+    struct nk_font_atlas atlas;     //!< Font atlas
 };
 
 #ifndef MIN
@@ -232,5 +235,57 @@ nk_rawfb_render(const struct rawfb_context *rawfb,
                 const struct nk_color clear,
                 const unsigned char enable_clear);
 
-/* -=--------------- */
 #endif // GFX_H
+
+
+/*! \page gfx Graphics
+ *  \brief Information about graphics in GenesisOS
+
+  \tableofcontents
+  
+  \section vga Configuring VGA
+  In `genesis/kernel/kentry.S` , we define a multiboot tag(according to the [spec](https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html)) 
+  to tell the GRUB bootloader to enable the linear video framebuffer before jumping to `kmain()`. \n
+  To do that, we specify the framebuffer width, height, and bits per pixel.
+
+\code{.asm}
+.section .multiboot2_header
+.align MULTIBOOT_HEADER_ALIGN
+multiboot2_header:
+    .align MULTIBOOT_TAG_ALIGN
+    __u32 MULTIBOOT2_HEADER_MAGIC               # Magic number
+    __u32 MULTIBOOT_ARCHITECTURE_I386           # Architecture
+    __u32 header_end - multiboot2_header        # Header length
+    __u32 -(MULTIBOOT2_HEADER_MAGIC + MULTIBOOT_ARCHITECTURE_I386 + (header_end - multiboot2_header)) # Checksum
+
+    .align MULTIBOOT_TAG_ALIGN
+    tag_fb:
+      __u16 MULTIBOOT_HEADER_TAG_FRAMEBUFFER    # Framebuffer request tag type
+      __u16  0      # flags 
+      __u32  tag_fb_end-tag_fb                  # Size of the tag, 20 bytes (including this header)
+      __u32  1024                               # Width
+      __u32  768                                # Height
+      __u32  32                                 # Bits per pixel
+    tag_fb_end:
+
+    .align MULTIBOOT_TAG_ALIGN
+    tag_terminator:
+      __u16 MULTIBOOT_HEADER_TAG_END          # End tag
+      __u16 0
+      __u32 8                                 # Size of the tag (including this header)
+header_end:
+\endcode
+
+  \subsection stage1 Initializing the framebuffer
+  
+  `parse_multiboot2_info()` is called during system startup to parse the multiboot2 info 
+  structure and extract necessary information such as the framebuffer address, pitch, width, 
+  height, and bpp. The GRUB bootloader provides this information to us via the ebx register.
+  
+
+
+  \subsection stage2 Rendering images
+  
+  To load our wallpaper, we use the `read_bmp()` function to read the BMP file and extract the pixel data.
+  Then, we use the `render_bmp_to_framebuffer()` function to render the BMP image onto the framebuffer.
+*/

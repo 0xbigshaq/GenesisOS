@@ -1,3 +1,7 @@
+/**
+ * @file keyboard.h
+ * @brief Keyboard PS2 driver.
+ */
 #ifndef KEYBOARD_DRIVER_H
 #define KEYBOARD_DRIVER_H
 
@@ -186,16 +190,19 @@ typedef enum {
     KEY_F12_RELEASED = 0xD8
 } KeyCode;
 
-struct keyboard_ctx {
-    uint8_t pending_buf[256];
-    int recvd;
-    int consumed;
-    uint8_t incoming_scancode;
-    volatile uint8_t pending_char;
-    volatile uint8_t shift;
-    uint8_t capslock;
-};
-typedef struct keyboard_ctx keyboard_ctx_t;
+/**
+ * @brief Keyboard context object
+ * 
+ */
+typedef struct keyboard_ctx {
+    uint8_t pending_buf[256];       //!< Pending buffer
+    int recvd;                      //!< Number of bytes received
+    int consumed;                   //!< Number of bytes consumed
+    uint8_t incoming_scancode;      //!< Incoming scancode
+    volatile uint8_t pending_char;  //!< Last pending character
+    volatile uint8_t shift;         //!< Shift key state (pressed?)
+    uint8_t capslock;               //!< Capslock key state(on/off)
+} keyboard_ctx_t;
 
 void keyboard_init();
 void keyboard_enable_interrupts();

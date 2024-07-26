@@ -1,15 +1,5 @@
 #!/bin/bash
 
-
-
-# qemu-system-i386 \
-#     -s -S \
-#     -boot d \
-#     -cdrom build/kernel.iso \
-#     -hda build/disk.img \
-#     -vga std -serial mon:stdio \
-#     -m 512
-
 qemu-system-i386 \
     -s -S \
     -no-reboot \

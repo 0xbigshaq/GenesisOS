@@ -2,7 +2,7 @@
 #include "ff.h"
 #include "kernel/proc.h"
 #include "kernel/types.h" // IWYU pragma: keep
-#include "kernel/file.h"
+#include "kernel/device.h"
 #include "drivers/console.h" // IWYU pragma: keep
 #include "drivers/uart.h" // IWYU pragma: keep
 #include "kernel/kmalloc.h" // IWYU pragma: keep
@@ -17,6 +17,11 @@ int (*syscalls[])(void) = {
     [SYS_exit]  = sys_exit,
 };
 
+/**
+ * @brief Retrieves an integer argument from the system call stack.
+ * @param n The index of the argument to retrieve.
+ * @return The integer argument at the specified index.
+ */
 uint32_t arg_word(int n) {
     uint32_t* esp = (uint32_t*)cur_proc()->trapframe->esp;
     uint32_t val = 0;
@@ -24,6 +29,11 @@ uint32_t arg_word(int n) {
     return val;
 }
 
+/**
+ * @brief Retrieves a pointer argument from the system call stack.
+ * @param n The index of the argument to retrieve.
+ * @return The pointer argument at the specified index.
+ */
 void* arg_ptr(int n) {
     uint32_t* esp = (uint32_t*)cur_proc()->trapframe->esp;
     uint32_t val = 0;
@@ -31,12 +41,20 @@ void* arg_ptr(int n) {
     return (void*)val;
 }
 
+/**
+ * @brief Dispatches the system call.
+ * @details Executes the system call based on the value in the `eax` register of the trap frame.
+ */
 void sys_dispatch(void) {
     trap_ctx_t* ctx = cur_proc()->trapframe;
     ctx->eax = syscalls[ctx->eax](); // FIXME: add bounds-check lol
 }
 
-
+/**
+ * @brief Reads from a file descriptor.
+ * @details Reads data from a file or device into a buffer.
+ * @return The number of bytes read, or a negative error code.
+ */
 int sys_read(void) {
     uint32_t fd = arg_word(0);
     char* out = (char*)arg_ptr(1);
@@ -50,7 +68,7 @@ int sys_read(void) {
     }
 
     if(proc->ofile[fd].type == FD_DEVICE) {
-        rc = devices[proc->ofile[fd].devno].read((uint8_t*)out, count);
+        rc = all_devs[proc->ofile[fd].devno].read((uint8_t*)out, count);
     }
 
     else if(proc->ofile[fd].type == FD_FILE) {
@@ -63,7 +81,11 @@ int sys_read(void) {
     return rc;
 }
 
-
+/**
+ * @brief Writes to a file descriptor.
+ * @details Writes data from a buffer to a file or device.
+ * @return The number of bytes written, or a negative error code.
+ */
 int sys_write(void) {
     uint32_t fd = arg_word(0);
     uint8_t *buf = (uint8_t*)arg_ptr(1);
@@ -78,7 +100,7 @@ int sys_write(void) {
     }
 
     if(proc->ofile[fd].type == FD_DEVICE) {
-        rc = devices[proc->ofile[fd].devno].write(buf, count);
+        rc = all_devs[proc->ofile[fd].devno].write(buf, count);
     }
 
     else if(proc->ofile[fd].type == FD_FILE) {
@@ -97,7 +119,11 @@ int sys_write(void) {
     return rc;
 }
 
-
+/**
+ * @brief Opens a file.
+ * @details Opens a file and returns a file descriptor.
+ * @return The file descriptor, or a negative error code.
+ */
 int sys_open(void) {
     char *pathname = (char*)arg_ptr(0);
     uint32_t flags = arg_word(1);
@@ -122,7 +148,11 @@ int sys_open(void) {
     return rc;
 }
 
-
+/**
+ * @brief Closes a file descriptor.
+ * @details Closes an open file descriptor.
+ * @return `OK` on success, or a negative error code.
+ */
 int sys_close(void) {
     int rc = OK;
     uint32_t fd = arg_word(0);
@@ -143,12 +173,21 @@ int sys_close(void) {
     return rc;
 }
 
-
+/**
+ * @brief Retrieves file status information.
+ * @details Not implemented yet.
+ * @return Always returns 0.
+ */
 int sys_stat(void) {
     // not implemented yet
     return 0;
 }
 
+/**
+ * @brief Exits the current process.
+ * @details Terminates the current process and optionally shuts down the system if the process is the init process.
+ * @return Always returns `OK`.
+ */
 int sys_exit(void) {
     uint32_t ret_code = arg_word(0);
     task_t *proc = cur_proc();

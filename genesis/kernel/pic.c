@@ -3,7 +3,10 @@
 #include "kernel/pic.h"
 #include "kernel/types.h"
 
-
+/**
+ * @brief Enables UART interrupts.
+ * @details Modifies the PIC mask to enable interrupts from the UART.
+ */
 static inline void enable_uart_interrupts()
 {
     uchar tmp = inb(0x21);
@@ -11,29 +14,34 @@ static inline void enable_uart_interrupts()
     outb(0x21, tmp);
 }
 
-
-void init_pic(void)
+/**
+ * @brief Initializes the Programmable Interrupt Controller (PIC).
+ * @details Remaps the PIC and enables UART interrupts.
+ */
+void pic_init(void)
 {
     pic_remap(0x20, 0x28);
     enable_uart_interrupts();
 }
 
+/**
+ * @brief Provides an I/O wait.
+ * @details Sends a command to port `0x80` to introduce a delay for I/O operations.
+ */
 static inline void io_wait(void)
 {
     outb(0x80, 0);
 }
 
-/*
- *  Remaps the PIC IRQ numbers because IBM and Intel has sh*tty products
+/**
+ * @brief Remaps the PIC IRQ numbers.
+ *  @details Remaps the PIC IRQ numbers because IBM and Intel has sh*tty products
  *  The reason behind this is that IRQ0 == `int $0` - this is invalid and creates
  *  collision with interrupt 0 of Intel's CPU, which is the _divide by zero_ interrupt handler.
  *  To resolve this issue, we remap IRQ0 to be `int $32`
- *  
- *  Arguments:
- * 	pic1_offset - vector offset for master PIC
- * 		vectors on the master become pic1_offset..pic1_offset+7
- * 	pic2_offset - same for slave PIC: pic2_offset..pic2_offset+7
-*/
+ * @param pic1_offset The vector offset for the master PIC.
+ * @param pic2_offset The vector offset for the slave PIC.
+ */
 void pic_remap(int pic1_offset, int pic2_offset)
 {
     // save masks 
@@ -72,7 +80,11 @@ void pic_remap(int pic1_offset, int pic2_offset)
 	outb(PIC2_DATA, saved_pic2);
 }
 
-
+/**
+ * @brief Acknowledges an interrupt.
+ * @details Sends an end-of-interrupt (EOI) signal to the PIC for the specified IRQ.
+ * @param irq The IRQ number to acknowledge.
+ */
 void pic_ack(uint8_t irq)
 {
 	if(irq >= 8)

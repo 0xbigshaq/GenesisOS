@@ -6,6 +6,13 @@
 #include "kernel/vm.h"
 #include "kernel/x86.h"
 
+/**
+ * @brief Main scheduler loop
+ * @details This function is the main scheduler loop. It will run forever and will
+ *          switch between tasks.
+ * @return void
+ * 
+ */
 void scheduler(void) {
     task_t *p = NULL;
 
@@ -27,18 +34,33 @@ void scheduler(void) {
 }
 
 
+/**
+ * @brief schedule a task
+ * @details A wrapper function to `ctx_switch` to switch between tasks.
+ * @see ctx_switch
+ */
 void sched(void) {
     ctx_switch(&(cur_proc()->ctx), cur_cpu()->scheduler);
 }
 
-
+/**
+ * @brief Yield the current task
+ * @details This function will yield the current task and switch to the next task.
+ * @return void
+ */
 void yield(void) {
     cur_proc()->in_yield = 1;
     cur_proc()->state = RUNNABLE;
     sched();
 }
 
-
+/**
+ * @brief Context switch
+ * @details This function will switch the context of the current task to the new task.
+ * @param old The old task's context
+ * @param new_ The new task's context
+ * @return void
+ */
 void __attribute__((naked)) ctx_switch(cpu_context_t** old, cpu_context_t* new_) {
   asm volatile (
     ".intel_syntax noprefix\n"

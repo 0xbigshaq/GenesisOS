@@ -1,24 +1,13 @@
-#pragma once
+/**
+ * @file console.h
+ * @brief Serial/console output.
+ */
+#ifndef CONSOLE_H
+#define CONSOLE_H
 #include "kernel/types.h" // IWYU pragma: keep
 #include "kernel/string.h"
-// Video Memory
-// https://wiki.osdev.org/Printing_To_Screen#Color_Table
-enum color {
-    BLACK = 0,
-    BRIGHT = 7,
-    RED = 12,
-    GREEN = 10,
-};
-
-enum size {
-    COLS = 80,
-    ROWS = 25
-};
-
-extern uint16_t *const video;
 
 void init_console();
-void console_putchar(char c);
 int console_getchar(void);
 int console_read(uint8_t *buf, uint32_t count);
 int console_write(uint8_t *buf, uint32_t count);
@@ -35,3 +24,4 @@ void kprintf(char *fmt, ...);
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define dmsg(fmt, ...) kprintf("[" COLOR_RED "%s:%d " COLOR_YELLOW "%s " COLOR_RESET "] :: " fmt "\n", __FILENAME__, __LINE__, __func__, ##__VA_ARGS__)
 
+#endif // CONSOLE_H

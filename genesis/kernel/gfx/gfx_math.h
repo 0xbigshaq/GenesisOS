@@ -1,3 +1,7 @@
+/**
+ * @file gfx_math.h
+ * @brief Math helper functions for the graphics library. 
+ */
 #ifndef _GFX_MATH_H
 #define _GFX_MATH_H
 

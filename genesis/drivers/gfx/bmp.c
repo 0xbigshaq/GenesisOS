@@ -4,6 +4,14 @@
 #include "kernel/kmalloc.h"
 #include "kernel/string.h"
 
+/**
+ * @brief Read a BMP file and return the pixel data.
+ * 
+ * @param filename          The filename of the BMP file.
+ * @param fileHeader        Pointer to the BMP file header.
+ * @param infoHeader        Pointer to the BMP info header.
+ * @return unsigned char*   Pointer to the pixel data of the BMP image.
+ */
 unsigned char* read_bmp(const char* filename, BMPFileHeader* fileHeader, BMPInfoHeader* infoHeader) {
     FRESULT rc;
     UINT br;
@@ -47,6 +55,18 @@ unsigned char* read_bmp(const char* filename, BMPFileHeader* fileHeader, BMPInfo
     return 0;
 }
 
+/**
+ * Renders a BMP image to the framebuffer.
+ *
+ * This function takes the pixel data, BMP info header, framebuffer, screen width, and screen height as input parameters.
+ * It renders the BMP image represented by the pixel data onto the framebuffer.
+ *
+ * @param pixelData     Pointer to the pixel data of the BMP image.
+ * @param infoHeader    Pointer to the BMP info header.
+ * @param framebuffer   Pointer to the framebuffer where the image will be rendered.
+ * @param screenWidth   The width of the screen or framebuffer.
+ * @param screenHeight  The height of the screen or framebuffer.
+ */
 void render_bmp_to_framebuffer(unsigned char* pixelData, BMPInfoHeader* infoHeader, uint32_t* framebuffer, int screenWidth, int screenHeight) {
     int width = infoHeader->biWidth;
     int height = infoHeader->biHeight;
@@ -71,6 +91,15 @@ void render_bmp_to_framebuffer(unsigned char* pixelData, BMPInfoHeader* infoHead
     }
 }
 
+/**
+ * @brief Render a BMP file to the framebuffer.
+ * 
+ * @param filename      The filename/path of the BMP file.
+ * @param framebuffer   Pointer to the framebuffer where the image will be rendered.
+ * @param screenWidth   The width of the screen or framebuffer.
+ * @param screenHeight  The height of the screen or framebuffer.
+ * @return uint32_t     The height of the BMP image.
+ */
 uint32_t display_bmp(const char* filename, uint32_t* framebuffer, int screenWidth, int screenHeight) {
     BMPFileHeader fileHeader;
     BMPInfoHeader infoHeader;

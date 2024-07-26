@@ -1,3 +1,7 @@
+/**
+ * @file mouse.h
+ * @brief Mouse PS2 driver
+ */
 #ifndef MOUSE_DRIVER_H
 #define MOUSE_DRIVER_H
 
@@ -17,23 +21,29 @@
 
 #define ENABLE_SECOND_PS2 0xA8
 
+/**
+ * @brief   Mouse packet structure, as it received from the PS2 microcontroller.
+ */
 typedef struct {
-    bool left_button;
-    bool right_button;
-    bool middle_button;
-    int8_t x_movement;
-    int8_t y_movement;
-    bool x_overflow;
-    bool y_overflow;
-    bool x_sign;
-    bool y_sign;
+    bool left_button;       //!< Left button state
+    bool right_button;      //!< Right button state
+    bool middle_button;     //!< Middle button state
+    int8_t x_movement;      //!< X-axis movement
+    int8_t y_movement;      //!< Y-axis movement
+    bool x_overflow;        //!< X-axis overflow
+    bool y_overflow;        //!< Y-axis overflow
+    bool x_sign;            //!< X-axis sign
+    bool y_sign;            //!< Y-axis sign
 } MousePacket;
 
 
+/**
+ * @brief   Mouse context object.
+ */
 typedef struct {
-    MousePacket packet;
-    int mouse_x;
-    int mouse_y;
+    MousePacket packet;     //!< Last mouse packet received
+    int mouse_x;            //!< Mouse X position
+    int mouse_y;            //!< Mouse Y position
 } mouse_ctx_t;
 
 

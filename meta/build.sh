@@ -2,8 +2,9 @@
 set -e
 # set -x
 
-rm -rf build/
-cmake -GNinja -S . -B ./build/
+if [ ! -d "build" ]; then
+    cmake -GNinja -S . -B ./build/
+fi
 
 # ninja -C build/ -v iso
 ninja -C build/ iso

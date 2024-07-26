@@ -5,6 +5,10 @@
 
 mb_tag_framebuffer_t fb_info;
 
+/**
+ * @brief   Parse the multiboot2 info structure and extract necessary information 
+            such as the framebuffer address, pitch, width, height and bpp.
+ */
 void parse_multiboot2_info(void* multiboot_info) {
     uint32_t* header = (uint32_t*)multiboot_info;
     uint32_t total_size = *header++;

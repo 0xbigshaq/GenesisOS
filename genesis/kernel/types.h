@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TYPES_GENESIS_H
+#define TYPES_GENESIS_H
 
 /* The following include is a dirty hack, we include the `linker.h`
  * file here because `types.h` is almost always included in all files.
@@ -17,3 +18,5 @@ typedef unsigned short uint16_t;
 
 #define OK 0
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+
+#endif // TYPES_GENESIS_H

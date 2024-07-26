@@ -16,23 +16,29 @@ vmmap kern_vmmap[] = {
 };
 
 /**
- * The `init_kernelvm` function enables a larger virtual address space
- * 
+ * @brief Page table pointer for the kernel(global).
+ * @details This variable holds the pointer to the kernel's page table.
+ */
+pte* kernel_pgtbl = NULL;
+
+/**
+ * @brief Initializes the kernel's virtual memory.
+ * @details Sets up a larger kernel page table and loads it into the CR3 register.
  * Before, when we use the bootstrap `entrypgdir` pagetable:
+ * @code
  * gef➤  monitor info mem
  * 0000000000000000-0000000000400000 0000000000400000 -rw
  * 0000000080000000-0000000080400000 0000000000400000 -rw
- * 
+ * @endcode
  * After we call `init_kernelvm()`:
+ * @code
  * gef➤  monitor info mem
  * 0000000080000000-0000000080100000 0000000000100000 -rw   <---- VIRTBASE    0x100000
  * 0000000080100000-0000000080102000 0000000000002000 -r-   <---- KBASE_VIRT .text and .rodata
  * 0000000080102000-000000008e000000 000000000defe000 -rw-  <---- .data and heap
- * 00000000fe000000-0000000100000000 0000000002000000 -rw   <---- Devices/MMIO Regions
-*/
-
-pte* kernel_pgtbl = NULL;
-
+ * 00000000fd000000-0000000100000000 0000000002000000 -rw   <---- Devices/MMIO Regions
+ @endcode
+ */
 void init_kernelvm(void) {
 
     pte* pml2 = kmalloc();
@@ -50,6 +56,15 @@ void init_kernelvm(void) {
     kernel_pgtbl = pml2;
 }
 
+/**
+ * @brief Generates page table entries.
+ * @details Creates page table entries for a given virtual address range and physical address range with specified permissions.
+ * @param pgdir The page directory.
+ * @param vaddr The starting virtual address.
+ * @param size The size of the memory region.
+ * @param paddr The starting physical address.
+ * @param perms The permissions for the pages.
+ */
 void gen_ptes(pte *pgdir, uint vaddr, uint size, uint paddr, int perms) {
     uint cur_entry  = PAGE_ROUNDUP(vaddr);
     uint last_entry = PAGE_ROUNDDOWN(vaddr + size - 1);
@@ -68,6 +83,15 @@ void gen_ptes(pte *pgdir, uint vaddr, uint size, uint paddr, int perms) {
     return ;
 }
 
+/**
+ * @brief Resolves a page table entry.
+ * @details Finds or allocates a page table entry for a given virtual address.
+ * @param pgdir The page directory.
+ * @param vaddr The virtual address.
+ * @param perms The permissions for the page.
+ * @param should_alloc Whether to allocate a new page table if it does not exist.
+ * @return A pointer to the page table entry.
+ */
 pte* pte_resolve(pte *pgdir, void *vaddr, int perms, int should_alloc) {
     pte* pml2_entry = &pgdir[PDX(vaddr)];
     pte* pml1_table = NULL;
@@ -96,6 +120,10 @@ pte* pte_resolve(pte *pgdir, void *vaddr, int perms, int should_alloc) {
     return &pml1_table[PTX(vaddr)];
 }
 
+/**
+ * @brief Initializes segmentation for the kernel and user space.
+ * @details Sets up the Global Descriptor Table (GDT) for kernel and user segments and loads it into the GDTR register.
+ */
 void init_segmentation() {
     set_segdesc(&cpus[0].gdt[SEGMENT_KERNEL_CODE], 0xffffffff, 0x0, STA_X|STA_R|STA_SYSTEM, DPL_KERNEL, STF_S|STF_G);
     set_segdesc(&cpus[0].gdt[SEGMENT_KERNEL_DATA], 0xffffffff, 0x0, STA_W|STA_SYSTEM,       DPL_KERNEL, STF_S|STF_G);
@@ -126,6 +154,16 @@ void init_segmentation() {
     return ;
 }
 
+/**
+ * @brief Sets up a segment descriptor.
+ * @details Initializes a segment descriptor with specified base address, limit, access flags, descriptor privilege level, and additional flags.
+ * @param seg_desc A pointer to the segment descriptor.
+ * @param limit The limit of the segment.
+ * @param base The base address of the segment.
+ * @param access The access flags for the segment.
+ * @param dpl The descriptor privilege level.
+ * @param flags Additional flags for the segment.
+ */
 void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint dpl, uint flags) {
     // base 
     seg_desc->base_lo   = (base  & 0xFFFF);
@@ -154,10 +192,20 @@ void set_segdesc(seg_desc_t* seg_desc, uint limit, uint base, uint access, uint 
     return ;
 }
 
+/**
+ * @brief Switches to the kernel's page table.
+ * @details Loads the kernel's page table into the CR3 register.
+ */
 void switch_kernel_vm() {
     lcr3(virt_to_phys(kernel_pgtbl));
 
 }
+
+/**
+ * @brief Switches to a user's page table.
+ * @details Loads a process's page table into the CR3 register and updates the Task State Segment (TSS) for the process.
+ * @param p A pointer to the process structure.
+ */
 void switch_user_vm(task_t *p) {
     cpu_t* c = cur_cpu();
     uint ts_addr = (uint)&c->ts;
@@ -174,7 +222,11 @@ void switch_user_vm(task_t *p) {
 }
 
 
-// Set up kernel part of a page table.
+/**
+ * @brief Sets up the kernel part of a page table.
+ * @details Initializes the kernel's virtual memory map in a new page table.
+ * @return A pointer to the initialized page table.
+ */
 pte* map_kernel_vm(void) {
     pte *pgdir;
     vmmap *k;
@@ -189,6 +241,13 @@ pte* map_kernel_vm(void) {
     return pgdir;
 }
 
+/**
+ * @brief Initializes the userland virtual memory.
+ * @details Sets up the initial userland page table entries and copies the initial userland code into memory.
+ * @param pgdir The page directory.
+ * @param init A pointer to the initial userland code.
+ * @param sz The size of the initial userland code.
+ */
 void init_userland_vm(pte *pgdir, char *init, uint sz) {
   char *mem;
 

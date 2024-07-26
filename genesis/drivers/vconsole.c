@@ -1,4 +1,4 @@
-#include "kernel/file.h"
+#include "kernel/device.h"
 #include "kernel/interrupts.h"
 #include "kernel/x86.h"
 #include "kernel/kmalloc.h"
@@ -17,20 +17,42 @@ ssfn_buf_t ssfn_dst;    // Framebuffer context
 uint8_t *vera_sfn_data; // Font data, lays in kernel heap
 vconsole_ctx_t vconsole_ctx;
 
+/**
+ * @brief Getter function for the global video console context object.
+ * @return A pointer to the video console context object.
+ */
 vconsole_ctx_t* vconsole_get_ctx() {
   return &vconsole_ctx;
 }
 
+
+/**
+ * @brief   Initializes the video console
+ * @details This function initializes the video console by setting up the console device and the context object. \n
+  *         It also allocates @link VCONSOLE_INITIAL_CAP @endlink bytes of memory for the `vconsole_ctx_t::buf` pointer.
+ */
 void vconsole_init() {
   vconsole_ctx_t *v = vconsole_get_ctx();
-  devices[DEV_CONSOLE].write = &vconsole_write;
-  devices[DEV_CONSOLE].read = &vconsole_read;
+  all_devs[DEV_CONSOLE].write = &vconsole_write;
+  all_devs[DEV_CONSOLE].read = &vconsole_read;
   v->buf = malloc(VCONSOLE_INITIAL_CAP);
   v->pos = 0;
   v->cap = VCONSOLE_INITIAL_CAP;
   splash_screen();
 }
 
+
+/**
+ * @brief Writes data to the virtual console buffer.
+ *
+ * This function writes a specified number of bytes from the input buffer
+ * to the virtual console's internal buffer. If the internal buffer is full,
+ * it reallocates memory to accommodate additional data.
+ *
+ * @param buf A pointer to the input buffer containing the data to be written.
+ * @param count The number of bytes to write from the input buffer.
+ * @return The number of bytes written.
+ */
 int vconsole_write(uint8_t *buf, uint32_t count) {
   vconsole_ctx_t *v = vconsole_get_ctx();
   // dmsg("buf[0] = 0x%x, count=%d, v->pos=%d, v->cap=%d", buf[0], count, v->pos, v->cap);
@@ -49,6 +71,18 @@ int vconsole_write(uint8_t *buf, uint32_t count) {
   return count;
 }
 
+/**
+ * @brief Reads data from the virtual console buffer.
+ *
+ * This function reads a specified number of bytes into the provided buffer
+ * from the virtual console. It waits for input and processes incoming
+ * keyboard data, copying it to the output buffer and updating the console
+ * buffer. The read operation stops if the Enter key is pressed.
+ *
+ * @param buf A pointer to the buffer where the read data will be stored.
+ * @param count The number of bytes to read into the buffer.
+ * @return The number of bytes read.
+ */
 int vconsole_read(uint8_t *buf, uint32_t count) {
   uint8_t c[16];
   keyboard_ctx_t *k = keyboard_get_ctx();
@@ -73,6 +107,15 @@ int vconsole_read(uint8_t *buf, uint32_t count) {
   return i;
 }
 
+/**
+ * @brief Waits for a character to be available in the keyboard buffer.
+ *
+ * This function waits for a character to be available in the keyboard buffer
+ * before returning. It is used to synchronize the console with the keyboard
+ * input.
+ *
+ * @return 1
+ */
 uint8_t vconsole_wait_ch() {
   keyboard_ctx_t *k = keyboard_get_ctx();
   while(k->pending_char == 0) {
@@ -82,6 +125,13 @@ uint8_t vconsole_wait_ch() {
   return 1;
 }
 
+/**
+ * @brief Displays the splash screen.
+ *
+ * This function displays the splash screen on the console. It reads the
+ * font and logo files from the FAT filesystem and displays them on the
+ * screen.
+ */
 void splash_screen() {
     FRESULT rc;
     UINT br;

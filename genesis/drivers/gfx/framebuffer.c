@@ -1011,6 +1011,17 @@ nk_rawfb_resize_fb(struct rawfb_context *rawfb,
     rawfb->fb.pl = pl;
 }
 
+/**
+ * @brief Main render function to render the rawfb context
+ * @details This function is the glue between GenesisOS and the 
+ *          Nuklear library. It takes the rawfb context and renders
+ *          the Nuklear context to the framebuffer.
+ * 
+ * @param rawfb 
+ * @param clear 
+ * @param enable_clear 
+ * @return NK_API 
+ */
 NK_API void
 nk_rawfb_render(const struct rawfb_context *rawfb,
                 const struct nk_color clear,

@@ -1,4 +1,10 @@
-#pragma once
+/**
+ * @file x86.h
+ * @brief inline C x86 instructions.
+ */
+#ifndef X86_H
+#define X86_H
+
 #include "kernel/types.h"
 #include "kernel/mmu.h"
 #include "kernel/interrupts.h"
@@ -141,3 +147,5 @@ static inline uint32_t get_ebx() {
     __asm__ volatile ("movl %%ebx, %0" : "=r"(val));
     return val;
 }
+
+#endif  // X86_H

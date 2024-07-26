@@ -8,7 +8,12 @@
 #define DEV_MMC		1	
 #define DEV_USB		2	
 
-
+/**
+ * @brief Check if disk is ready
+ * 
+ * @param pdrv Physical drive number to identify the drive
+ * @return The current status of the disk (`RES_OK`, `STA_NOINIT`)
+ */
 DSTATUS disk_status(BYTE pdrv) {
 	DSTATUS rc;
 
@@ -23,6 +28,12 @@ DSTATUS disk_status(BYTE pdrv) {
 	return rc;
 }
 
+/**
+ * @brief Initialize the disk
+ * 
+ * @param pdrv Physical drive number to identify the drive
+ * @return The status of the disk (`RES_OK`, `RES_NOTRDY`)
+ */
 DSTATUS disk_initialize(BYTE pdrv) {
 	DSTATUS rc;
 	int lba = 0;
@@ -45,7 +56,15 @@ DSTATUS disk_initialize(BYTE pdrv) {
 	return rc;
 }
 
-
+/**
+ * @brief Read data from the disk
+ * 
+ * @param pdrv Physical drive number to identify the drive
+ * @param buff Pointer to the data buffer to store the read data
+ * @param sector Start sector number to read from
+ * @param count Number of sectors to read
+ * @return The result of the read operation (`RES_OK`, `RES_ERROR`, `RES_NOTRDY`, `RES_PARERR`)
+ */
 DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count) {
 	DRESULT rc;
 
@@ -69,10 +88,15 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count) {
 
 #if FF_FS_READONLY == 0
 
-/* BYTE pdrv		Physical drive nmuber to identify the drive */
-/* BYTE *buff		Data to be written */
-/* LBA_t sector		Start sector in LBA */
-/* UINT count		Number of sectors to write */
+/**
+ * @brief Write data to the disk
+ * 
+ * @param pdrv Physical drive number to identify the drive
+ * @param buff Pointer to the data buffer containing the data to write
+ * @param sector Start sector number to write to
+ * @param count Number of sectors to write
+ * @return The result of the write operation (`RES_OK`, `RES_ERROR`, `RES_NOTRDY`, `RES_PARERR`)
+ */
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count) {
 	DRESULT rc;
 
@@ -95,9 +119,14 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count) {
 /* Miscellaneous Functions                                               */
 /*-----------------------------------------------------------------------*/
 
-/* BYTE pdrv		Physical drive nmuber (0..) */
-/* BYTE cmd			Control code */
-/* void *buff		Buffer to send/receive control data */
+/**
+ * @brief Perform disk I/O control operation
+ * 
+ * @param pdrv Physical drive number to identify the drive
+ * @param cmd Control command to execute
+ * @param buff Pointer to the command-specific buffer
+ * @return The result of the I/O control operation (`RES_OK`, `RES_ERROR`, `RES_NOTRDY`, `RES_PARERR`)
+ */
 DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
 	DRESULT rc = RES_PARERR;
 

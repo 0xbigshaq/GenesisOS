@@ -1,4 +1,10 @@
-#pragma once
+#ifndef KMALLOC_H
+#define KMALLOC_H
+/**
+ * @file kmalloc.h
+ * @brief Kernel heap allocator.
+*/
+
 #include "kernel/types.h"
 #include "drivers/console.h"  // IWYU pragma: keep
 #include "kernel/allocator/dlmalloc.h" // IWYU pragma: keep
@@ -27,3 +33,5 @@ typedef struct _kpool_t {
   int use_lock;
   kmalloc_chunk *freelist;
 } kpool_t;
+
+#endif  // KMALLOC_H

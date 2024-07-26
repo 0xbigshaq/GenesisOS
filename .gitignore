@@ -8,3 +8,6 @@ tmp/
 **/*.o
 disk.img
 dgen/
+doxygen-awesome-css/
+*.log
+.idea/

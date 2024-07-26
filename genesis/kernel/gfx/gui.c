@@ -13,10 +13,21 @@ uint32_t *graphics_back_buffer;
 unsigned char tex_scratch[512 * 512];
 gui_ctx_t gui_ctx;
 
+/**
+ * @brief Getter for the global GUI context object
+ * 
+ * @returns gui_ctx_t* 
+ */
 gui_ctx_t* get_gui_ctx() {
     return &gui_ctx;
 }
 
+/**
+ * @brief Initialize the GUI context.
+ * @details This function initializes the GUI context by fetching information from the
+            VGA driver/framebuffer, Keyboard and Mouse.
+ * @return void
+ */
 void gui_init() {
     gui_ctx_t *ctx = get_gui_ctx();
     fb_info_t *fb_info = get_framebuffer_info();
@@ -57,12 +68,26 @@ void gui_init() {
     ctx->bg.pixeldata = read_bmp("0:logo.bmp", &ctx->bg.fileHeader, &ctx->bg.infoHeader);
 }
 
+/**
+ * @brief Double-buffering swap function.
+ * @details To reduce flickering/lagging, this function swaps the back buffer with the front buffer. \n
+ *          While the back buffer is being rendered, the front buffer is displayed.
+ * @return void
+ * 
+ */
 void gui_swapbuffers(void) {
     gui_ctx_t *ctx = get_gui_ctx();
     uint32_t *back_buffer = ctx->graphics_back_buffer;
     memmove(ctx->fb.addr, back_buffer, ctx->fb.total * ctx->fb.bpp_bytes);
 }
 
+
+/**
+ * @brief   Renders the GUI(one frame).
+ * @details This function rendering a single frame to the screen, it is called
+            on every iteration in the main `scheduler()` loop.
+ * @return  void
+ */
 void render_gui() {
     gui_ctx_t *gui = get_gui_ctx();
 

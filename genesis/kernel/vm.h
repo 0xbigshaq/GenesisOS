@@ -1,4 +1,10 @@
-#pragma once
+/**
+ * @file vm.h
+ * @brief Virtual Memory
+ */
+#ifndef VM_H
+#define VM_H
+
 #include "kernel/types.h"
 #include "kernel/mmu.h"
 #include "kernel/proc.h"
@@ -24,3 +30,5 @@ pte* map_kernel_vm(void);
 void init_userland_vm(pte *pgdir, char *init, uint sz);
 
 extern pte* kernel_pgtbl;
+
+#endif  // VM_H

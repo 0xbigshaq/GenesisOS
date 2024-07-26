@@ -13,12 +13,20 @@ keyboard_ctx_t *keyboard_get_ctx() {
     return &k_ctx;
 }
 
+/**
+ * @brief   Initialize the keyboard device and set the keyboard context object, 
+            called in kmain() during boot.
+ */
 void keyboard_init() {
     // Enable the keyboard by sending the appropriate command to the PS/2 controller
     outb(PS2_CMD_PORT, PS2_ENABLE_PORT_1);
     memset2(&k_ctx, 0, sizeof(keyboard_ctx_t));
     keyboard_enable_interrupts();
 }
+
+/**
+ * @brief Enable Keyboard/PS2 interrupts
+ */
 
 void keyboard_enable_interrupts() {
     // Enable IRQ1 (keyboard interrupt) in the PIC
@@ -115,6 +123,12 @@ void keyboard_debug(uint8_t scancode) {
     if(KEY_F12_PRESSED == scancode) { dmsg("KEY_F12_PRESSED"); }
 }
 
+/**
+ * @brief Handle the keyboard interrupt, called by the IRQ handler `handle_trap()`.
+ * @details This function reads the scancode from the PS/2 data port and processes it. \n
+            The output character is stored in the `keyboard_ctx_t::pending_buffer[]` of 
+            the keyboard context object.
+ */
 void keyboard_handle_irq() {
     KeyCode scancode = inb(PS2_DATA_PORT);
     uint32_t before = k_ctx.recvd;
@@ -302,6 +316,9 @@ static int min(int a, int b) {
     return ((a) < (b) ? (a) : (b));
 }
 
+/**
+ * @brief   Flush `keyboard_ctx::pending_buffer[]` to the output buffer.
+ */
 int keyboard_flush_pending_buf(uint32_t count, uint8_t *out) {
     keyboard_ctx_t *k = keyboard_get_ctx();
     uint32_t size;

@@ -1,3 +1,8 @@
+/**
+ * @file memlayout.h
+ * @brief Memory Layout definitions.
+ * 
+ */
 // https://www.qemu.org/docs/master/devel/memory.html#example-memory-map
 
 // MMIO Regions

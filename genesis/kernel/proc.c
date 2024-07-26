@@ -15,14 +15,29 @@ cpu_t cpus[N_CPUS];
 task_t proc_tbl[N_PROCS];
 uint32_t nextpid = 1;
 
+/**
+ * @brief Returns the current CPU.
+ * @details This function returns a pointer to the current CPU's structure.
+ * @return A pointer to the current CPU's `cpu_t` structure.
+ */
 cpu_t* cur_cpu(void) {
     return &cpus[0];
 }
 
+/**
+ * @brief Returns the current process.
+ * @details This function returns a pointer to the current process's structure.
+ * @return A pointer to the current process's `task_t` structure.
+ */
 task_t* cur_proc(void) {
     return cur_cpu()->proc;
 }
 
+/**
+ * @brief Loads the initial ELF file into virtual address space.
+ * @details This function sets up the initial process by loading the ELF file, setting up the stack,
+ * and preparing the trap frame for switching to user mode during boot.
+ */
 void run_init(void) {
   kprintf("[*] <run_init> Loading init ELF file into VA.\n");
   task_t* p = alloc_task();
@@ -69,6 +84,12 @@ void run_init(void) {
     kprintf("[~] Jumping to userland, entry @ 0x%x\n---\n", elf_header->e_entry);
 }
 
+/**
+ * @brief Allocates a new task.
+ * @details This function allocates a new task structure and kernel stack for the task. 
+ * It initializes the task's context and file descriptors.
+ * @return A pointer to the newly allocated `task_t` structure, or 0 if allocation fails.
+ */
 task_t* alloc_task(void)
 {
   task_t *p;
@@ -117,6 +138,13 @@ found:
   return p;
 }
 
+/**
+ * @brief Allocates a new file descriptor for a process.
+ * @details This function finds an available file descriptor in the process's open file table 
+ * and allocates it.
+ * @param proc A pointer to the process's `task_t` structure.
+ * @return The index of the allocated file descriptor, or -1 if allocation fails.
+ */
 int alloc_fd(task_t *proc) {
   int fd = -1;
 
@@ -131,6 +159,12 @@ int alloc_fd(task_t *proc) {
   return fd;
 }
 
+/**
+ * @brief Puts the current process to sleep on a specified channel.
+ * @details This function changes the current process's state to `HANG` and sets its channel.
+ * It then calls the scheduler to switch to another process.
+ * @param channel The channel on which the process will sleep.
+ */
 void sleep(uint32_t channel) {
   task_t *p = cur_proc();
   p->channel = channel;
@@ -140,6 +174,12 @@ void sleep(uint32_t channel) {
   // dmsg("returned from %d", channel);
 }
 
+/**
+ * @brief Wakes up all processes sleeping on a specified channel.
+ * @details This function changes the state of all processes sleeping on the specified channel
+ * to `RUNNABLE`.
+ * @param channel The channel on which the processes are sleeping.
+ */
 void wakeup(uint32_t channel) {
   task_t *p;
 

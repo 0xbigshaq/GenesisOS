@@ -1,22 +1,12 @@
-// https://wiki.osdev.org/Serial_Ports
-#pragma once
+/**
+ * @file uart.h
+ * @brief UART/Serial Driver see https://wiki.osdev.org/Serial_Ports
+ */
+#ifndef UART_H
+#define UART_H
 #include "kernel/x86.h"
 
-// this is hard-coded for now, because I don't have any plans for GUI 
-#define NOGRAPHIC 1 
-
-/*
- * When using the -nographic option, QEMU emulates the serial port as a 16550A UART 
- * connected to the virtual machine's COM1 port, which has a base address of 0x3F8(==COM1). 
- * However, when not using the -nographic option, QEMU instead emulates two serial ports: 
- *  > The first one with a base address of 0x3F8, which is connected to the virtual machine's monitor/console.
- *  > Another one with a base address of 0x2F8(==COM2) that is connected to a virtual serial device.
-*/
-#ifdef NOGRAPHIC
-#define UART_BASE_ADDR 0x3F8
-#else
-#define UART_BASE_ADDR 0x2F8
-#endif
+#define UART_BASE_ADDR 0x3F8     //!< COM2 IO Port number
 
 // I/O port offsets for the UART registers
 #define UART_DATA_REG_OFFSET 0
@@ -32,3 +22,5 @@ void init_uart();
 void uart_putchar(char c);
 void uart_write(char* str);
 int uart_getchar(void);
+
+#endif // UART_H

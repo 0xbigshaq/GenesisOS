@@ -7,6 +7,9 @@ FATFS os_fs;
 FIL init_fp;
 uint8_t *init_data;
 
+/**
+ * @brief   Mount a FAT32 image.
+*/
 void mount_fs(void) {
     FRESULT rc;
 
@@ -21,6 +24,10 @@ void mount_fs(void) {
         PANIC("Cannot open init file")
 }
 
+/**
+ * @brief   Load the INIT binary(=first user process) from the FAT32 image.
+ * 
+ */
 void load_init(void) {
     FRESULT rc;
     UINT br;
@@ -47,6 +54,9 @@ void load_init(void) {
         PANIC("Cannot open init file")
 }
 
+/**
+ * @brief   Handle ioctl commands for the FAT32 filesystem(Note: not implemented).
+ */
 DRESULT handle_fat32_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
     DRESULT rc = RES_PARERR;
     
@@ -87,6 +97,13 @@ DRESULT handle_fat32_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
     return rc;
 }
 
+/**
+ * @brief   Open a file.
+ * 
+ * @param path      The path to the file
+ * @param mode      The mode to open the file(Note: It is always read-only for now)
+ * @return FILE*    The file pointer
+ */
 FILE *fopen(const char *path, const char *mode) {
     FRESULT rc;
     FILE *fp = malloc(sizeof(FILE));
@@ -106,6 +123,15 @@ FILE *fopen(const char *path, const char *mode) {
     return -1;
 }
 
+/**
+ * @brief   Read data from a file.
+ * 
+ * @param ptr       The buffer to store the read data
+ * @param size      size of each element
+ * @param nmemb     number of elements
+ * @param stream    The file pointer
+ * @return size_t   The number of bytes read
+ */
 size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     FRESULT rc;
     FIL *fp = stream;;
@@ -124,6 +150,12 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return -1;
 }
 
+/**
+ * @brief   Close a file.
+ * 
+ * @param stream    The file pointer
+ * @return int      0 on success, -1 on failure
+ */
 int fclose(FILE *stream) {
     FRESULT rc;
     FIL *fp = stream;
@@ -141,6 +173,12 @@ int fclose(FILE *stream) {
     return -1;
 }
 
+/**
+ * @brief   Get the current file position.
+ * 
+ * @param stream    The file pointer
+ * @return size_t   The current file position
+ */
 size_t ftell(FILE *stream) {
     size_t pos;
     FIL *fp = stream;

@@ -7,11 +7,24 @@ void delay() {
     }
 }
 
+/**
+ * @brief   Check if disk is ready
+ * 
+ * @return int 
+ */
 int ata_wait_ready() {
     while (inb(ATA_STATUS_REG) & ATA_STATUS_BSY);
     return (inb(ATA_STATUS_REG) & ATA_STATUS_DRDY);
 }
 
+/**
+ * @brief Read data from the disk
+ * 
+ * @param buff      The buffer to store the read data
+ * @param sector    The starting sector to read from
+ * @param count     The number of sectors to read
+ * @return DRESULT 
+ */
 DRESULT ata_disk_read(BYTE *buff, LBA_t sector, UINT count) {
         // Wait for the drive to be ready
     if (!ata_wait_ready()) return RES_NOTRDY;
@@ -41,6 +54,14 @@ DRESULT ata_disk_read(BYTE *buff, LBA_t sector, UINT count) {
 }
 
 
+/**
+ * @brief   Write data to the disk
+ * 
+ * @param buff      The buffer to write to the disk
+ * @param sector    The starting sector to write to
+ * @param count     The number of sectors to write
+ * @return DRESULT 
+ */
 DRESULT ata_disk_write(const BYTE *buff, LBA_t sector, UINT count) {
     // Wait for the drive to be ready
     if (!ata_wait_ready()) return RES_NOTRDY;

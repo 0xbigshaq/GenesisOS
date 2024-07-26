@@ -11,7 +11,7 @@ cmd="qemu-system-i386 \
     -vga std -serial mon:stdio \
     -m 512"
 
-# 'headless'/serial mode
+# 'headless'/serial mode (experimental)
 if [ "$1" == "-s" ]; then
     cmd="qemu-system-i386 \
         -nographic \

@@ -24,6 +24,9 @@ mouse_ctx_t mouse_ctx = {
     .packet.y_sign = NULL
 };
 
+/**
+ * @brief Get the global mouse ctx object
+ */
 mouse_ctx_t* get_mouse_ctx() {
     return &mouse_ctx;
 }
@@ -47,6 +50,9 @@ MousePacket* parse_mouse_packet(uint8_t packet[3]) {
     return &mouse_ctx.packet;
 }
 
+/**
+ * @brief   Update the mouse position based on the movement data in the packet provided.
+ */
 void update_mouse_position(MousePacket *mp) {
     mouse_ctx.mouse_x += mp->x_movement;
     mouse_ctx.mouse_y -= mp->y_movement; // Typically, Y movement is inverted
@@ -58,6 +64,9 @@ void update_mouse_position(MousePacket *mp) {
     if (mouse_ctx.mouse_y >= SCREEN_HEIGHT) mouse_ctx.mouse_y = SCREEN_HEIGHT - 1;
 }
 
+/**
+ * @brief this is for debugging purposes
+ */
 void print_mouse_packet(MousePacket *mp) {
     kprintf("\nLeft Button: %s\t\t", mp->left_button ? "Pressed" : "Released");
     kprintf("Right Button: %s\t", mp->right_button ? "Pressed" : "Released");
@@ -68,15 +77,25 @@ void print_mouse_packet(MousePacket *mp) {
     kprintf("\tx=%d\ty=%d", mouse_ctx.mouse_x, mouse_ctx.mouse_y);
 }
 
+/**
+ * @brief   Send a command to the mouse PS2 microcontroller.
+ */
 void mouse_send_cmd(uint8_t data) {
     outb(PS2_CMD_PORT, PS2_MOUSE_PORT);
     outb(PS2_DATA_PORT, data);
 }
 
+/**
+ * @brief   Read a byte from the mouse PS2 microcontroller.
+ */
 uint8_t mouse_read_byte(void) {
     return inb(PS2_DATA_PORT);
 }
 
+/**
+ * @brief   Handle the mouse IRQ, update location & mouse state. \n
+            Called from the main IRQ handler `handle_irq()`.
+ */
 void handle_mouse_irq() {
     static uint8_t mouse_cycle = 1;
     static char mouse_byte[3];
@@ -110,6 +129,9 @@ void handle_mouse_irq() {
     }
 }
 
+/**
+ * @brief   Enable mouse interrupts by updating the PS/2 controller configuration byte.
+ */
 void enable_mouse_interrupts() {
     uint8_t result;
     // Read "byte 0" from internal RAM (Controller Configuration Byte)
@@ -123,6 +145,9 @@ void enable_mouse_interrupts() {
     outb(PS2_DATA_PORT, result);
 }
 
+/**
+ * @brief   Initialize the mouse by enabling the auxiliary device and setting defaults.
+ */
 void init_mouse(void) {
     uint8_t result;
 
@@ -157,6 +182,9 @@ void init_mouse(void) {
     enable_mouse_interrupts();
 }
 
+/**
+ * @brief   Draw a dot at the position of the mouse(for testing purposes).
+ */
 void draw_mouse(uint32_t color) {
     fill_square(mouse_ctx.mouse_x, mouse_ctx.mouse_y, 0x5, color);
 }
