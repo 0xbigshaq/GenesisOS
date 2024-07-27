@@ -4,7 +4,7 @@
 <img src='docs/images/logo.png' />
 <br />
 <img src='https://github.com/0xbigshaq/GenesisOS/actions/workflows/ci.yaml/badge.svg' />
-<a href='https://discord.gg/WNhyYhrcH5'><img src='https://img.shields.io/discord/1231650335802789959.svg?logo=discord&logoColor=white&logoWidth=20labelColor=7289DA&color=17cf48&label=Discord' /></a>
+<a href='https://discord.gg/f4KQeNCsNJ'><img src='https://img.shields.io/discord/1231650335802789959.svg?logo=discord&logoColor=white&logoWidth=20labelColor=7289DA&color=17cf48&label=Discord' /></a>
 <img src='https://img.shields.io/badge/arch-x86/32bit-blue' />
 </p>
 
