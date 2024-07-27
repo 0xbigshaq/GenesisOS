@@ -4,7 +4,7 @@
 <img src='docs/images/logo.png' />
 <br />
 <img src='https://github.com/0xbigshaq/GenesisOS/actions/workflows/ci.yaml/badge.svg' />
-<a href='https://discord.gg/PpeeR64k'><img src='https://img.shields.io/discord/1231650335802789959.svg?logo=discord&logoColor=white&logoWidth=20labelColor=7289DA&color=17cf48&label=Discord' /></a>
+<a href='https://discord.gg/WNhyYhrcH5'><img src='https://img.shields.io/discord/1231650335802789959.svg?logo=discord&logoColor=white&logoWidth=20labelColor=7289DA&color=17cf48&label=Discord' /></a>
 <img src='https://img.shields.io/badge/arch-x86/32bit-blue' />
 </p>
 
@@ -40,5 +40,5 @@ To write this project, I used:
 * OSDev Discord community([link](https://discord.gg/osdev))
 * OSDev: https://wiki.osdev.org/
 * "_The little book about OS development_": https://littleosbook.github.io/
-* Academic projects: SerenityOS, JOS and xv6 (to get inspiration for design ideas)
+* SerenityOS and Academic projects such as JOS and xv6 (to get inspiration for design ideas)
 * _nanobyte-dev_ YT channel to get introduction on FAT filesystems.
